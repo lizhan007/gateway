@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.casco</groupId>
+    <artifactId>casco_operation_gateway</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>casco_opgw_signal</module>
+        <module>casco_opgw_train</module>
+        <module>casco_opgw_iscs</module>
+        <module>casco_opgw_com</module>
+        <module>casco_opgw_kafka_to_redis</module>
+        <module>casco_opgw_kafka_to_influxdb</module>
+        <module>casco_opgw_kafka_alarm</module>
+    </modules>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.6.RELEASE</version>
+    </parent>
+
+    <properties>
+        <spring-kafka.version>2.1.7.RELEASE</spring-kafka.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <lombok.version>1.18.10</lombok.version>
+        <commons-io.version>2.6</commons-io.version>
+        <mysql-connector.version>8.0.13</mysql-connector.version>
+        <mybatis-plus-boot-starter.version>3.0-RC3</mybatis-plus-boot-starter.version>
+        <spring-kafka.version>2.1.7.RELEASE</spring-kafka.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
+    </dependencies>
+
+
+</project>

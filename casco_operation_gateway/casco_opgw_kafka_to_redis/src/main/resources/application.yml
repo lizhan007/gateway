@@ -1,0 +1,45 @@
+server:
+  port: 3000
+
+spring:
+  redis:
+    host: 192.168.0.102
+    password: casco123
+    port: 6379
+    timeout: 1000s
+    jedis:
+      pool:
+        max-idle: 500
+        min-idle: 50
+        max-wait: -1
+        max-active: -1
+
+  kafka:
+    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
+
+    producer:
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 1
+
+    consumer:
+      max-poll-records: 100
+      enable-auto-commit: false
+      auto-commit-interval: 100ms
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        session.timeout.ms: 15000
+
+kafka:
+  topic:
+    group-id: casco_opgw_kafka_to_redis
+    topic-name:
+      - casco_opgw_signal_digit
+      - casco_opgw_signal_enum
+      - casco_opgw_signal_analog
+      - casco_opgw_signal_alarm
