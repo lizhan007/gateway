@@ -1,12 +1,12 @@
 server:
-  port: 3000
+  port: 3011
 
 spring:
 
   influx:
-    url: http://172.30.81.85:8086
-    user: admin
-    password: admin
+    url: http://192.168.0.103:8086
+    user: root
+    password: 123456
 
   kafka:
     bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092

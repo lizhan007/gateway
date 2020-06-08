@@ -22,9 +22,9 @@ public class AlarmStoreTask implements Runnable{
         sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
 
         SysAlarmTable sysAlarmTable = new SysAlarmTable();
-
         //BeanUtils.copyProperties(alarmMessage, sysAlarmTable);
-        //sysAlarmTableMapper.insert(sysAlarmTable);
+
+        sysAlarmTableMapper.insert(sysAlarmTable);
 
     }
 }

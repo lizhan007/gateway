@@ -23,7 +23,7 @@ public class ReadModbusTask {
     @Scheduled(cron = "*/5 * * * * ?")
     public void readMasterNode() {
 
-        System.out.println("readMasterNode");
+        System.err.println("readMasterNode");
 
         int[] registerValues = new int[0];
         try {
@@ -46,7 +46,7 @@ public class ReadModbusTask {
     @Scheduled(cron = "*/5 * * * * ?")
     public void readSlaveNode() {
 
-        System.out.println("readSlaveNode");
+        System.err.println("readSlaveNode");
 
         int[] registerValues = new int[0];
         try {

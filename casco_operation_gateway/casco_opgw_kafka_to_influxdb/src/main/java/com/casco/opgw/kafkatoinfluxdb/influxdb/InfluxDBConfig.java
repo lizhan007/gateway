@@ -46,7 +46,6 @@ public class InfluxDBConfig {
 
     private void build(){
 
-        System.err.println("fadfddsfasdfsadf");
         if(influxDB == null){
             influxDB = InfluxDBFactory.connect(this.url,this.userName,this.password);
         }
