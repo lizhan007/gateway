@@ -1,7 +1,10 @@
 package com.casco.opgw.signal.controller;
 
-
-import com.casco.opgw.com.message.signal.*;
+import com.casco.opgw.com.message.AlarmMessage;
+import com.casco.opgw.com.message.signal.AnalogMessage;
+import com.casco.opgw.com.message.signal.DigitMessage;
+import com.casco.opgw.com.message.signal.EnumMessage;
+import com.casco.opgw.com.message.signal.KafkaConstant;
 import com.casco.opgw.com.utils.KeyUtils;
 import com.casco.opgw.signal.dto.Constant;
 import com.casco.opgw.signal.dto.Response;
@@ -24,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 @Slf4j
@@ -47,7 +53,7 @@ public class SignalController {
 
         //1. 数据异常校验
         if(null == digitDataDto.getDigitdata()
-            || digitDataDto.getDigitdata().size() == 0){
+                || digitDataDto.getDigitdata().size() == 0){
 
             response.setCode(Response.FAILED_CODE);
             response.setSuccess(false);
@@ -287,7 +293,7 @@ public class SignalController {
                     analogMessage.setSrcIdTag(keys[3]);
                     analogMessage.setPointcodeTag(String.valueOf(i ));
                     analogMessage.setTypeTag(keys[4]);
- 
+
                     analogMessage.setValue(item.getValue().get(i));
                     analogMessage.setTimestamp(analogDataDto.getTimestamp());
                     analogMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
@@ -317,10 +323,22 @@ public class SignalController {
         Response response = new Response();
 
         for(AlarmDataItemDto item: alarmDataDto.getAlarmdata()){
-            //取消使用旧AlarmMessage类,使用新类
-            AlarmMessage alarmMessage = new AlarmMessage();
 
-            BeanUtils.copyProperties(item, alarmMessage);
+            //取消使用signal包下AlarmMessage类,使用message包下的AlarmMessage
+            AlarmMessage alarmMessage = new AlarmMessage();
+            alarmMessage.setArmUuid(item.getUuid());
+            alarmMessage.setArmDbm(item.getDbm());
+            alarmMessage.setArmEquName(item.getEquname());
+            alarmMessage.setArmEquType(item.getEqutype());
+            alarmMessage.setArmSource(item.getSource());
+            alarmMessage.setArmHappenTime(LocalDateTime.ofEpochSecond(Long.parseLong(item.getHappentime()),0, ZoneOffset.ofHours(8)));
+            alarmMessage.setArmRestoreTime(LocalDateTime.ofEpochSecond(Long.parseLong(item.getRestoretime()),0, ZoneOffset.ofHours(8)));
+            alarmMessage.setArmEquTypecode(Float.parseFloat(item.getEqutypecode()));
+            alarmMessage.setArmContent(item.getContent());
+            alarmMessage.setArmCode(Float.parseFloat(item.getCode()));
+            alarmMessage.setArmLevel(Float.parseFloat(item.getLevel()));
+            alarmMessage.setArmIsMaintain(Float.parseFloat(item.getIsmaintain()));
+            //BeanUtils.copyProperties(item, alarmMessage);
 
             kafkaService.sendAlarmMessage(JSON.toJSONString(alarmMessage));
         }

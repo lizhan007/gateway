@@ -6,10 +6,14 @@ import lombok.Data;
 public class AlarmDataItemDto {
     private String uuid;
     private String dbm;
-    private String devname;
+    private String equname;
+    private String equtype;
+    private String source;
     private String happentime;
     private String restoretime;
-    private String devtypecode;
+    private String equtypecode;
     private String content;
-    private String alarmcode;
+    private String code;
+    private String level;
+    private String ismaintain;
 }

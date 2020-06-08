@@ -2,7 +2,7 @@ package com.casco.opgw.kafkaalarm.kafka;
 
 
 import com.alibaba.fastjson.JSON;
-import com.casco.opgw.com.message.signal.AlarmMessage;
+import com.casco.opgw.com.message.AlarmMessage;
 import com.casco.opgw.kafkaalarm.task.AlarmStoreTask;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

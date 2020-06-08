@@ -1,5 +1,7 @@
 package com.casco.opgw.kafkaalarm.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -10,7 +12,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- *  
+ *
  * </p>
  *
  * @author yeexun
@@ -19,6 +21,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@TableName("sys_alarm_table")
 public class SysAlarmTable extends Model<SysAlarmTable> {
 
     private static final long serialVersionUID = 1L;
@@ -26,7 +29,7 @@ public class SysAlarmTable extends Model<SysAlarmTable> {
     @TableField("LINE_NAME")
     private String lineName;
 
-    @TableField("ARM_UUID")
+    @TableId("ARM_UUID")
     private String armUuid;
 
     @TableField("ARM_EQU_TYPE")

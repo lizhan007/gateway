@@ -35,7 +35,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        log.debug(consumerRecord.value());
 
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
@@ -43,7 +43,7 @@ public class KafkaConsumer {
             return;
         }
 
-        Point.Builder builder = Point.measurement("SIG_SWITCH");
+        Point.Builder builder = Point.measurement("SIG_DIGIT");
         builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
         builder.addField("value",digitMessage.getValue());
         builder.tag("line", digitMessage.getLineTag());
@@ -59,7 +59,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        log.debug(consumerRecord.value());
 
         EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
 
@@ -67,7 +67,7 @@ public class KafkaConsumer {
             return;
         }
 
-        Point.Builder builder = Point.measurement("SIG_STATUS");
+        Point.Builder builder = Point.measurement("SIG_ENUM");
         builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
         builder.addField("value",enumMessage.getValue());
         builder.tag("line", enumMessage.getLineTag());
@@ -82,7 +82,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        log.debug(consumerRecord.value());
 
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 

@@ -1,6 +1,6 @@
 package com.casco.opgw.kafkaalarm.task;
 
-import com.casco.opgw.com.message.signal.AlarmMessage;
+import com.casco.opgw.com.message.AlarmMessage;
 import com.casco.opgw.kafkaalarm.BeanPorvider;
 import com.casco.opgw.kafkaalarm.entity.SysAlarmTable;
 import com.casco.opgw.kafkaalarm.mapper.SysAlarmTableMapper;
@@ -22,9 +22,16 @@ public class AlarmStoreTask implements Runnable{
         sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
 
         SysAlarmTable sysAlarmTable = new SysAlarmTable();
-        //BeanUtils.copyProperties(alarmMessage, sysAlarmTable);
 
-        sysAlarmTableMapper.insert(sysAlarmTable);
+        BeanUtils.copyProperties(alarmMessage, sysAlarmTable);
+
+        SysAlarmTable message = sysAlarmTableMapper.selectById(sysAlarmTable.getArmUuid());
+
+        if(message!=null){
+            sysAlarmTableMapper.updateById(sysAlarmTable);
+        }else{
+            sysAlarmTableMapper.insert(sysAlarmTable);
+        }
 
     }
 }
