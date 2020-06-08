@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_operation_gateway.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_operation_gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_com/casco_opgw_com.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_com/casco_opgw_com.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_iscs/casco_opgw_iscs.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_iscs/casco_opgw_iscs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_kafka_alarm/casco_opgw_kafka_alarm.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_kafka_alarm/casco_opgw_kafka_alarm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_kafka_to_influxdb/casco_opgw_kafka_to_influxdb.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_kafka_to_influxdb/casco_opgw_kafka_to_influxdb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_kafka_to_redis/casco_opgw_kafka_to_redis.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_kafka_to_redis/casco_opgw_kafka_to_redis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_signal/casco_opgw_signal.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_signal/casco_opgw_signal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/casco_operation_gateway/casco_opgw_train/casco_opgw_train.iml" filepath="$PROJECT_DIR$/casco_operation_gateway/casco_opgw_train/casco_opgw_train.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/github.iml" filepath="$PROJECT_DIR$/.idea/github.iml" />
+    </modules>
+  </component>
+</project>
