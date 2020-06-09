@@ -62,7 +62,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
+        log.debug(consumerRecord.value()) ;
         EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
 
         if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
