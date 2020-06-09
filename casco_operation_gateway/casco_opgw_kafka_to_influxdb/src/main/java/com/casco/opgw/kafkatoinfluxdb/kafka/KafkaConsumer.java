@@ -77,7 +77,7 @@ public class KafkaConsumer {
         builder.tag("type",enumMessage.getTypeTag());
         builder.tag("pointcode",enumMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("SIG").write(point);
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
     }
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
