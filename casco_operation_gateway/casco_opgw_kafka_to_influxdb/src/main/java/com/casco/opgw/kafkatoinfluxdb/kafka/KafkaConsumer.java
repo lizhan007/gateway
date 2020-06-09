@@ -6,6 +6,7 @@ import com.casco.opgw.com.message.signal.AnalogMessage;
 import com.casco.opgw.com.message.signal.DigitMessage;
 import com.casco.opgw.com.message.signal.EnumMessage;
 import com.casco.opgw.com.message.signal.KafkaConstant;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.influxdb.InfluxDB;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +39,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-
+        System.out.println(3);
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
         if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -52,7 +55,7 @@ public class KafkaConsumer {
         builder.tag("type",digitMessage.getTypeTag());
         builder.tag("pointcode",digitMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("SIG").write(point);
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
 
     }
 
@@ -60,13 +63,11 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-
         EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
 
         if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
             return;
         }
-
         Point.Builder builder = Point.measurement("SIG_ENUM");
         builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
         builder.addField("value",enumMessage.getValue());
@@ -77,13 +78,12 @@ public class KafkaConsumer {
         builder.tag("pointcode",enumMessage.getPointcodeTag());
         Point point = builder.build();
         influxDB.setDatabase("SIG").write(point);
-
     }
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-
+        System.out.println(2);
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
         if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -99,7 +99,7 @@ public class KafkaConsumer {
         builder.tag("type",analogMessage.getTypeTag());
         builder.tag("pointcode",analogMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("SIG").write(point);
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
 
     }
 }
