@@ -98,7 +98,7 @@ public class KafkaConsumer {
         builder.tag("srcId",analogMessage.getSrcIdTag());
         builder.tag("type",analogMessage.getTypeTag());
         builder.tag("pointcode",analogMessage.getPointcodeTag());
-        Point point = builder.build();
+        Point point = builder.build() ;
         influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
 
     }
