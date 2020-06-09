@@ -39,7 +39,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-        System.out.println(3);
+
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
         if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -83,7 +83,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-        System.out.println(2);
+
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
         if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
