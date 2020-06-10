@@ -52,7 +52,7 @@ public class KafkaConsumer {
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
 
-        //缓存更新
+        //缓存更新,修改redis写入为channel0
         if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
 
             Map<String, List<String>> map = new HashMap<>();
