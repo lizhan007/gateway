@@ -60,7 +60,7 @@ public class KafkaConsumer {
 
             System.out.println(JSON.toJSONString(map));
 
-            digitalRedisUtils.publish("redis_note_channel", JSON.toJSONString(map));
+            digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
             return;
         }
 
@@ -85,7 +85,7 @@ public class KafkaConsumer {
 
 
 
-            enumRedisUtils.publish("redis_note_channel", JSON.toJSONString(map));
+            enumRedisUtils.publish("channel0", JSON.toJSONString(map));
             return;
         }
 
@@ -107,7 +107,7 @@ public class KafkaConsumer {
             Map<String, List<String>> map = new HashMap<>();
             map.put("2", analogMessage.getKeys());
 
-            analogRedisUtils.publish("redis_note_channel", JSON.toJSONString(map));
+            analogRedisUtils.publish("channel0", JSON.toJSONString(map));
             return;
         }
 
