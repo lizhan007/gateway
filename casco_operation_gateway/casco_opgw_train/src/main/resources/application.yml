@@ -2,7 +2,7 @@ server:
   port: 3001
 spring:
   kafka:
-    bootstrap-servers: 192.168.1.226:9092,192.168.1.226:9092,192.168.1.226:9092
+    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
 
     producer:
       retries: 0
@@ -23,7 +23,12 @@ spring:
         session.timeout.ms: 15000
 
 kafka:
-  topic:
-    group-id: casco_opgw_train
-    topic-name:
-      - test_output_topic
+  casco_opgw_train_digit_topic: casco_opgw_train_digit
+  casco_opgw_train_analog_topic: casco_opgw_train_analog
+
+ice:
+  service_name: ssip_publisher
+  service_endpoint: tcp -h 192.168.0.153 -p 12000
+  adapter_name: observer
+  adapter_endpoint: tcp -h 192.168.0.253 -p 10000
+

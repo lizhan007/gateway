@@ -17,6 +17,7 @@
         <module>casco_opgw_kafka_to_redis</module>
         <module>casco_opgw_kafka_to_influxdb</module>
         <module>casco_opgw_kafka_alarm</module>
+        <module>casco_opgw_alarm_handler</module>
     </modules>
 
     <parent>

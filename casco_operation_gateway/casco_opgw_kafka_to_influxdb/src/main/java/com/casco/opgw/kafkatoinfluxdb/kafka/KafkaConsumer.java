@@ -2,11 +2,10 @@ package com.casco.opgw.kafkatoinfluxdb.kafka;
 
 
 import com.alibaba.fastjson.JSON;
-import com.casco.opgw.com.message.signal.AnalogMessage;
-import com.casco.opgw.com.message.signal.DigitMessage;
-import com.casco.opgw.com.message.signal.EnumMessage;
-import com.casco.opgw.com.message.signal.KafkaConstant;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import com.casco.opgw.com.message.AnalogMessage;
+import com.casco.opgw.com.message.DigitMessage;
+import com.casco.opgw.com.message.EnumMessage;
+import com.casco.opgw.com.message.KafkaConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.influxdb.InfluxDB;
@@ -15,11 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;

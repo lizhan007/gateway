@@ -1,10 +1,10 @@
 package com.casco.opgw.signal.controller;
 
 import com.casco.opgw.com.message.AlarmMessage;
-import com.casco.opgw.com.message.signal.AnalogMessage;
-import com.casco.opgw.com.message.signal.DigitMessage;
-import com.casco.opgw.com.message.signal.EnumMessage;
-import com.casco.opgw.com.message.signal.KafkaConstant;
+import com.casco.opgw.com.message.AnalogMessage;
+import com.casco.opgw.com.message.DigitMessage;
+import com.casco.opgw.com.message.EnumMessage;
+import com.casco.opgw.com.message.KafkaConstant;
 import com.casco.opgw.com.utils.KeyUtils;
 import com.casco.opgw.signal.dto.Constant;
 import com.casco.opgw.signal.dto.Response;
@@ -18,7 +18,6 @@ import com.casco.opgw.signal.dto.enumdata.EnumDataDto;
 import com.casco.opgw.signal.dto.enumdata.EnumDataItemDto;
 import com.casco.opgw.signal.kafka.KafkaService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;

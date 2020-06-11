@@ -1,14 +1,12 @@
 package com.casco.opgw.iscs.task;
 
-
-import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
-import com.intelligt.modbus.jlibmodbus.exception.ModbusNumberException;
-import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
+import com.casco.opgw.iscs.config.InitTask;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMaster;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
+import java.util.concurrent.CountDownLatch;
 
 @Service
 public class ReadModbusTask {
@@ -19,49 +17,32 @@ public class ReadModbusTask {
     @Resource(name = "SlaveNode")
     private ModbusMaster slave;
 
+    @Resource(name = "ReadModbusExecutor")
+    private ThreadPoolTaskExecutor executorService;
+
+    private static final int MASTER_ID = 1;
+    private static final int SLAVE_ID  = 2;
 
     @Scheduled(cron = "*/5 * * * * ?")
     public void readMasterNode() {
 
-        System.err.println("readMasterNode");
+        CountDownLatch countDownLatch = new CountDownLatch(InitTask.modbusAddr.size());
 
-        int[] registerValues = new int[0];
+        for(Integer addr : InitTask.modbusAddr){
+            executorService.submit(new ReadModbusSubTask(MASTER_ID, master, addr));
+            countDownLatch.countDown();
+        }
+
         try {
-
-            registerValues = master.readInputRegisters(1, 1, 1);
-
-            // 控制台输出
-            for (int value : registerValues) {
-                System.out.println("Value: " + value);
-            }
-        } catch (ModbusProtocolException e) {
-            e.printStackTrace();
-        } catch (ModbusNumberException e) {
-            e.printStackTrace();
-        } catch (ModbusIOException e) {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+
     @Scheduled(cron = "*/5 * * * * ?")
     public void readSlaveNode() {
 
-        System.err.println("readSlaveNode");
-
-        int[] registerValues = new int[0];
-        try {
-            registerValues = master.readInputRegisters(2, 1, 1);
-
-            // 控制台输出
-            for (int value : registerValues) {
-                System.out.println("Value: " + value);
-            }
-        } catch (ModbusProtocolException e) {
-            e.printStackTrace();
-        } catch (ModbusNumberException e) {
-            e.printStackTrace();
-        } catch (ModbusIOException e) {
-            e.printStackTrace();
-        }
     }
 }

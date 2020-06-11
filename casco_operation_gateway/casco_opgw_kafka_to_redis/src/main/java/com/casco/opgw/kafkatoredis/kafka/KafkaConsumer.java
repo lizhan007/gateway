@@ -2,17 +2,15 @@ package com.casco.opgw.kafkatoredis.kafka;
 
 
 import com.alibaba.fastjson.JSON;
-import com.casco.opgw.com.message.signal.AnalogMessage;
-import com.casco.opgw.com.message.signal.DigitMessage;
-import com.casco.opgw.com.message.signal.EnumMessage;
-import com.casco.opgw.com.message.signal.KafkaConstant;
+import com.casco.opgw.com.message.AnalogMessage;
+import com.casco.opgw.com.message.DigitMessage;
+import com.casco.opgw.com.message.EnumMessage;
+import com.casco.opgw.com.message.KafkaConstant;
 import com.casco.opgw.com.utils.KeyUtils;
 import com.casco.opgw.kafkatoredis.redis.AnalogRedisUtils;
 import com.casco.opgw.kafkatoredis.redis.DigitalRedisUtils;
 import com.casco.opgw.kafkatoredis.redis.EnumRedisUtils;
-import com.casco.opgw.kafkatoredis.redis.RedisConfigConstant;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

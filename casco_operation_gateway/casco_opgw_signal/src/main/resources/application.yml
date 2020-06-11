@@ -23,10 +23,7 @@ spring:
         session.timeout.ms: 15000
 
 kafka:
-  topic:
-    group-id: casco_opgw_signal
-    topic-name:
-      - casco_opgw_signal_digit
-      - casco_opgw_signal_enum
-      - casco_opgw_signal_analog
-      - casco_opgw_signal_alarm
+  casco_opgw_signal_digit_topic: casco_opgw_signal_digit
+  casco_opgw_signal_enum_topic: casco_opgw_signal_enum
+  casco_opgw_signal_analog_topic: casco_opgw_signal_analog
+  casco_opgw_signal_alarm_topic: casco_opgw_signal_alarm

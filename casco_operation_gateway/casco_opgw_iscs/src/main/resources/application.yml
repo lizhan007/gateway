@@ -1,7 +1,7 @@
 server:
   port: 4001
-spring:
 
+spring:
   modbus:
     master:
       ip: 127.0.0.1
@@ -11,7 +11,7 @@ spring:
       port: 2000
 
   kafka:
-    bootstrap-servers: 192.168.43.254:9092,192.168.43.254:9092,192.168.43.254:9092
+    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
 
     producer:
       retries: 0
@@ -32,7 +32,5 @@ spring:
         session.timeout.ms: 15000
 
 kafka:
-  topic:
-    group-id: casco_opgw_scsi
-    topic-name:
-      - casco_opgw_scsi
+  casco_opgw_iscs_digit_topic: casco_opgw_iscs_digit
+  casco_opgw_iscs_analog_topic: casco_opgw_iscs_analog

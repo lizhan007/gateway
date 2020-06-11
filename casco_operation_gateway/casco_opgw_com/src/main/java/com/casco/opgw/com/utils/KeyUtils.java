@@ -1,6 +1,6 @@
 package com.casco.opgw.com.utils;
 
-import com.casco.opgw.com.message.signal.BaseMessage;
+import com.casco.opgw.com.message.BaseMessage;
 
 public class KeyUtils {
 
