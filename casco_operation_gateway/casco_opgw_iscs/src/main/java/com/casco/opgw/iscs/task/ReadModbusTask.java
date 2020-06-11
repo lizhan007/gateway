@@ -44,5 +44,17 @@ public class ReadModbusTask {
     @Scheduled(cron = "*/5 * * * * ?")
     public void readSlaveNode() {
 
+        CountDownLatch countDownLatch = new CountDownLatch(InitTask.modbusAddr.size());
+
+        for(Integer addr : InitTask.modbusAddr){
+            executorService.submit(new ReadModbusSubTask(MASTER_ID, master, addr));
+            countDownLatch.countDown();
+        }
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

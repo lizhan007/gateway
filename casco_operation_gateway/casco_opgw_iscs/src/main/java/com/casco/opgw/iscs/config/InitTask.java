@@ -35,14 +35,14 @@ public class InitTask implements CommandLineRunner {
     private static int COL_NUM_REGADDR          = 17;
 
     //存储变量信息
-    private static List<VariableEntity> variableEntityList
+    public static List<VariableEntity> variableEntityList
             = new ArrayList<>();
 
     //全部寄存器地址
     public static List<Integer> modbusAddr = new ArrayList<>();
 
     //缓存水泵的状态
-    private static ConcurrentHashMap<String, Object> cachemap
+    public static ConcurrentHashMap<String, Object> cachemap
             = new ConcurrentHashMap<>();
 
     private static final String config_path
