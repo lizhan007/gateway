@@ -14,6 +14,8 @@ import com.casco.opgw.train.kafka.KafkaService;
 import com.casco.opgw.train.kafka.impl.KafkaServiceImpl;
 import com.casco.opgw.train.task.InitPTask;
 
+import java.util.Date;
+
 
 public class IceAnalogObserver extends _dms_observerDisp {
 
@@ -39,6 +41,7 @@ public class IceAnalogObserver extends _dms_observerDisp {
                 analogMessage.setLineTag(line);
                 analogMessage.setSrcIdTag(train);
                 analogMessage.setPointcodeTag(InitPTask.analogList.get(value.getDataSet(i).getIndex()));
+                analogMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
                 analogMessage.setValue(value.getDataSet(i).getFvalue());
 
                 notification.getKeys().add(InitPTask.analogList.get(value.getDataSet(i).getIndex()));

@@ -125,6 +125,7 @@ public class ReadModbusSubJob implements Runnable{
                     digitMessage.setSrcIdTag(val.getEquipType());
                     digitMessage.setPointcodeTag(val.getVarName());
                     digitMessage.setValue(registerValues);
+                    digitMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
 
                     kafkaService.sendDigitMessage(JSON.toJSONString(digitMessage));
 
@@ -137,6 +138,7 @@ public class ReadModbusSubJob implements Runnable{
                     analogMessage.setSrcIdTag(val.getEquipType());
                     analogMessage.setPointcodeTag(val.getVarName());
                     analogMessage.setValue((float) registerValues);
+                    analogMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
 
                     kafkaService.sendAnalogMessage(JSON.toJSONString(analogMessage));
                 }

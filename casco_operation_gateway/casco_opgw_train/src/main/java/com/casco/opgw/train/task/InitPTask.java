@@ -80,10 +80,8 @@ public class InitPTask implements CommandLineRunner {
                 break;
             }
 
-            //String pointCode = PointCodeUtils.getPointCode(row.getCell(1).toString());
-            String pointCode = row.getCell(1).toString();
-            //String type      = row.getCell(2).toString();
-            String type = PointCodeUtils.TYPE_DI;
+            String pointCode = PointCodeUtils.getPointCode(row.getCell(1).toString());
+            String type      = row.getCell(2).toString();
 
             if(type.equals(PointCodeUtils.TYPE_DI)){
                 digitList.add(pointCode);

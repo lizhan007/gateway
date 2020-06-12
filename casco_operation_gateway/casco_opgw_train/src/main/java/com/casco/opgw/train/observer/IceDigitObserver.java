@@ -13,6 +13,8 @@ import com.casco.opgw.train.kafka.KafkaService;
 import com.casco.opgw.train.kafka.impl.KafkaServiceImpl;
 import com.casco.opgw.train.task.InitPTask;
 
+import java.util.Date;
+
 public class IceDigitObserver extends _dms_observerDisp {
 
     private KafkaService kafkaService;
@@ -40,6 +42,7 @@ public class IceDigitObserver extends _dms_observerDisp {
                 digitMessage.setSrcIdTag(train);
                 digitMessage.setPointcodeTag(InitPTask.digitList.get(value.getDataSet(i).getIndex()));
                 digitMessage.setValue(value.getDataSet(i).getIvalue());
+                digitMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
 
                 notification.getKeys().add(InitPTask.digitList.get(value.getDataSet(i).getIndex()));
 

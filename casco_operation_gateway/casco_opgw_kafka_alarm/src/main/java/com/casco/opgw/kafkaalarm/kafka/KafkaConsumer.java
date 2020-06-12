@@ -34,7 +34,6 @@ public class KafkaConsumer {
         //1. 时间戳
         //2. uuid 主键 restoretime
 
-
         poolTaskExecutor.submit(new AlarmStoreTask(alarmMessage));
     }
 }
