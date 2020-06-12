@@ -1,8 +1,9 @@
-package com.casco.opgw.iscs.config;
+package com.casco.opgw.iscs.task;
 
 import com.casco.opgw.com.constant.ParamConstant;
 import com.casco.opgw.iscs.OpISCSApplication;
 import com.casco.opgw.iscs.entity.VariableEntity;
+import com.casco.opgw.iscs.utils.IscsUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -71,14 +72,15 @@ public class InitTask implements CommandLineRunner {
                 break;
             }
 
+
+
             VariableEntity variableEntity = new VariableEntity();
             variableEntity.setEquipType(row.getCell(COL_NUM_EQUIPTYPE).toString());
             variableEntity.setVarName(row.getCell(COL_NUM_VARNAME).toString());
             variableEntity.setVarType(row.getCell(COL_NUM_VARTYPE).toString());
             variableEntity.setIoType(row.getCell(COL_NUM_IOTYPE).toString());
             variableEntity.setModbusAddr(row.getCell(COL_NUM_MODBUSADDR).toString());
-
-            Integer addr = Integer.valueOf(row.getCell(COL_NUM_MODBUSADDR).toString());
+            Integer addr = IscsUtils.getStringToNumWithNoDecimal(row.getCell(COL_NUM_MODBUSADDR).toString());
 
             if(!modbusAddr.contains(addr)){
                 modbusAddr.add(addr);
