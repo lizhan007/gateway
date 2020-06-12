@@ -1,0 +1,57 @@
+server:
+  port: 6001
+
+spring:
+  application:
+    name: casco_opgw_alarm_handler
+  datasource:
+    name: test
+    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/alarm?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8
+    username: root
+    password: Casco123
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+
+  kafka:
+    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
+
+    producer:
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 1
+
+    consumer:
+      max-poll-records: 100
+      enable-auto-commit: false
+      auto-commit-interval: 100ms
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        session.timeout.ms: 15000
+
+kafka:
+  casco_opgw_train_digit_topic: casco_opgw_train_digit
+  casco_opgw_train_analog_topic: casco_opgw_train_analog
+  casco_opgw_iscs_digit_topic: casco_opgw_iscs_digit
+  casco_opgw_iscs_analog_topic: casco_opgw_iscs_analog
+  casco_opgw_train_alarm_topic: casco_opgw_train_alarm
+  casco_opgw_iscs_alarm_topic: casco_opgw_iscs_alarm
+
+

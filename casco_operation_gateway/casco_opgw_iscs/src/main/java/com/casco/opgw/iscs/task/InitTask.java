@@ -27,13 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Order(1)
 public class InitTask implements CommandLineRunner {
 
-    private static int COL_NUM_EQUIPTYPE        = 3;
-    private static int COL_NUM_VARTYPE          = 7;
-    private static int COL_NUM_VARNAME          = 13;
-    private static int COL_NUM_IOTYPE           = 8;
-    private static int COL_NUM_PORT             = 14;
-    private static int COL_NUM_MODBUSADDR       = 16;
-    private static int COL_NUM_REGADDR          = 17;
+    private final static int COL_NUM_EQUIPTYPE        = 3;
+    private final static int COL_NUM_VARTYPE          = 7;
+    private final static int COL_NUM_VARNAME          = 13;
+    private final static int COL_NUM_IOTYPE           = 8;
+    private final static int COL_NUM_PORT             = 14;
+    private final static int COL_NUM_MODBUSADDR       = 16;
+    private final static int COL_NUM_REGADDR          = 17;
 
     //存储变量信息
     public static List<VariableEntity> variableEntityList
