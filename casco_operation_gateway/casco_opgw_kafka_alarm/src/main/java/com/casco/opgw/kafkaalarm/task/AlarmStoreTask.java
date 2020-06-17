@@ -26,7 +26,7 @@ public class AlarmStoreTask implements Runnable{
         BeanUtils.copyProperties(alarmMessage, sysAlarmTable);
 
         SysAlarmTable message = sysAlarmTableMapper.selectById(sysAlarmTable.getArmUuid());
-        
+
         if(message!=null){
             sysAlarmTableMapper.updateById(sysAlarmTable);
         }else{
