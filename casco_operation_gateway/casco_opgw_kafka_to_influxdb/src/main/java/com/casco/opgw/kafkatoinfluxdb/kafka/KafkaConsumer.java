@@ -96,4 +96,110 @@ public class KafkaConsumer {
         influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
 
     }
+
+    /**
+     * 车辆开关量 -- > influxDB写入
+     * @param consumerRecord
+     */
+    @KafkaListener(topics = "casco_opgw_train_digit", groupId = "casco_opgw_train_kafka_to_influxdb")
+    public void recvTrainDigitMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug(consumerRecord.value());
+
+        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(),DigitMessage.class);
+
+        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+            return;
+        }
+
+        Point.Builder builder = Point.measurement("TRAIN_DIGIT");
+        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.addField("value",digitMessage.getValue());
+        builder.tag("line", digitMessage.getLineTag());
+        builder.tag("srcId",digitMessage.getSrcIdTag());
+        builder.tag("type",digitMessage.getMsgType());  //Type未知
+        builder.tag("pointcode",digitMessage.getPointcodeTag());
+        Point point = builder.build();
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+    }
+
+    /**
+     * 车辆模拟量 -- > influxDB写入
+     * @param consumerRecord
+     */
+    @KafkaListener(topics = "casco_opgw_train_analog", groupId = "casco_opgw_train_kafka_to_influxdb")
+    public  void recvTrainAnalogMsg(ConsumerRecord<String, String> consumerRecord){
+
+        log.debug(consumerRecord.value());
+
+        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+
+        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+            return;
+        }
+
+        Point.Builder builder = Point.measurement("TRAIN_ANALOG");
+        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.addField("value",analogMessage.getValue());
+        builder.tag("line", analogMessage.getLineTag());
+        builder.tag("srcId",analogMessage.getSrcIdTag());
+        builder.tag("type",analogMessage.getMsgType());  //Type未知
+        builder.tag("pointcode",analogMessage.getPointcodeTag());
+        Point point = builder.build() ;
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+    }
+
+    /**
+     * BAS数字量  -- > influxDB写入
+     * @param consumerRecord
+     */
+    @KafkaListener(topics = "casco_opgw_iscs_digit", groupId = "casco_opgw_iscs_kafka_to_influxdb")
+    public void recvIscsDigitMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug(consumerRecord.value());
+
+        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(),DigitMessage.class);
+
+        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+            return;
+        }
+
+        Point.Builder builder = Point.measurement("BAS_DIGIT");
+        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.addField("value",digitMessage.getValue());
+        builder.tag("line", digitMessage.getLineTag());
+        builder.tag("region",digitMessage.getRegionTag());
+        builder.tag("srcId",digitMessage.getSrcIdTag());
+        builder.tag("type",digitMessage.getMsgType());  //Type未知
+        builder.tag("pointcode",digitMessage.getPointcodeTag());
+        Point point = builder.build();
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+    }
+
+
+    /**
+     * BAS模拟量 -- > influxDB写入
+     * @param consumerRecord
+     */
+    @KafkaListener(topics = "casco_opgw_iscs_analog", groupId = "casco_opgw_iscs_kafka_to_influxdb")
+    public void recvIscsAnalogMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug(consumerRecord.value());
+
+        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+
+        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+            return;
+        }
+
+        Point.Builder builder = Point.measurement("BAS_ANALOG");
+        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.addField("value",analogMessage.getValue());
+        builder.tag("line", analogMessage.getLineTag());
+        builder.tag("region",analogMessage.getRegionTag());
+        builder.tag("srcId",analogMessage.getSrcIdTag());
+        builder.tag("type",analogMessage.getMsgType());  //Type未知
+        builder.tag("pointcode",analogMessage.getPointcodeTag());
+        Point point = builder.build() ;
+        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+    }
+
+
 }

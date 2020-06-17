@@ -13,7 +13,7 @@ import java.util.Map;
 @SpringBootApplication
 public class OpGwSignalApplication {
 
-    private static Map<String, String> global_params = new HashMap<>();
+    public static Map<String, String> global_params = new HashMap<>();
 
     public static void main(String[] args) {
 

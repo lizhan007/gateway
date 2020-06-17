@@ -45,7 +45,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_redis")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        //System.out.println(consumerRecord.value());
+        log.debug(consumerRecord.value());
 
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
@@ -71,7 +71,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_kafka_to_redis")
     public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        log.debug(consumerRecord.value());
 
         EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
 
@@ -95,7 +95,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_redis")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        log.debug(consumerRecord.value());
 
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
@@ -113,4 +113,82 @@ public class KafkaConsumer {
         analogRedisUtils.set(KeyUtils.getKey(analogMessage), analogMessage.getValue().toString());
 
     }
+
+    @KafkaListener(topics = "casco_opgw_train_digit", groupId = "casco_opgw_train_kafka_to_redis")
+    public void recvTrainDigitMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug(consumerRecord.value());
+
+        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
+
+        //缓存更新,修改redis写入为channel0
+
+        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+            Map<String, List<String>> map = new HashMap<>();
+            map.put("3", digitMessage.getKeys());
+
+            digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
+            return;
+        }
+        //更新redis
+        digitalRedisUtils.set(KeyUtils.getTrainKey(digitMessage), digitMessage.getValue().toString());
+    }
+
+    @KafkaListener(topics = "casco_opgw_train_analog", groupId = "casco_opgw_train_kafka_to_redis")
+    public void recvTrainAnalogMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug(consumerRecord.value());
+
+        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+
+        //缓存更新
+        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+            Map<String, List<String>> map = new HashMap<>();
+            map.put("4", analogMessage.getKeys());
+
+            analogRedisUtils.publish("channel0", JSON.toJSONString(map));
+            return;
+        }
+        //更新redis
+        analogRedisUtils.set(KeyUtils.getTrainKey(analogMessage), analogMessage.getValue().toString());
+    }
+
+    @KafkaListener(topics = "casco_opgw_iscs_digit", groupId = "casco_opgw_iscs_kafka_to_redis")
+    public void recvIscsDigitMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug("iscsdit " + consumerRecord.value());
+
+        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
+
+        //缓存更新,修改redis写入为channel0
+        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+            Map<String, List<String>> map = new HashMap<>();
+            map.put("5", digitMessage.getKeys());
+
+            digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
+            return;
+        }
+        //更新redis
+        digitalRedisUtils.set(KeyUtils.getISCSKey(digitMessage), digitMessage.getValue().toString());
+    }
+
+    @KafkaListener(topics = "casco_opgw_iscs_analog", groupId = "casco_opgw_iscs_kafka_to_redis")
+    public void recvIscsAnalogMsg(ConsumerRecord<String, String> consumerRecord){
+        log.debug(" iscsanalog : " + consumerRecord.value());
+
+        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+
+        //缓存更新
+        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+            Map<String, List<String>> map = new HashMap<>();
+            map.put("6", analogMessage.getKeys());
+            analogRedisUtils.publish("channel0", JSON.toJSONString(map));
+            return;
+        }
+
+        //更新redis
+        analogRedisUtils.set(KeyUtils.getISCSKey(analogMessage), analogMessage.getValue().toString());
+    }
+
 }

@@ -52,7 +52,7 @@ public class InitPTask implements CommandLineRunner {
      * 1. 该文件要求为excel
      */
     private static final String config_path
-            = "D:\\07.yeeyun\\04.project\\10.CASCO\\05.config\\train\\srv_config\\";
+            = "d:\\";
 
     @Override
     public void run(String... args) throws Exception {
@@ -80,8 +80,10 @@ public class InitPTask implements CommandLineRunner {
                 break;
             }
 
-            String pointCode = PointCodeUtils.getPointCode(row.getCell(1).toString());
-            String type      = row.getCell(2).toString();
+            //String pointCode = PointCodeUtils.getPointCode(row.getCell(1).toString());
+            String pointCode = row.getCell(1).toString();
+            String type      = row.getCell(3).toString();
+            //String type = PointCodeUtils.TYPE_DI;
 
             if(type.equals(PointCodeUtils.TYPE_DI)){
                 digitList.add(pointCode);
@@ -99,8 +101,6 @@ public class InitPTask implements CommandLineRunner {
 
             Ice.ObjectPrx op = communicator.stringToProxy(service_name+":"+service_endpoint);
             dms_publisherPrx dms_publisherPrx = dms_publisherPrxHelper.checkedCast(op);
-
-            System.out.println(dms_publisherPrx.toString());
 
             ObjectAdapter objectAdapter =  communicator.
                     createObjectAdapterWithEndpoints(adapter_name, adapter_endpoint);

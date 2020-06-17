@@ -59,11 +59,11 @@ public class ReadModbusSubJob implements Runnable{
             List<VariableEntity> tmp = new ArrayList<>();
 
             for(VariableEntity item : InitTask.variableEntityList){
-                if(addr == Integer.valueOf(item.getModbusAddr())){
+
+                if(addr == IscsUtils.getStringToNumWithNoDecimal(item.getModbusAddr())){
                     tmp.add(item);
                 }
             }
-
             //属于读取bit位的属性
             if(tmp.get(0).getIoType().equals("bit")){
 
@@ -72,13 +72,15 @@ public class ReadModbusSubJob implements Runnable{
 
 
                 for(VariableEntity item : tmp){
-                    Integer value = IscsUtils.getBit(registerValues, Integer.valueOf(item.getRegAddr()));
-
+                    Integer value = IscsUtils.getBit(registerValues, IscsUtils.getStringToNumWithNoDecimal(item.getRegAddr()));
+                    System.out.println("value :" + value);
 
 
                     //如果变量发生改变则触发
                     if(InitTask.cachemap.contains(item.getVarName())
                     && Integer.valueOf((Integer) InitTask.cachemap.get(item.getVarName())) != value){
+                        InitTask.cachemap.put(item.getVarName(), value);
+                    }else if(!InitTask.cachemap.contains(item.getVarName())){
                         InitTask.cachemap.put(item.getVarName(), value);
                     }else{
                         continue;
@@ -92,9 +94,7 @@ public class ReadModbusSubJob implements Runnable{
                     digitMessage.setPointcodeTag(item.getVarName());
                     digitMessage.setValue(value);
                     digitMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
-
                     kafkaService.sendDigitMessage(JSON.toJSONString(digitMessage));
-
                     notification.getKeys().add(item.getVarName());
 
                 }
@@ -105,11 +105,12 @@ public class ReadModbusSubJob implements Runnable{
 
 
             }else{
-
                 VariableEntity val = tmp.get(0);
 
                 if(InitTask.cachemap.contains(val.getVarName())
                         && (int)InitTask.cachemap.get(val.getVarName()) != registerValues){
+                    InitTask.cachemap.put(val.getVarName(), registerValues);
+                }else if(!InitTask.cachemap.contains(val.getVarName())){
                     InitTask.cachemap.put(val.getVarName(), registerValues);
                 }else{
                     return;
@@ -126,7 +127,6 @@ public class ReadModbusSubJob implements Runnable{
                     digitMessage.setPointcodeTag(val.getVarName());
                     digitMessage.setValue(registerValues);
                     digitMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
-
                     kafkaService.sendDigitMessage(JSON.toJSONString(digitMessage));
 
                 }else{
@@ -139,7 +139,6 @@ public class ReadModbusSubJob implements Runnable{
                     analogMessage.setPointcodeTag(val.getVarName());
                     analogMessage.setValue((float) registerValues);
                     analogMessage.setTimestamp(Long.valueOf(String.valueOf(new Date().getTime()/1000)));
-
                     kafkaService.sendAnalogMessage(JSON.toJSONString(analogMessage));
                 }
 

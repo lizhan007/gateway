@@ -12,16 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaServiceImpl implements KafkaService {
 
-    @Value("${spring.kafka.casco_opgw_signal_digit_topic}")
+    @Value("${kafka.casco_opgw_signal_digit_topic}")
     private String casco_opgw_signal_digit_topic;
 
-    @Value("${spring.kafka.casco_opgw_signal_enum_topic}")
+    @Value("${kafka.casco_opgw_signal_enum_topic}")
     private String casco_opgw_signal_enum_topic;
 
-    @Value("${spring.kafka.casco_opgw_signal_analog_topic}")
+    @Value("${kafka.casco_opgw_signal_analog_topic}")
     private String casco_opgw_signal_analog_topic;
 
-    @Value("${spring.kafka.casco_opgw_signal_alarm_topic}")
+    @Value("${kafka.casco_opgw_signal_alarm_topic}")
     private String casco_opgw_signal_alarm_topic;
 
 
