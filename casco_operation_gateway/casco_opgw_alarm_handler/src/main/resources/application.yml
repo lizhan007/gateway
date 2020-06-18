@@ -48,9 +48,7 @@ spring:
 
 kafka:
   casco_opgw_train_digit_topic: casco_opgw_train_digit
-  casco_opgw_train_analog_topic: casco_opgw_train_analog
   casco_opgw_iscs_digit_topic: casco_opgw_iscs_digit
-  casco_opgw_iscs_analog_topic: casco_opgw_iscs_analog
   casco_opgw_train_alarm_topic: casco_opgw_train_alarm
   casco_opgw_iscs_alarm_topic: casco_opgw_iscs_alarm
 
