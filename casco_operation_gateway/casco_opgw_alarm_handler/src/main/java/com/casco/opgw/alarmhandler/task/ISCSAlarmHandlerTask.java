@@ -76,7 +76,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
 
-            kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
+            kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
 
             InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
 
@@ -115,8 +115,8 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     message.setArmAddEqu(table.getArmAddEqu());
                     message.setArmAddJson(table.getArmAddJson());
 
-                    kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
-                    InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
+                    kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
+                    InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
                 }
             }
         }
