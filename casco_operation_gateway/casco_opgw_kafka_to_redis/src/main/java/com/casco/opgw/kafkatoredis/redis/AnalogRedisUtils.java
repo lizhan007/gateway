@@ -4,6 +4,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 @Component
 public class AnalogRedisUtils {
@@ -18,6 +19,16 @@ public class AnalogRedisUtils {
     public boolean set(String key, String value) {
         try {
             stringRedisTemplate.opsForValue().set(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean sets(Map<String, String> params){
+        try{
+            stringRedisTemplate.opsForValue().multiSet(params);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
