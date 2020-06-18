@@ -29,6 +29,15 @@ public class InitTrainAlarmRule implements CommandLineRunner {
     public static ConcurrentHashMap<String, Object> trainCache
             = new ConcurrentHashMap<>();
 
+    public static int OverHaulMode = 0; //是否检修，当前暂时使用synchronized保证线程安全
+
+    public synchronized static  int getIsOverHaul() {
+        return isOverHaul;
+    }
+
+    public synchronized static void setIsOverHaul(int isOverHaul) {
+        InitTrainAlarmRule.isOverHaul = isOverHaul;
+    }
 
     private static final int COL_NUM_LINE           = 6;
     private static final int COL_NUM_TRAIN          = 7;
@@ -37,7 +46,6 @@ public class InitTrainAlarmRule implements CommandLineRunner {
     private static final int COL_NUM_ALARMCONTENT   = 2;
     private static final int COL_NUM_ALARMLEVEL     = 5;
     private static final int COL_NUM_ALARMPRO       = 4;
-
 
     @Override
     public void run(String... args) throws Exception {
@@ -70,7 +78,6 @@ public class InitTrainAlarmRule implements CommandLineRunner {
 
             TrainAlarmCfgModel trainAlarmCfgModel
                     = new TrainAlarmCfgModel();
-
 
             trainAlarmCfgModel.setLine(row.getCell(COL_NUM_LINE).toString());
             trainAlarmCfgModel.setTrain(row.getCell(COL_NUM_TRAIN).toString());

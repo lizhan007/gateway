@@ -32,7 +32,10 @@ public class InitISCSAlarmRule implements CommandLineRunner {
     private static final int COL_NUM_STATION        = 1;
     private static final int COL_NUM_EQUIPTYPE      = 3;
     private static final int COL_NUM_EQUIPLOC       = 4;
+    private static final int COL_NUM_EQUIPCODE      = 5;
     private static final int COL_NUM_ALARMCONTENT   = 6;
+    private static final int COL_NUM_VARNAME        = 13;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -57,8 +60,6 @@ public class InitISCSAlarmRule implements CommandLineRunner {
                 break;
             }
 
-
-
             ISCSAlarmCfgModel iscsAlarmCfgModel
                     = new ISCSAlarmCfgModel();
 
@@ -67,6 +68,8 @@ public class InitISCSAlarmRule implements CommandLineRunner {
             iscsAlarmCfgModel.setEquipType(row.getCell(COL_NUM_EQUIPTYPE).toString());
             iscsAlarmCfgModel.setEquipLocation(row.getCell(COL_NUM_EQUIPLOC).toString());
             iscsAlarmCfgModel.setAlarmContent(row.getCell(COL_NUM_ALARMCONTENT).toString());
+            iscsAlarmCfgModel.setVarName(row.getCell(COL_NUM_VARNAME).toString());
+            iscsAlarmCfgModel.setEquipCode(row.getCell(COL_NUM_EQUIPCODE).toString());
 
             iscsAlarmCfgModelList.add(iscsAlarmCfgModel);
         }

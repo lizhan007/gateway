@@ -11,4 +11,6 @@ public class ISCSAlarmCfgModel {
     private String equipLocation;
     private String alarmContent; //对应 Property Description
     private String alarmLevel;
+    private String varName;
+    private String equipCode;
 }
