@@ -46,6 +46,7 @@ public class InitTrainAlarmRule implements CommandLineRunner {
     private static final int COL_NUM_ALARMCONTENT   = 2;
     private static final int COL_NUM_ALARMLEVEL     = 5;
     private static final int COL_NUM_ALARMPRO       = 4;
+    private static final int COL_NUM_DATATYPE       = 3;
 
     @Override
     public void run(String... args) throws Exception {
@@ -71,8 +72,16 @@ public class InitTrainAlarmRule implements CommandLineRunner {
                 break;
             }
 
-            if(row.getCell(COL_NUM_ALARMPRO).equals("0")){
-                //alarm pro 为 0，不需要做报警判断
+            if(row.getCell(COL_NUM_ALARMPRO).equals("0")
+            || row.getCell(COL_NUM_ALARMPRO) == null
+            || row.getCell(COL_NUM_ALARMPRO).toString().length() == 0){
+                //alarm pro 为 0 或为空，不需要做报警判断
+
+                continue;
+            }
+
+            if(!row.getCell(COL_NUM_DATATYPE).equals("DI")){
+                //当前全是DI
                 continue;
             }
 

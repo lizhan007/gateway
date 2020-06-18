@@ -116,7 +116,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     message.setArmAddJson(table.getArmAddJson());
 
                     kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
-
                     InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
                 }
             }

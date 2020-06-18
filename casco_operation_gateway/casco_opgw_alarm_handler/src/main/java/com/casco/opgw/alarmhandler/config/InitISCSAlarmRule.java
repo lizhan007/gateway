@@ -34,7 +34,9 @@ public class InitISCSAlarmRule implements CommandLineRunner {
     private static final int COL_NUM_EQUIPLOC       = 4;
     private static final int COL_NUM_EQUIPCODE      = 5;
     private static final int COL_NUM_ALARMCONTENT   = 6;
+    private static final int COL_NUM_VARTYPE        = 7;
     private static final int COL_NUM_VARNAME        = 13;
+    private static final int COL_NUM_ALARMLEVEL     = 9;
 
 
     @Override
@@ -60,6 +62,19 @@ public class InitISCSAlarmRule implements CommandLineRunner {
                 break;
             }
 
+            if(!row.getCell(COL_NUM_VARTYPE).equals("DI")){
+                //全部是数字信号
+                continue;
+            }
+
+            if(row.getCell(COL_NUM_ALARMLEVEL) == null
+            || row.getCell(COL_NUM_ALARMLEVEL).toString().length() == 0){
+                //告警等级不允许为空
+                continue;
+            }
+
+
+
             ISCSAlarmCfgModel iscsAlarmCfgModel
                     = new ISCSAlarmCfgModel();
 
@@ -70,6 +85,7 @@ public class InitISCSAlarmRule implements CommandLineRunner {
             iscsAlarmCfgModel.setAlarmContent(row.getCell(COL_NUM_ALARMCONTENT).toString());
             iscsAlarmCfgModel.setVarName(row.getCell(COL_NUM_VARNAME).toString());
             iscsAlarmCfgModel.setEquipCode(row.getCell(COL_NUM_EQUIPCODE).toString());
+            iscsAlarmCfgModel.setAlarmLevel(row.getCell(COL_NUM_ALARMLEVEL).toString());
 
             iscsAlarmCfgModelList.add(iscsAlarmCfgModel);
         }
