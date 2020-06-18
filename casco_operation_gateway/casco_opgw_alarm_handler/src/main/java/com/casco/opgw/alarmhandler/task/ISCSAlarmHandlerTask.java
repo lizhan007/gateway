@@ -84,7 +84,10 @@ public class ISCSAlarmHandlerTask implements Runnable{
 
             sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
 
-            if(1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())){
+            if(1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())
+            || !InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())){
+
+                //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
 
                 LambdaQueryWrapper<SysAlarmTable> queryWrapper
                         =new QueryWrapper<SysAlarmTable>().lambda()
@@ -119,6 +122,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
                 }
             }
-        }
+        }//}else{
     }
 }
