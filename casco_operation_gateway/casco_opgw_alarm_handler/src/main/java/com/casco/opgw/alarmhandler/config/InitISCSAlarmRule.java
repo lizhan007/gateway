@@ -1,5 +1,6 @@
 package com.casco.opgw.alarmhandler.config;
 
+import com.alibaba.fastjson.JSON;
 import com.casco.opgw.alarmhandler.config.model.ISCSAlarmCfgModel;
 import com.casco.opgw.alarmhandler.config.model.TrainAlarmCfgModel;
 import org.apache.poi.ss.usermodel.Row;
@@ -61,8 +62,7 @@ public class InitISCSAlarmRule implements CommandLineRunner {
                     row.getCell(1).toString().length() == 0){
                 break;
             }
-
-            if(!row.getCell(COL_NUM_VARTYPE).equals("DI")){
+            if(!row.getCell(COL_NUM_VARTYPE).toString().equals("DI")){
                 //全部是数字信号
                 continue;
             }
@@ -86,9 +86,8 @@ public class InitISCSAlarmRule implements CommandLineRunner {
             iscsAlarmCfgModel.setVarName(row.getCell(COL_NUM_VARNAME).toString());
             iscsAlarmCfgModel.setEquipCode(row.getCell(COL_NUM_EQUIPCODE).toString());
             iscsAlarmCfgModel.setAlarmLevel(row.getCell(COL_NUM_ALARMLEVEL).toString());
-
             iscsAlarmCfgModelList.add(iscsAlarmCfgModel);
         }
-
+        System.out.println("IS集合:" + iscsAlarmCfgModelList.size());
     }
 }

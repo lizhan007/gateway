@@ -336,8 +336,18 @@ public class SignalController {
             alarmMessage.setArmCode(Float.parseFloat(item.getCode()));
             alarmMessage.setArmLevel(Float.parseFloat(item.getLevel()));
             alarmMessage.setArmIsMaintain(Float.parseFloat(item.getIsmaintain()));
+            alarmMessage.setArmEquCode(item.getEqucode());
+            alarmMessage.setArmFaultBegin(Float.parseFloat(item.getFaultbegin()));
+            alarmMessage.setArmFaultBegMs(Float.parseFloat(item.getFaultbegms()));
+            alarmMessage.setArmFaultEnd(Float.parseFloat(item.getFaultend()));
+            alarmMessage.setArmFaultEndMs(Float.parseFloat(item.getFaultendms()));
+            alarmMessage.setArmLogicType1(Float.parseFloat(item.getLogictype1()));
+            alarmMessage.setArmLogicType2(Float.parseFloat(item.getLogictype2()));
+            alarmMessage.setArmLogicType3(Float.parseFloat(item.getLogictype3()));
+            alarmMessage.setArmSaveNo(Float.parseFloat(item.getSaveno()));
+            alarmMessage.setArmAddJson(item.getAddjson());
             //BeanUtils.copyProperties(item, alarmMessage);
-
+            System.out.println(JSON.toJSONString(alarmMessage));
             kafkaService.sendAlarmMessage(JSON.toJSONString(alarmMessage));
         }
 

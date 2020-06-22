@@ -50,9 +50,10 @@ public class InitPTask implements CommandLineRunner {
     /*-
      * jar包初始化时，生产环境下读取 ./srv_config/ 目录下配置文件
      * 1. 该文件要求为excel
+     * Linux:/data/serverconfig/"
      */
     private static final String config_path
-            = "d:\\";
+            = "D:\\";
 
     @Override
     public void run(String... args) throws Exception {
@@ -98,7 +99,7 @@ public class InitPTask implements CommandLineRunner {
         Ice.Communicator communicator = null;
         try {
             communicator = Ice.Util.initialize();
-
+            System.out.println(service_name + " : " + service_endpoint);
             Ice.ObjectPrx op = communicator.stringToProxy(service_name+":"+service_endpoint);
             dms_publisherPrx dms_publisherPrx = dms_publisherPrxHelper.checkedCast(op);
 

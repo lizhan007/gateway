@@ -16,4 +16,14 @@ public class AlarmDataItemDto {
     private String code;
     private String level;
     private String ismaintain;
+    private String equcode;
+    private String faultbegin;
+    private String faultbegms;
+    private String faultend;
+    private String faultendms;
+    private String logictype1;
+    private String logictype2;
+    private String logictype3;
+    private String saveno;
+    private String addjson;
 }

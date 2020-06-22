@@ -72,15 +72,15 @@ public class InitTrainAlarmRule implements CommandLineRunner {
                 break;
             }
 
-            if(row.getCell(COL_NUM_ALARMPRO).equals("0")
-            || row.getCell(COL_NUM_ALARMPRO) == null
+            if(row.getCell(COL_NUM_ALARMPRO) == null
+                    ||row.getCell(COL_NUM_ALARMPRO).equals("0")
             || row.getCell(COL_NUM_ALARMPRO).toString().length() == 0){
                 //alarm pro 为 0 或为空，不需要做报警判断
 
                 continue;
             }
 
-            if(!row.getCell(COL_NUM_DATATYPE).equals("DI")){
+            if(!row.getCell(COL_NUM_DATATYPE).toString().equals("DI")){
                 //当前全是DI
                 continue;
             }

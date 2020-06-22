@@ -26,7 +26,7 @@ public class KeyUtils {
 
     public static String getTrainKey(BaseMessage message) {
         StringBuffer strBuffer = new StringBuffer();
-        strBuffer.append(message.getSrcIdTag());
+        strBuffer.append("VEHICLE");
         strBuffer.append(".");
         strBuffer.append(message.getLineTag());
         strBuffer.append(".");
@@ -37,18 +37,19 @@ public class KeyUtils {
     }
 
     public static String getISCSKey(BaseMessage message) {
+        String[] arr = message.getPointcodeTag().split("_");
         StringBuffer strBuffer = new StringBuffer();
-        strBuffer.append(message.getPointcodeTag().substring(0,3));
+        strBuffer.append("BAS");
         strBuffer.append(".");
         strBuffer.append(message.getLineTag());
         strBuffer.append(".");
-        strBuffer.append("");//JTQ
+        strBuffer.append(message.getRegionTag());//JTQ
         strBuffer.append(".");
-        strBuffer.append("");//FBS
+        strBuffer.append(arr[1]);//FBS
         strBuffer.append(".");
-        strBuffer.append("");//B0
+        strBuffer.append(arr[2]);//B0
         strBuffer.append(".");
-        strBuffer.append(message.getPointcodeTag().substring(message.getPointcodeTag().lastIndexOf("_")+1));//FBWHAlm
+        strBuffer.append(arr[3]);//FBWHAlm
         return strBuffer.toString();
     }
 }

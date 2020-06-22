@@ -16,6 +16,7 @@ import com.casco.opgw.com.message.AlarmMessage;
 import com.casco.opgw.com.message.BaseMessage;
 import com.casco.opgw.com.message.DigitMessage;
 import com.casco.opgw.com.message.KafkaConstant;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
@@ -34,9 +35,9 @@ public class ISCSAlarmHandlerTask implements Runnable{
         this.message = baseMessage;
     }
 
+    @SneakyThrows
     @Override
     public void run() {
-
         DigitMessage digitMessage = (DigitMessage)this.message;
         kafkaService = BeanPorvider.getApplicationContext().getBean(KafkaServiceImpl.class);
 
@@ -44,7 +45,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
             //通知类消息不做处理
             return;
         }
-
         //1. 根据报警信息判断
         ISCSAlarmCfgModel target = null;
 
@@ -56,10 +56,11 @@ public class ISCSAlarmHandlerTask implements Runnable{
         }
 
         if(null == target){
-            log.info("【ISCSAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
+            //log.info("【ISCSAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
             return;
         }
-
+        System.out.println("当前:" + LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
+                ZoneId.systemDefault()));
         //2. 判断报警信息
         if(digitMessage.getValue() == 1){
             AlarmMessage message = new AlarmMessage();
@@ -71,13 +72,15 @@ public class ISCSAlarmHandlerTask implements Runnable{
             message.setArmEquCode(target.getEquipCode());
             message.setArmSource("水泵系统");
             message.setArmDbm(target.getStation());
-            message.setArmCode(Float.valueOf(target.getEquipType()));
+            message.setArmFaultBegin(Float.parseFloat(digitMessage.getTimestamp().toString()));
+            message.setArmFaultEnd(Float.parseFloat(digitMessage.getTimestamp().toString()));
+            message.setArmAddEqu(digitMessage.getPointcodeTag());
+            //message.setArmCode(Float.valueOf(target.getEquipType()));
             message.setArmLevel(Float.valueOf(target.getAlarmLevel()));
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
-
             kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
-
+            System.out.println(JSON.toJSONString(message));
             InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
 
         }else{
@@ -86,7 +89,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
 
             if(1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())
             || !InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())){
-
+                System.out.println("1 : " + digitMessage.getPointcodeTag());
                 //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
 
                 LambdaQueryWrapper<SysAlarmTable> queryWrapper
@@ -95,14 +98,12 @@ public class ISCSAlarmHandlerTask implements Runnable{
                         .eq(SysAlarmTable::getArmEquName, target.getEquipLocation())
                         .eq(SysAlarmTable::getArmAddEqu, target.getVarName()) //附加设备字段存储pointTag
                         .isNull(SysAlarmTable::getArmRestoreTime);
-
                 List<SysAlarmTable> alarmTableList =
                         sysAlarmTableMapper.selectList(queryWrapper);
 
-                LocalDateTime current = LocalDateTime.now();
+                //LocalDateTime current = LocalDateTime.now();
 
                 for(SysAlarmTable table:alarmTableList){
-
                     AlarmMessage message = new AlarmMessage();
                     message.setArmUuid(table.getArmUuid());
                     message.setLineName(table.getLineName());
@@ -114,10 +115,11 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     message.setArmDbm(table.getArmDbm());
                     message.setArmLevel(table.getArmLevel());
                     message.setArmHappenTime(table.getArmHappenTime());
-                    message.setArmHappenTime(current);
+                    message.setArmRestoreTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
+                            ZoneId.systemDefault()));
                     message.setArmAddEqu(table.getArmAddEqu());
-                    message.setArmAddJson(table.getArmAddJson());
 
+                    message.setArmAddJson(table.getArmAddJson());
                     kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
                     InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
                 }

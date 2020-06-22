@@ -6,7 +6,7 @@ spring:
     name: casco_opgw_kafka_alarm
   datasource:
     name: test
-    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/alarm?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8
+    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/alarm?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8
     username: root
     password: Casco123
     type: com.alibaba.druid.pool.DruidDataSource
@@ -26,7 +26,8 @@ spring:
     maxOpenPreparedStatements: 20
 
   kafka:
-    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
+    bootstrap-servers: 127.0.0.1:9092
+    #192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
 
     producer:
       retries: 0
