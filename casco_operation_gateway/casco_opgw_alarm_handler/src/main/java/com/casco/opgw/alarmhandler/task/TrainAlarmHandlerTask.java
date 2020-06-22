@@ -59,7 +59,6 @@ public class TrainAlarmHandlerTask implements Runnable{
             log.info("【TrainAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
             return;
         }
-
         //2. 检修逻辑处理
         //2.1 检修状态下过滤，非检修通知类消息
         if(InitTrainAlarmRule.getIsOverHaul() == 1
@@ -89,11 +88,13 @@ public class TrainAlarmHandlerTask implements Runnable{
             message.setArmEquCode(target.getTrain());
             message.setArmSource("车辆专家系统");
             message.setArmDbm(target.getTrain());
+            message.setArmFaultBegin(Float.parseFloat(digitMessage.getTimestamp().toString()));
+            message.setArmFaultEnd(Float.parseFloat(digitMessage.getTimestamp().toString()));
+            message.setArmAddEqu(digitMessage.getPointcodeTag());
             message.setArmLevel(Float.valueOf(target.getAlarmLevel()));
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
             message.setArmAddJson(target.getVarName());
-
             kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
 
             //2.2 更新当前检测值缓存
@@ -135,9 +136,12 @@ public class TrainAlarmHandlerTask implements Runnable{
                     message.setArmDbm(table.getArmDbm());
                     message.setArmLevel(table.getArmLevel());
                     message.setArmHappenTime(table.getArmHappenTime());
-                    message.setArmHappenTime(current);
+                    message.setArmRestoreTime(current);
                     message.setArmAddEqu(table.getArmAddEqu());
                     message.setArmAddJson(table.getArmAddJson());
+                    message.setArmFaultBegin(table.getArmFaultBegin());
+                    message.setArmFaultEnd(table.getArmFaultEnd());
+                    message.setArmLevel(table.getArmLevel());
 
                     kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
 

@@ -59,8 +59,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
             //log.info("【ISCSAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
             return;
         }
-        System.out.println("当前:" + LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
-                ZoneId.systemDefault()));
         //2. 判断报警信息
         if(digitMessage.getValue() == 1){
             AlarmMessage message = new AlarmMessage();
@@ -89,7 +87,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
 
             if(1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())
             || !InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())){
-                System.out.println("1 : " + digitMessage.getPointcodeTag());
                 //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
 
                 LambdaQueryWrapper<SysAlarmTable> queryWrapper
@@ -101,7 +98,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
                 List<SysAlarmTable> alarmTableList =
                         sysAlarmTableMapper.selectList(queryWrapper);
 
-                //LocalDateTime current = LocalDateTime.now();
+                LocalDateTime current = LocalDateTime.now();
 
                 for(SysAlarmTable table:alarmTableList){
                     AlarmMessage message = new AlarmMessage();
@@ -115,9 +112,10 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     message.setArmDbm(table.getArmDbm());
                     message.setArmLevel(table.getArmLevel());
                     message.setArmHappenTime(table.getArmHappenTime());
-                    message.setArmRestoreTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
-                            ZoneId.systemDefault()));
+                    message.setArmRestoreTime(current);
                     message.setArmAddEqu(table.getArmAddEqu());
+                    message.setArmFaultBegin(table.getArmFaultBegin());
+                    message.setArmFaultEnd(table.getArmFaultEnd());
 
                     message.setArmAddJson(table.getArmAddJson());
                     kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
