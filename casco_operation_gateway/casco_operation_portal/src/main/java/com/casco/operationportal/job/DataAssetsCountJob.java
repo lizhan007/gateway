@@ -30,8 +30,8 @@ public class DataAssetsCountJob {
     private JdbcTemplate hiveJdbcTemplate;
 
     //直接指定时间间隔，例如：10000：100秒
-//    @Scheduled(fixedRate=3600000)
-    @Scheduled(fixedRate=600000)
+    @Scheduled(fixedRate=3600000)
+//    @Scheduled(fixedRate=600000)
     private void configureTasks() {
 
         String uuid = NumberUtil.getTimeStamp();
@@ -39,7 +39,7 @@ public class DataAssetsCountJob {
         dataTypeCount(uuid);
         majorCount(uuid);
         lineCount(uuid);
-        log.info("|" + uuid + "本次DataAssetsCountJob执行完毕");
+        log.info("|" + uuid + "|本次DataAssetsCountJob执行完毕");
     }
 
 
