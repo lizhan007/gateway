@@ -36,7 +36,7 @@ public class InitISCSAlarmRule implements CommandLineRunner {
     private static final int COL_NUM_EQUIPCODE      = 5;
     private static final int COL_NUM_ALARMCONTENT   = 6;
     private static final int COL_NUM_VARTYPE        = 7;
-    private static final int COL_NUM_VARNAME        = 13;
+    private static final int COL_NUM_VARNAME        = 15;//13
     private static final int COL_NUM_ALARMLEVEL     = 9;
 
 
@@ -44,8 +44,12 @@ public class InitISCSAlarmRule implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         XSSFWorkbook wb = null;
+        /**
+         * /data/serverconfig/水泵系统配置表.xlsx
+         * d:\\水泵系统配置表.xlsx
+         */
         File cfgFile =
-                ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "static/成都9号线水泵系统报警定义表.xlsx");
+                ResourceUtils.getFile("d:\\水泵系统配置表.xlsx");
 
         InputStream in = new FileInputStream(cfgFile);
         wb = new XSSFWorkbook(in);
@@ -88,6 +92,5 @@ public class InitISCSAlarmRule implements CommandLineRunner {
             iscsAlarmCfgModel.setAlarmLevel(row.getCell(COL_NUM_ALARMLEVEL).toString());
             iscsAlarmCfgModelList.add(iscsAlarmCfgModel);
         }
-        System.out.println("IS集合:" + iscsAlarmCfgModelList.size());
     }
 }

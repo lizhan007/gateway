@@ -29,11 +29,11 @@ public class InitTask implements CommandLineRunner {
 
     private final static int COL_NUM_EQUIPTYPE        = 3;
     private final static int COL_NUM_VARTYPE          = 7;
-    private final static int COL_NUM_VARNAME          = 13;
+    private final static int COL_NUM_VARNAME          = 15;//13
     private final static int COL_NUM_IOTYPE           = 8;
-    private final static int COL_NUM_PORT             = 14;
-    private final static int COL_NUM_MODBUSADDR       = 16;
-    private final static int COL_NUM_REGADDR          = 17;
+    private final static int COL_NUM_PORT             = 16;//14
+    private final static int COL_NUM_MODBUSADDR       = 18;//16
+    private final static int COL_NUM_REGADDR          = 19;//17
 
     //存储变量信息
     public static List<VariableEntity> variableEntityList
@@ -47,7 +47,7 @@ public class InitTask implements CommandLineRunner {
             = new ConcurrentHashMap<>();
 
     private static final String config_path
-            = "D:\\07.yeeyun\\04.project\\10.CASCO\\05.config\\train\\srv_config\\";
+            = "d:\\";
 
     @Override
     public void run(String... args) throws Exception {
