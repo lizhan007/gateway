@@ -6,6 +6,7 @@ import com.casco.operationportal.common.dto.R;
 import com.casco.operationportal.entity.SysAnalogTypeDef;
 import com.casco.operationportal.service.SysAnalogTypeDefService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +20,7 @@ import javax.validation.constraints.NotNull;
  * @author yeexun
  * @since 2020-06-20
  */
+@Transactional
 @RestController
 @RequestMapping("/operationportal/sysAnalogTypeDef")
 public class SysAnalogTypeDefController {

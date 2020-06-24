@@ -5,15 +5,21 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.casco.operationportal.common.controller.BaseController;
 import com.casco.operationportal.common.dto.R;
+import com.casco.operationportal.common.exception.BusinessException;
+import com.casco.operationportal.common.exception.ErrorCodeEnum;
 import com.casco.operationportal.entity.SysDataAccess;
 import com.casco.operationportal.service.SysDataAccessService;
+import com.casco.operationportal.utils.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.io.*;
 
 /**
  * <p>
@@ -23,6 +29,8 @@ import javax.validation.constraints.NotNull;
  * @author yeexun
  * @since 2020-06-17
  */
+@Transactional
+@Slf4j
 @RestController
 @RequestMapping("/operationportal/sysDataAccess")
 public class SysDataAccessController extends BaseController {
@@ -32,7 +40,14 @@ public class SysDataAccessController extends BaseController {
 
     @RequestMapping("/add")
     public R<SysDataAccess> add(@RequestBody SysDataAccess sysDataAccess) {
+
+        sysDataAccess.setStatus(0);
         sysDataAccessService.save(sysDataAccess);
+
+        sysDataAccess = creatFiles(sysDataAccess);
+
+        sysDataAccessService.updateById(sysDataAccess);
+
         R<SysDataAccess> r = new R<>();
         r.setCode(R.SUCCESS);
         r.setData(sysDataAccess);
@@ -41,7 +56,16 @@ public class SysDataAccessController extends BaseController {
 
     @RequestMapping("/update")
     public R<SysDataAccess> update(@RequestBody SysDataAccess sysDataAccess) {
+
+        SysDataAccess sysDataAccess2 = sysDataAccessService.getById(sysDataAccess.getId());
+        if(sysDataAccess2.getStatus() == 1){
+            throw new BusinessException(ErrorCodeEnum.COMPONENT_STATUS_ERR);
+        }
+
+        sysDataAccess = creatFiles(sysDataAccess);
+        sysDataAccess.setStatus(0);
         sysDataAccessService.updateById(sysDataAccess);
+
         R<SysDataAccess> r = new R<>();
         r.setCode(R.SUCCESS);
         r.setData(sysDataAccess);
@@ -59,6 +83,14 @@ public class SysDataAccessController extends BaseController {
 
     @RequestMapping("/delete")
     public R delete(@RequestParam Long id) {
+
+        SysDataAccess sysDataAccess = sysDataAccessService.getById(id);
+        if(sysDataAccess.getStatus() == 1){
+            throw new BusinessException(ErrorCodeEnum.COMPONENT_STATUS_ERR);
+        }
+
+        //todo 保留历史文件还是删除历史文件
+
         sysDataAccessService.removeById(id);
         R r = new R<>();
         r.setCode(R.SUCCESS);
@@ -89,6 +121,48 @@ public class SysDataAccessController extends BaseController {
     public R<SysDataAccess> start(@RequestParam Long id) {
 
         SysDataAccess sysDataAccess = sysDataAccessService.getById(id);
+
+        String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
+
+        String shellPath = baseFilePath + "start.sh";
+
+        //启动脚本
+        log.info("开始启动组件，使用shell脚本：" + shellPath);
+        Process proc;
+        try {
+            //解决脚本没有执行权限
+            ProcessBuilder builder = new ProcessBuilder("/bin/chmod", "755", shellPath);
+            Process process = builder.start();
+            process.waitFor();
+
+            proc = Runtime.getRuntime().exec(shellPath);
+
+            InputStream is = proc.getInputStream();
+            InputStream es = proc.getErrorStream();
+            String line;
+            BufferedReader br;
+
+            br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            while ((line = br.readLine()) != null) {
+                log.info("shell脚本-" + shellPath + ":" + line);
+            }
+
+            br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
+            while ((line = br.readLine()) != null) {
+                log.error("shell脚本-" + shellPath + ":" + line);
+                //todo 返回前端启动失败
+            }
+
+            log.info("组件启动完成");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage(),e);
+
+            log.error("shell脚本调用异常：" + shellPath);
+            throw new BusinessException(ErrorCodeEnum.SYS_ERR);
+        }
+
         sysDataAccess.setStatus(1);
         sysDataAccessService.updateById(sysDataAccess);
         R<SysDataAccess> r = new R<>();
@@ -100,10 +174,83 @@ public class SysDataAccessController extends BaseController {
     public R<SysDataAccess> stop(@RequestParam Long id) {
 
         SysDataAccess sysDataAccess = sysDataAccessService.getById(id);
+
+        String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
+
+        String shellPath = baseFilePath + "stop.sh";
+
+        //停止脚本
+        log.info("开始停止组件，使用shell脚本：" + shellPath);
+        Process proc;
+        try {
+            //解决脚本没有执行权限
+            ProcessBuilder builder = new ProcessBuilder("/bin/chmod", "755", shellPath);
+            Process process = builder.start();
+            process.waitFor();
+
+            proc = Runtime.getRuntime().exec(shellPath);
+
+            InputStream is = proc.getInputStream();
+            InputStream es = proc.getErrorStream();
+            String line;
+            BufferedReader br;
+
+            br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            while ((line = br.readLine()) != null) {
+                log.info("shell脚本-" + shellPath + ":" + line);
+            }
+
+            br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
+            while ((line = br.readLine()) != null) {
+                log.error("shell脚本-" + shellPath + ":" + line);
+                //todo 返回前端停止失败
+            }
+
+            log.info("组件停止完成");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage(),e);
+
+            log.error("shell脚本调用异常：" + shellPath);
+            throw new BusinessException(ErrorCodeEnum.SYS_ERR);
+        }
+
         sysDataAccess.setStatus(0);
         sysDataAccessService.updateById(sysDataAccess);
         R<SysDataAccess> r = new R<>();
         r.setCode(R.SUCCESS);
         return r;
+    }
+
+
+    private SysDataAccess creatFiles(SysDataAccess sysDataAccess){
+
+        String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
+
+        //复制jar
+        String runtimeCompJarPath = FileUtil.copeFile(sysDataAccess.getCompJarPath(), baseFilePath);
+        //复制专业线路配置文件
+        String runtimeLineFilePath = FileUtil.copeFile(sysDataAccess.getLineFilePath(), baseFilePath + "srvconfig/");
+        //复制yml配置文件
+        String runtimeConfFilePath = FileUtil.copeFile(sysDataAccess.getConfFilePath(), baseFilePath + "config/");
+
+        //生成start.sh脚本
+        String startStr = "#!/bin/sh\n" +
+                "nohup java -jar " + runtimeCompJarPath + " >> " + baseFilePath + "nohup_output.out 2>&1 &\n" +
+                "echo $! > " + baseFilePath + "jarPid.pid";
+        FileUtil.createFile(baseFilePath + "start.sh", startStr);
+
+        //生成stop.sh脚本
+        String stopStr = "#!/bin/sh\n" +
+                "PID=$(cat " + baseFilePath + "jarPid.pid)\n" +
+                "kill -9 $PID";
+        FileUtil.createFile(baseFilePath + "stop.sh", stopStr);
+
+        sysDataAccess.setRuntimeCompJarPath(runtimeCompJarPath)
+                .setRuntimeLineFilePath(runtimeLineFilePath)
+                .setRuntimeConfFilePath(runtimeConfFilePath);
+
+        return sysDataAccess;
     }
 }
