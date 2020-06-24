@@ -235,9 +235,13 @@ public class SysDataAccessController extends BaseController {
         //复制yml配置文件
         String runtimeConfFilePath = FileUtil.copeFile(sysDataAccess.getConfFilePath(), baseFilePath + "config/");
 
+        String[] strings = sysDataAccess.getLineFilePath().split("/");
+        String lineFileName = strings[strings.length-1];
         //生成start.sh脚本
         String startStr = "#!/bin/sh\n" +
-                "nohup java -jar " + runtimeCompJarPath + " >> " + baseFilePath + "nohup_output.out 2>&1 &\n" +
+                "nohup java -jar " + runtimeCompJarPath +  " line=" + sysDataAccess.getLineCode()
+                + " station=" + sysDataAccess.getStationCode() + " train=" + sysDataAccess.getTrainId() + " srvconfig=" + lineFileName
+                + " >> " + baseFilePath + "nohup_output.out 2>&1 &\n" +
                 "echo $! > " + baseFilePath + "jarPid.pid";
         FileUtil.createFile(baseFilePath + "start.sh", startStr);
 
