@@ -4,6 +4,7 @@ import com.casco.operationportal.common.dto.R;
 import com.casco.operationportal.common.exception.BusinessException;
 import com.casco.operationportal.common.exception.ErrorCodeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,6 +21,7 @@ import java.util.List;
  * @author: fredric
  * @create: 2020/03/03 10:26
  */
+@Transactional
 @Slf4j
 @Validated
 public class BaseController {
