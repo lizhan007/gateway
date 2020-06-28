@@ -52,7 +52,8 @@ hive:
       filters: stat
       driverClassName: org.apache.hive.jdbc.HiveDriver
       #配置基本属性
-      url: jdbc:hive2://127.0.0.1:10000/test
+#      url: jdbc:hive2://127.0.0.1:10000/test
+      url: jdbc:hive2://172.30.81.114:10011/test
       username: root
       password:
       #配置初始化大小/最小/最大
@@ -72,3 +73,9 @@ hive:
       #打开PSCache，并指定每个连接上PSCache的大小。oracle设为true，mysql设为false。分库分表较多推荐设置为false
       poolPreparedStatements: false
       maxPoolPreparedStatementPerConnectionSize: 10
+
+
+tomcatComponent:
+  componentId: 10000
+  tomcatStartPath: /opt/tomcat/bin/start.sh
+  tomcatStopPath: /opt/tomcat/bin/stop.sh
