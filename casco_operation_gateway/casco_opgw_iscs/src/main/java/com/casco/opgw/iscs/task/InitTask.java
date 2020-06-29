@@ -47,7 +47,7 @@ public class InitTask implements CommandLineRunner {
             = new ConcurrentHashMap<>();
 
     private static final String config_path
-            = "d:\\";
+            = "./srvconfig/";
 
     @Override
     public void run(String... args) throws Exception {

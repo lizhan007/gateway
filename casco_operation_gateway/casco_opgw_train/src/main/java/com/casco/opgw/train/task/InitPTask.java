@@ -53,7 +53,7 @@ public class InitPTask implements CommandLineRunner {
      * Linux:/data/serverconfig/"
      */
     private static final String config_path
-            = "D:\\";
+            = "./srvconfig/";
 
     @Override
     public void run(String... args) throws Exception {
