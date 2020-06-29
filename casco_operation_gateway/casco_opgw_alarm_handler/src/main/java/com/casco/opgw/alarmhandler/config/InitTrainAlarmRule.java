@@ -40,9 +40,9 @@ public class InitTrainAlarmRule implements CommandLineRunner {
     }
 
     private static final int COL_NUM_LINE           = 6;
-    private static final int COL_NUM_TRAIN          = 7;
+    private static final int COL_NUM_TRAIN          = 8;//7
     private static final int COL_NUM_VARNAME        = 1;
-    private static final int COL_NUM_EQUIPTYPE      = 8;
+    private static final int COL_NUM_EQUIPTYPE      = 9;//8
     private static final int COL_NUM_ALARMCONTENT   = 2;
     private static final int COL_NUM_ALARMLEVEL     = 5;
     private static final int COL_NUM_ALARMPRO       = 4;
