@@ -4,6 +4,7 @@ import com.casco.operationportal.common.controller.BaseController;
 import com.casco.operationportal.common.dto.R;
 import com.casco.operationportal.utils.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,13 +61,10 @@ public class SysFileController extends BaseController {
         if(!newFile.getParentFile().exists()){
             newFile.getParentFile().mkdirs();
         }
-        OutputStream os = new FileOutputStream(newFile);
 
+        OutputStream os = new FileOutputStream(newFile);
         InputStream in = file.getInputStream();
-        int b = 0;
-        while((b=in.read())!=-1){ //读取文件
-            os.write(b);
-        }
+        IOUtils.copy(in, os);
         os.flush(); //关闭流
         in.close();
         os.close();

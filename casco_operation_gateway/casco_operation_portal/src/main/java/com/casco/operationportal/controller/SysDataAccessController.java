@@ -12,6 +12,7 @@ import com.casco.operationportal.service.SysDataAccessService;
 import com.casco.operationportal.utils.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,13 @@ import java.io.*;
 @RequestMapping("/operationportal/sysDataAccess")
 public class SysDataAccessController extends BaseController {
 
+    @Value("${tomcatComponent.componentId}")
+    private Long componentId;
+    @Value("${tomcatComponent.tomcatStartPath}")
+    private String tomcatStartPath;
+    @Value("${tomcatComponent.tomcatStopPath}")
+    private String tomcatStopPath;
+
     @Autowired
     SysDataAccessService sysDataAccessService;
 
@@ -44,9 +52,10 @@ public class SysDataAccessController extends BaseController {
         sysDataAccess.setStatus(0);
         sysDataAccessService.save(sysDataAccess);
 
-        sysDataAccess = creatFiles(sysDataAccess);
-
-        sysDataAccessService.updateById(sysDataAccess);
+        if(sysDataAccess.getCompId() != componentId){
+            sysDataAccess = creatFiles(sysDataAccess);
+            sysDataAccessService.updateById(sysDataAccess);
+        }
 
         R<SysDataAccess> r = new R<>();
         r.setCode(R.SUCCESS);
@@ -62,9 +71,10 @@ public class SysDataAccessController extends BaseController {
             throw new BusinessException(ErrorCodeEnum.COMPONENT_STATUS_ERR);
         }
 
-        sysDataAccess = creatFiles(sysDataAccess);
-        sysDataAccess.setStatus(0);
-        sysDataAccessService.updateById(sysDataAccess);
+        if(sysDataAccess.getCompId() != componentId){
+            sysDataAccess = creatFiles(sysDataAccess);
+            sysDataAccessService.updateById(sysDataAccess);
+        }
 
         R<SysDataAccess> r = new R<>();
         r.setCode(R.SUCCESS);
@@ -121,10 +131,14 @@ public class SysDataAccessController extends BaseController {
     public R<SysDataAccess> start(@RequestParam Long id) {
 
         SysDataAccess sysDataAccess = sysDataAccessService.getById(id);
+        String shellPath = "";
 
-        String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
-
-        String shellPath = baseFilePath + "start.sh";
+        if(sysDataAccess.getCompId() != componentId){
+            String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
+            shellPath = baseFilePath + "start.sh";
+        }else{
+            shellPath = tomcatStartPath;
+        }
 
         //启动脚本
         log.info("开始启动组件，使用shell脚本：" + shellPath);
@@ -174,10 +188,14 @@ public class SysDataAccessController extends BaseController {
     public R<SysDataAccess> stop(@RequestParam Long id) {
 
         SysDataAccess sysDataAccess = sysDataAccessService.getById(id);
+        String shellPath = "";
 
-        String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
-
-        String shellPath = baseFilePath + "stop.sh";
+        if(sysDataAccess.getCompId() != componentId){
+            String baseFilePath = System.getProperty("user.dir") + "/operationPortalFiles/runtimeFiles/" + sysDataAccess.getId() + "/";
+            shellPath = baseFilePath + "stop.sh";
+        }else{
+            shellPath = tomcatStopPath;
+        }
 
         //停止脚本
         log.info("开始停止组件，使用shell脚本：" + shellPath);
@@ -230,17 +248,26 @@ public class SysDataAccessController extends BaseController {
 
         //复制jar
         String runtimeCompJarPath = FileUtil.copeFile(sysDataAccess.getCompJarPath(), baseFilePath);
+
         //复制专业线路配置文件
-        String runtimeLineFilePath = FileUtil.copeFile(sysDataAccess.getLineFilePath(), baseFilePath + "srvconfig/");
+        String runtimeLineFilePath = "";
+        String lineFileStr = "";
+        if(null != sysDataAccess.getLineFilePath() && !sysDataAccess.getLineFilePath().isEmpty()){
+            runtimeLineFilePath = FileUtil.copeFile(sysDataAccess.getLineFilePath(), baseFilePath + "srvconfig/");
+
+            String[] strings = sysDataAccess.getLineFilePath().split("/");
+            String lineFileName = strings[strings.length-1];
+            lineFileStr = " srvconfig=" + lineFileName;
+        }
+
         //复制yml配置文件
         String runtimeConfFilePath = FileUtil.copeFile(sysDataAccess.getConfFilePath(), baseFilePath + "config/");
 
-        String[] strings = sysDataAccess.getLineFilePath().split("/");
-        String lineFileName = strings[strings.length-1];
+
         //生成start.sh脚本
         String startStr = "#!/bin/sh\n" +
                 "nohup java -jar " + runtimeCompJarPath +  " line=" + sysDataAccess.getLineCode()
-                + " station=" + sysDataAccess.getStationCode() + " train=" + sysDataAccess.getTrainId() + " srvconfig=" + lineFileName
+                + " station=" + sysDataAccess.getStationCode() + " train=" + sysDataAccess.getTrainId() + lineFileStr
                 + " >> " + baseFilePath + "nohup_output.out 2>&1 &\n" +
                 "echo $! > " + baseFilePath + "jarPid.pid";
         FileUtil.createFile(baseFilePath + "start.sh", startStr);
