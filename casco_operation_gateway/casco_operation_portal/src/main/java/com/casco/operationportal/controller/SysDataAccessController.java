@@ -251,23 +251,33 @@ public class SysDataAccessController extends BaseController {
 
         //复制专业线路配置文件
         String runtimeLineFilePath = "";
-        String lineFileStr = "";
+        String parameterLineFileStr = "";
         if(null != sysDataAccess.getLineFilePath() && !sysDataAccess.getLineFilePath().isEmpty()){
             runtimeLineFilePath = FileUtil.copeFile(sysDataAccess.getLineFilePath(), baseFilePath + "srvconfig/");
 
             String[] strings = sysDataAccess.getLineFilePath().split("/");
             String lineFileName = strings[strings.length-1];
-            lineFileStr = " srvconfig=" + lineFileName;
+            parameterLineFileStr = " srvconfig=" + lineFileName;
         }
 
         //复制yml配置文件
         String runtimeConfFilePath = FileUtil.copeFile(sysDataAccess.getConfFilePath(), baseFilePath + "config/");
 
 
+        String parameterStationStr = "";
+        if(null != sysDataAccess.getStationCode() && !sysDataAccess.getStationCode().isEmpty()){
+            parameterStationStr = " station=" + sysDataAccess.getStationCode();
+        }
+
+        String parameterTrainStr = "";
+        if(null != sysDataAccess.getTrainId() && !sysDataAccess.getTrainId().isEmpty()){
+            parameterTrainStr = " train=" + sysDataAccess.getTrainId();
+        }
+
         //生成start.sh脚本
         String startStr = "#!/bin/sh\n" +
                 "nohup java -jar " + runtimeCompJarPath +  " line=" + sysDataAccess.getLineCode()
-                + " station=" + sysDataAccess.getStationCode() + " train=" + sysDataAccess.getTrainId() + lineFileStr
+                + parameterStationStr + parameterTrainStr + parameterLineFileStr
                 + " >> " + baseFilePath + "nohup_output.out 2>&1 &\n" +
                 "echo $! > " + baseFilePath + "jarPid.pid";
         FileUtil.createFile(baseFilePath + "start.sh", startStr);
