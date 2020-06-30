@@ -66,8 +66,8 @@ public class HiveDataBaseConfig {
 
         // 配置基本属性
         druid.setDriverClassName(driverClassName);
-        druid.setUsername(username);
-        druid.setPassword(password);
+        //druid.setUsername(username);
+        //druid.setPassword(password);
         druid.setUrl(url);
 
         //初始化时建立物理连接的个数
