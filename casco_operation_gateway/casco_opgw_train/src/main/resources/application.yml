@@ -30,5 +30,5 @@ ice:
   service_name: ssip_publisher
   service_endpoint: tcp -h 192.168.0.153 -p 12000
   adapter_name: observer
-  adapter_endpoint: tcp -h 192.168.0.253 -p 10000
+  adapter_endpoint: tcp -h 192.168.0.103 -p 10000
 

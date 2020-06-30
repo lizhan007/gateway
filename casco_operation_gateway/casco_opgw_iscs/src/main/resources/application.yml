@@ -4,10 +4,10 @@ server:
 spring:
   modbus:
     master:
-      ip: 127.0.0.1
+      ip: 192.168.0.153
       port: 2000
     slave:
-      ip: 127.0.0.1
+      ip: 192.168.0.153
       port: 2000
 
   kafka:
