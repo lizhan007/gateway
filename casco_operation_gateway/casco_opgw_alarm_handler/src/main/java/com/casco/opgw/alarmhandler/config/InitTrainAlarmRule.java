@@ -52,6 +52,8 @@ public class InitTrainAlarmRule implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         //1. 解析配置excel文件
+        //本地测试：d:\\车辆映射表.xls
+        //Linux:ResourceUtils.CLASSPATH_URL_PREFIX + "static/车辆映射表.xlsx"
         XSSFWorkbook wb = null;
         File cfgFile =
                 ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "static/车辆映射表.xlsx");
@@ -92,7 +94,7 @@ public class InitTrainAlarmRule implements CommandLineRunner {
             trainAlarmCfgModel.setTrain(row.getCell(COL_NUM_TRAIN).toString());
             trainAlarmCfgModel.setVarName(row.getCell(COL_NUM_VARNAME).toString());
             trainAlarmCfgModel.setEquipType(row.getCell(COL_NUM_EQUIPTYPE).toString());
-            trainAlarmCfgModel.setAlarmContent(row.getCell(COL_NUM_ALARMCONTENT).toString());
+            trainAlarmCfgModel.setAlarmContent(row.getCell(COL_NUM_ALARMCONTENT)!=null?row.getCell(COL_NUM_ALARMCONTENT).toString():"");
             trainAlarmCfgModel.setAlarmLevel(row.getCell(COL_NUM_ALARMLEVEL).toString());
 
             trainAlarmCfgModelList.add(trainAlarmCfgModel);
