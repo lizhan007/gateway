@@ -42,6 +42,8 @@ public class DigitalRedisUtils {
 
     public List<String> gets(List<String> keys){
         try{
+            System.err.println(keys);
+
             return stringRedisTemplate.opsForValue().multiGet(keys);
         } catch (Exception e) {
             e.printStackTrace();

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.casco.devdata.aspect.BaseController;
 import com.casco.devdata.common.dto.R;
 import com.casco.devdata.controller.vo.CollectionVo;
+import com.casco.devdata.controller.vo.DevVo;
 import com.casco.devdata.controller.vo.SysDevMainTypeDefVo;
 import com.casco.devdata.controller.vo.SysDevTypeDefVo;
 import com.casco.devdata.entity.*;
@@ -13,17 +14,17 @@ import com.casco.devdata.redis.AnalogRedisUtils;
 import com.casco.devdata.redis.DigitalRedisUtils;
 import com.casco.devdata.redis.EnumRedisUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.mockito.internal.util.StringUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /*-
@@ -31,6 +32,7 @@ import java.util.Map;
  */
 @RestController
 @Slf4j
+@CrossOrigin("*")
 public class DevDataController extends BaseController{
 
     @Autowired
@@ -97,26 +99,55 @@ public class DevDataController extends BaseController{
 
     @RequestMapping(value = "/devdata/listdev", method = RequestMethod.POST)
     @ResponseBody
-    public R listDev(String typeid) {
+    public R listDev(String typeid, Integer start, Integer limit, String devId) {
 
         //http://localhost:7002/devdata/listdev?typeid=401
+//        QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
+//        collectQuery.lambda().
+//                eq(SysRelateCollectionDef::getDevId, devid);
+//
+//        Page<SysRelateCollectionDef> page = new Page<>(start,limit);
+//
+//        list = sysRelateCollectionDefMapper.selectPage(page, collectQuery).getRecords();
 
         R<List<SysDevList>> res = new R<>();
 
         //1. 查找所有的设备
         QueryWrapper<SysDevList> devquery = new QueryWrapper<>();
-        devquery.lambda().eq(SysDevList::getDevTypeId, typeid);
+        if(devId == null || devId.trim().length() == 0){
+            devquery.lambda().eq(SysDevList::getDevTypeId, typeid);
+        }else{
+            devquery.lambda().eq(SysDevList::getDevTypeId, typeid).eq(SysDevList::getDevId, devId);
+        }
 
-        List<SysDevList> list = sysDevListMapper.selectList(devquery);
+        Page<SysDevList> page = new Page<>(start, limit);
+
+        List<SysDevList> list = sysDevListMapper.selectPage(page, devquery).getRecords();
 
         res.setCode(R.SUCCESS);
         res.setData(list);
         return res;
     }
 
+    //新的获取设备属性接口
+    @RequestMapping(value = "/devdata/listdevattr", method = RequestMethod.POST)
+    @ResponseBody
+    public R listDevAttr(String devid){
+        List list = sysRelateCollectionDefMapper.listDevAttr(devid);
+
+        R<List<Map>> res = new R<>();
+
+        res.setCode(R.SUCCESS);
+        res.setData(list);
+        return res;
+    }
+
+
     @RequestMapping(value = "/devdata/getdevattr", method = RequestMethod.POST)
     @ResponseBody
     public R getDevAttr(String major, String devid, Integer start, Integer limit) {
+
+        //http://localhost:7002/devdata/getdevattr?major=SIG&devid=100309009100000380
 
         /*-
          * 1. 根据DEVID（设备ID）查询SYS_RELATE_COLLECTION_DEF（采集关联表）
@@ -158,6 +189,7 @@ public class DevDataController extends BaseController{
 
             CollectionVo collectionVo = new CollectionVo();
             collectionVo.setDataType(item.getDataType());
+            collectionVo.setKeyid(item.getKeyId());
 
             if(item.getDataType() == 0){ //1. 数字
 
@@ -249,10 +281,14 @@ public class DevDataController extends BaseController{
 
     @RequestMapping(value = "/devdata/updatevisible", method = RequestMethod.POST)
     @ResponseBody
-    public R updateVisible(List<SysKeyVisible> list){
+    public R updateVisible(@RequestBody List<SysKeyVisible> list){
 
         for(SysKeyVisible item : list){
-            sysKeyVisibleMapper.updateById(item);
+            if(item.getId() == null){
+                sysKeyVisibleMapper.insert(item);
+            }else{
+                sysKeyVisibleMapper.updateById(item);
+            }
         }
 
         R<String> res = new R<>();
@@ -260,10 +296,99 @@ public class DevDataController extends BaseController{
         return res;
     }
 
+    @RequestMapping(value = "/devdata/listdevscollects", method = RequestMethod.POST)
+    @ResponseBody
+    public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
+
+        Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+
+        List<String> params = new ArrayList<>();
+        for(DevVo vo:devIdList){
+            params.add(vo.getDevId());
+        }
+
+        QueryWrapper<SysRelateCollectionDef> query = new QueryWrapper<>();
+        query.lambda().in(SysRelateCollectionDef::getDevId, params);
+
+        List<SysRelateCollectionDef> sysRelateCollectionDefList
+                = sysRelateCollectionDefMapper.selectList(query);
+
+        List<String> dKeys = new ArrayList<>();
+        List<String> eKeys = new ArrayList<>();
+        List<String> aKeys = new ArrayList<>();
+
+        List<String> dres = new ArrayList<>();
+        List<String> eres = new ArrayList<>();
+        List<String> ares = new ArrayList<>();
+
+
+
+        for(SysRelateCollectionDef vo : sysRelateCollectionDefList){
+            if(vo.getDataType() == 0){
+                Matcher m = p.matcher(vo.getKeyId());
+                dKeys.add(m.replaceAll(""));
+            }else if(vo.getDataType() == 1){
+                Matcher m = p.matcher(vo.getKeyId());
+                eKeys.add(m.replaceAll(""));
+            }else if(vo.getDataType() == 2){
+                Matcher m = p.matcher(vo.getKeyId());
+                aKeys.add(m.replaceAll(""));
+            }
+        }
+
+        dres = digitalRedisUtils.gets(dKeys);
+        eres = enumRedisUtils.gets(eKeys);
+        ares = analogRedisUtils.gets(aKeys);
+
+        Map<String, List> map = new HashMap<>();
+
+        for(SysRelateCollectionDef vo : sysRelateCollectionDefList){
+
+            if(!map.containsKey(vo.getDevId())){
+                map.put(vo.getDevId(), new ArrayList());
+            }
+
+            if(vo.getDataType() == 0){
+                for(int i = 0; i < dKeys.size(); i++){
+                    Matcher m = p.matcher(vo.getKeyId());
+                    if(m.replaceAll("").equals(dKeys.get(i))){
+                        map.get(vo.getDevId()).add(dres.get(i));
+                        break;
+                    }
+                }
+            }else if(vo.getDataType() == 1){
+                for(int i = 0; i < eKeys.size(); i++){
+                    Matcher m = p.matcher(vo.getKeyId());
+                    if(m.replaceAll("").equals(eKeys.get(i))){
+                        map.get(vo.getDevId()).add(eres.get(i));
+                        break;
+                    }
+                }
+            }else if(vo.getDataType() == 2){
+                for(int i = 0; i < aKeys.size(); i++){
+                    Matcher m = p.matcher(vo.getKeyId());
+                    if(m.replaceAll("").equals(aKeys.get(i))){
+                        map.get(vo.getDevId()).add(ares.get(i));
+                        break;
+                    }
+                }
+            }
+        }//for(CollectionVo vo : collectionVoList){
+
+        R<Object> res = new R<>();
+        res.setCode(R.SUCCESS);
+        res.setData(map);
+
+        return res;
+    }
+
 
     @RequestMapping(value = "/devdata/listcollections", method = RequestMethod.POST)
     @ResponseBody
     public R listCollections(List<CollectionVo> collectionVoList) {
+
+        //数字1 枚举1 数字2 枚举1
+        //数字1 数字2 枚举1 枚举2
 
         List<String> dKeys = new ArrayList<>();
         List<String> eKeys = new ArrayList<>();
@@ -287,26 +412,36 @@ public class DevDataController extends BaseController{
         eres = enumRedisUtils.gets(eKeys);
         ares = analogRedisUtils.gets(aKeys);
 
-
         List<Map<String, String>> result = new ArrayList<>();
 
-        for(int i = 0; i < dKeys.size(); i++){
-            Map<String, String> map = new HashMap<>();
-            map.put(dKeys.get(i), dres.get(i));
-            result.add(map);
-        }
+        for(CollectionVo vo : collectionVoList){
+            for(int i = 0; i < dKeys.size(); i++){
+                if(vo.getKeyid().equals(dKeys.get(i))){
+                    Map<String, String> map = new HashMap<>();
+                    map.put(dKeys.get(i), dres.get(i));
+                    result.add(map);
+                    break;
+                }
+            }
 
-        for(int i = 0; i < eKeys.size(); i++){
-            Map<String, String> map = new HashMap<>();
-            map.put(eKeys.get(i), eres.get(i));
-            result.add(map);
-        }
+            for(int i = 0; i < eKeys.size(); i++){
+                if(vo.getKeyid().equals(eKeys.get(i))){
+                    Map<String, String> map = new HashMap<>();
+                    map.put(eKeys.get(i), eres.get(i));
+                    result.add(map);
+                    break;
+                }
+            }
 
-        for(int i = 0; i < aKeys.size(); i++){
-            Map<String, String> map = new HashMap<>();
-            map.put(aKeys.get(i), ares.get(i));
-            result.add(map);
-        }
+            for(int i = 0; i < aKeys.size(); i++){
+                if(vo.getKeyid().equals(aKeys.get(i))){
+                    Map<String, String> map = new HashMap<>();
+                    map.put(aKeys.get(i), ares.get(i));
+                    result.add(map);
+                    break;
+                }
+            }
+        }//for(CollectionVo vo : collectionVoList){
 
         R<Object> res = new R<>();
         res.setCode(R.SUCCESS);
