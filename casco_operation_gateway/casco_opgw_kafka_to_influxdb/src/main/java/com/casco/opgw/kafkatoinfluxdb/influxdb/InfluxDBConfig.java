@@ -7,7 +7,10 @@ import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @AutoConfigureBefore(KafkaConsumer.class)
@@ -25,6 +28,33 @@ public class InfluxDBConfig {
     private String database;
 
     private InfluxDB influxDB;
+
+    @Bean(name = "SIG")
+    public InfluxDB SIGInfluxDB1(){
+        InfluxDB influxDB = InfluxDBFactory.connect(url);
+        influxDB.setDatabase("SIG")
+                .enableBatch(20,200, TimeUnit.MILLISECONDS);
+
+        return influxDB;
+    }
+
+    @Bean(name = "TRAIN")
+    public InfluxDB TrainInfluxDB1(){
+        InfluxDB influxDB = InfluxDBFactory.connect(url);
+        influxDB.setDatabase("TRAIN")
+                .enableBatch(20,200, TimeUnit.MILLISECONDS);
+
+        return influxDB;
+    }
+
+    @Bean(name = "BAS")
+    public InfluxDB BASInfluxDB1(){
+        InfluxDB influxDB = InfluxDBFactory.connect(url);
+        influxDB.setDatabase("BAS")
+                .enableBatch(20,200, TimeUnit.MILLISECONDS);
+
+        return influxDB;
+    }
 
     public InfluxDBConfig() {
 

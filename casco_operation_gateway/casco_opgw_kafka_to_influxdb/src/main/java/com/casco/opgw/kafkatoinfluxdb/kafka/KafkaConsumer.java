@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +24,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class KafkaConsumer {
 
-    @Autowired
-    private InfluxDB influxDB;
+    @Resource(name = "SIG")
+    private InfluxDB SigInfluxDB;
+
+    @Resource(name = "BAS")
+    private InfluxDB BasInfluxDB;
+
+    @Resource(name = "TRAIN")
+    private InfluxDB TrainInfluxDB;
 
     private final ThreadPoolExecutor executor
             = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
@@ -49,7 +56,7 @@ public class KafkaConsumer {
         builder.tag("type",digitMessage.getTypeTag());
         builder.tag("pointcode",digitMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
 
     }
 
@@ -71,7 +78,7 @@ public class KafkaConsumer {
         builder.tag("type",enumMessage.getTypeTag());
         builder.tag("pointcode",enumMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
     }
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
@@ -93,7 +100,7 @@ public class KafkaConsumer {
         builder.tag("type",analogMessage.getTypeTag());
         builder.tag("pointcode",analogMessage.getPointcodeTag());
         Point point = builder.build() ;
-        influxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
 
     }
 
@@ -119,7 +126,7 @@ public class KafkaConsumer {
         builder.tag("type","");  //Type未知
         builder.tag("pointcode",digitMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(point);
+        TrainInfluxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(point);
     }
 
     /**
@@ -145,7 +152,7 @@ public class KafkaConsumer {
         builder.tag("type","");  //Type未知
         builder.tag("pointcode",analogMessage.getPointcodeTag());
         Point point = builder.build() ;
-        influxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(point);
+        TrainInfluxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(point);
     }
 
     /**
@@ -171,7 +178,7 @@ public class KafkaConsumer {
         builder.tag("type",digitMessage.getSrcIdTag());  //Type未知
         builder.tag("pointcode",digitMessage.getPointcodeTag());
         Point point = builder.build();
-        influxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
+        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
     }
 
 
@@ -198,7 +205,7 @@ public class KafkaConsumer {
         builder.tag("type",analogMessage.getSrcIdTag());  //Type未知
         builder.tag("pointcode",analogMessage.getPointcodeTag());
         Point point = builder.build() ;
-        influxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
+        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
     }
 
 
