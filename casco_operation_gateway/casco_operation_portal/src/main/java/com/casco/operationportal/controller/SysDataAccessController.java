@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -150,22 +152,59 @@ public class SysDataAccessController extends BaseController {
             process.waitFor();
 
             proc = Runtime.getRuntime().exec(shellPath);
+//            proc.waitFor();
 
-            InputStream is = proc.getInputStream();
-            InputStream es = proc.getErrorStream();
-            String line;
-            BufferedReader br;
+            final InputStream is = proc.getInputStream();
+            final InputStream es = proc.getErrorStream();
 
-            br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            while ((line = br.readLine()) != null) {
-                log.info("shell脚本-" + shellPath + ":" + line);
-            }
+            new Thread(() -> {
+                BufferedReader br;
+                String line = null;
+//                log.info("hahahaahhahaha");
+                try {
+                    br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 
-            br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
-            while ((line = br.readLine()) != null) {
-                log.error("shell脚本-" + shellPath + ":" + line);
-                //todo 返回前端启动失败
-            }
+                    while ((line = br.readLine()) != null) {
+                        log.info("shell脚本:" + line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }).start();
+
+
+            new Thread(() -> {
+                BufferedReader br;
+                String line = null;
+                log.info("hahahaahhahaha");
+                try {
+                    br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
+
+                    while ((line = br.readLine()) != null) {
+                        log.info("shell脚本:" + line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }).start();
+
+//            InputStream is = proc.getInputStream();
+//            InputStream es = proc.getErrorStream();
+//            String line;
+//            BufferedReader br;
+//
+//            br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+//            while ((line = br.readLine()) != null) {
+//                log.info("shell脚本-" + shellPath + ":" + line);
+//            }
+//
+//            br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
+//            while ((line = br.readLine()) != null) {
+//                log.error("shell脚本-" + shellPath + ":" + line);
+//                //todo 返回前端停止失败
+//            }
 
             log.info("组件启动完成");
 
@@ -207,22 +246,61 @@ public class SysDataAccessController extends BaseController {
             process.waitFor();
 
             proc = Runtime.getRuntime().exec(shellPath);
+            proc.waitFor();
 
-            InputStream is = proc.getInputStream();
-            InputStream es = proc.getErrorStream();
-            String line;
-            BufferedReader br;
+            final InputStream is = proc.getInputStream();
+            final InputStream es = proc.getErrorStream();
 
-            br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            while ((line = br.readLine()) != null) {
-                log.info("shell脚本-" + shellPath + ":" + line);
-            }
+            new Thread(() -> {
+                BufferedReader br;
+                String line = null;
+                try {
+                    br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 
-            br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
-            while ((line = br.readLine()) != null) {
-                log.error("shell脚本-" + shellPath + ":" + line);
-                //todo 返回前端停止失败
-            }
+                    while ((line = br.readLine()) != null) {
+                        log.info("shell脚本:" + line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }).start();
+
+
+            new Thread(() -> {
+                BufferedReader br;
+                String line = null;
+                log.info("hahahaahhahaha");
+                try {
+                    br = new BufferedReader(new InputStreamReader(es, "UTF-8"));
+
+                    while ((line = br.readLine()) != null) {
+                        log.info("shell脚本:" + line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }).start();
+
+//            InputStream is = proc.getInputStream();
+//            InputStream es = proc.getErrorStream();
+
+//            InputStream is2 = process.getInputStream();
+//            InputStream es2 = process.getErrorStream();
+//            String line;
+//            BufferedReader br;
+//
+//            br = new BufferedReader(new InputStreamReader(is2, "UTF-8"));
+//            while ((line = br.readLine()) != null) {
+//                log.info("shell脚本-" + shellPath + ":" + line);
+//            }
+//
+//            br = new BufferedReader(new InputStreamReader(es2, "UTF-8"));
+//            while ((line = br.readLine()) != null) {
+//                log.error("shell脚本-" + shellPath + ":" + line);
+//                //todo 返回前端停止失败
+//            }
 
             log.info("组件停止完成");
 
@@ -254,10 +332,7 @@ public class SysDataAccessController extends BaseController {
         String parameterLineFileStr = "";
         if(null != sysDataAccess.getLineFilePath() && !sysDataAccess.getLineFilePath().isEmpty()){
             runtimeLineFilePath = FileUtil.copeFile(sysDataAccess.getLineFilePath(), baseFilePath + "srvconfig/");
-
-            String[] strings = sysDataAccess.getLineFilePath().split("/");
-            String lineFileName = strings[strings.length-1];
-            parameterLineFileStr = " srvconfig=" + lineFileName;
+            parameterLineFileStr = " srvconfig=" + sysDataAccess.getLineFilePath();
         }
 
         //复制yml配置文件

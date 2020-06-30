@@ -73,7 +73,7 @@ public class RedisConfig {
         //设置默认使用的数据库
         redisStandaloneConfiguration.setDatabase(database);
 
-        //redisStandaloneConfiguration.setPassword(RedisPassword.of(password));
+        redisStandaloneConfiguration.setPassword(RedisPassword.of(password));
         //设置redis的服务的端口号
         redisStandaloneConfiguration.setPort(redisPort);
         JedisClientConfiguration.JedisPoolingClientConfigurationBuilder jedisBuilder = (JedisClientConfiguration.JedisPoolingClientConfigurationBuilder) JedisClientConfiguration.builder();
