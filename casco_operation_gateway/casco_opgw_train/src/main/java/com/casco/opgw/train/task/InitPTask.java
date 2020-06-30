@@ -61,8 +61,7 @@ public class InitPTask implements CommandLineRunner {
         //1. 解析excel文件
         XSSFWorkbook wb = null;
         File cfgFile =
-                ResourceUtils.getFile(config_path
-                        + OpgwTrainApplication.global_params.get(ParamConstant.PARAM_KEY_SRVCONFIG));
+                ResourceUtils.getFile( OpgwTrainApplication.global_params.get(ParamConstant.PARAM_KEY_SRVCONFIG));
 
 
         InputStream in = new FileInputStream(cfgFile);

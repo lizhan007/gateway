@@ -54,8 +54,7 @@ public class InitTask implements CommandLineRunner {
 
         XSSFWorkbook wb = null;
         File cfgFile =
-                ResourceUtils.getFile(config_path
-                        + OpISCSApplication.global_params.get(ParamConstant.PARAM_KEY_SRVCONFIG));
+                ResourceUtils.getFile(OpISCSApplication.global_params.get(ParamConstant.PARAM_KEY_SRVCONFIG));
 
         InputStream in = new FileInputStream(cfgFile);
         wb = new XSSFWorkbook(in);
