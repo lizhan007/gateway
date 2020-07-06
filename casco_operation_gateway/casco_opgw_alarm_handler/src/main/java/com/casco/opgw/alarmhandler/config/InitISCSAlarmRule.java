@@ -49,7 +49,7 @@ public class InitISCSAlarmRule implements CommandLineRunner {
          * d:\\水泵系统配置表.xlsx
          */
         File cfgFile =
-                ResourceUtils.getFile("d:\\水泵系统配置表.xlsx");
+                ResourceUtils.getFile("/home/data/serverconfig/水泵系统配置表.xlsx");
 
         InputStream in = new FileInputStream(cfgFile);
         wb = new XSSFWorkbook(in);

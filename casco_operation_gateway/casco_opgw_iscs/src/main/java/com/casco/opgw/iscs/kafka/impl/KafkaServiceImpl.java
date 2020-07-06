@@ -22,7 +22,6 @@ public class KafkaServiceImpl implements KafkaService {
 
     @Override
     public void sendDigitMessage(String data) {
-
         kafkaTemplate.send(casco_opgw_iscs_digit_topic, data);
     }
 

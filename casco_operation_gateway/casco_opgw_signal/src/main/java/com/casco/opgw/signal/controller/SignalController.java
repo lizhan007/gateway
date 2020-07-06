@@ -41,11 +41,7 @@ public class SignalController {
     @RequestMapping(value = "/digitdata", method = RequestMethod.POST)
     @ResponseBody
     public Response recvDigitData(@RequestBody DigitDataDto digitDataDto){
-
         log.info(digitDataDto.toString());
-
-        System.out.println(digitDataDto.getType() + " size: " +
-                digitDataDto.getDigitdata().size() + "  " + new Date(digitDataDto.getTimestamp()*1000));
 
         Response response = new Response();
 
@@ -81,7 +77,7 @@ public class SignalController {
                 digitMessage.setPointcodeTag(keys[5]);
 
                 digitMessage.setValue(item.getValue().get(0));
-                digitMessage.setTimestamp(digitDataDto.getTimestamp());
+                digitMessage.setTimestamp(digitDataDto.getTimestamp()*1000L+digitDataDto.getMs());
                 digitMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
 
                 notification.getKeys().add(item.getKey());
@@ -110,7 +106,7 @@ public class SignalController {
                     digitMessage.setTypeTag(keys[4]);
 
                     digitMessage.setValue(item.getValue().get(i));
-                    digitMessage.setTimestamp(digitDataDto.getTimestamp());
+                    digitMessage.setTimestamp(digitDataDto.getTimestamp()*1000L+digitDataDto.getMs());
                     digitMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
 
                     notification.getKeys().add(KeyUtils.getKey(digitMessage));
@@ -132,11 +128,7 @@ public class SignalController {
     @RequestMapping(value = "/enumdata", method = RequestMethod.POST)
     @ResponseBody
     public Response recvEnumData(@RequestBody EnumDataDto enumDataDto){
-
         log.info(enumDataDto.toString());
-
-        System.out.println(enumDataDto.getType() + " size: " +
-                enumDataDto.getEnumdata().size() + "  " + new Date(enumDataDto.getTimestamp()*1000));
 
         Response response = new Response();
 
@@ -173,7 +165,7 @@ public class SignalController {
 
 
                 enumMessage.setValue(item.getValue().get(0));
-                enumMessage.setTimestamp(enumDataDto.getTimestamp());
+                enumMessage.setTimestamp(enumDataDto.getTimestamp()*1000L+enumDataDto.getMs());
                 enumMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
 
                 notification.getKeys().add(item.getKey());
@@ -202,7 +194,7 @@ public class SignalController {
                     enumMessage.setTypeTag(keys[4]);
 
                     enumMessage.setValue(item.getValue().get(i));
-                    enumMessage.setTimestamp(enumDataDto.getTimestamp());
+                    enumMessage.setTimestamp(enumDataDto.getTimestamp()*1000L+enumDataDto.getMs());
                     enumMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
 
 
@@ -225,9 +217,6 @@ public class SignalController {
     @RequestMapping(value = "/analogdata", method = RequestMethod.POST)
     @ResponseBody
     public Response recvAnalogData(@RequestBody AnalogDataDto analogDataDto){
-
-        System.out.println(analogDataDto.toString());
-
         Response response = new Response();
 
         //1. 数据异常校验
@@ -264,7 +253,7 @@ public class SignalController {
 
 
                 analogMessage.setValue(item.getValue().get(0));
-                analogMessage.setTimestamp(analogDataDto.getTimestamp());
+                analogMessage.setTimestamp(analogDataDto.getTimestamp()*1000L+analogDataDto.getMs());
                 analogMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
 
                 notification.getKeys().add(item.getKey());
@@ -293,7 +282,7 @@ public class SignalController {
                     analogMessage.setTypeTag(keys[4]);
 
                     analogMessage.setValue(item.getValue().get(i));
-                    analogMessage.setTimestamp(analogDataDto.getTimestamp());
+                    analogMessage.setTimestamp(analogDataDto.getTimestamp()*1000L+analogDataDto.getMs());
                     analogMessage.setMsgType(KafkaConstant.MSG_TYPE_DATA);
 
                     notification.getKeys().add(KeyUtils.getKey(analogMessage));
@@ -315,9 +304,6 @@ public class SignalController {
     @RequestMapping(value = "/alarmdata", method = RequestMethod.POST)
     @ResponseBody
     public Response recvEnumData(@RequestBody AlarmDataDto alarmDataDto){
-
-        System.out.println(alarmDataDto.toString());
-
         Response response = new Response();
 
         for(AlarmDataItemDto item: alarmDataDto.getAlarmdata()){
@@ -347,7 +333,6 @@ public class SignalController {
             alarmMessage.setArmSaveNo(Float.parseFloat(item.getSaveno()));
             alarmMessage.setArmAddJson(item.getAddjson());
             //BeanUtils.copyProperties(item, alarmMessage);
-            System.out.println(JSON.toJSONString(alarmMessage));
             kafkaService.sendAlarmMessage(JSON.toJSONString(alarmMessage));
         }
 

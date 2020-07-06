@@ -98,7 +98,6 @@ public class InitPTask implements CommandLineRunner {
         Ice.Communicator communicator = null;
         try {
             communicator = Ice.Util.initialize();
-            System.out.println(service_name + " : " + service_endpoint);
             Ice.ObjectPrx op = communicator.stringToProxy(service_name+":"+service_endpoint);
             dms_publisherPrx dms_publisherPrx = dms_publisherPrxHelper.checkedCast(op);
 
