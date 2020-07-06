@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SysDataAccessService extends IService<SysDataAccess> {
 
+    void start(Long id);
+    void stop(Long id);
 }

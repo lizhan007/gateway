@@ -3,6 +3,7 @@ package com.casco.operationportal.common.exception;
 public enum ErrorCodeEnum implements BaseErrCodeInterface {
 
 	COMPONENT_STATUS_ERR("1001", "当前组件正在运行，请停止后再尝试该操作"),
+	COMPONENT_STARTED("1002", "当前组件正在运行，请勿重复启动"),
 
 	SYS_PARAMETER_INVALID("9980", "参数不合法"),
 	SYS_DATA_ERR("9990", "系统数据异常"),
