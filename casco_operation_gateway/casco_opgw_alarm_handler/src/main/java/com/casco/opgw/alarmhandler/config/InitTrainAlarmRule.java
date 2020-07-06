@@ -56,7 +56,7 @@ public class InitTrainAlarmRule implements CommandLineRunner {
         //Linux:ResourceUtils.CLASSPATH_URL_PREFIX + "static/车辆映射表.xlsx"
         XSSFWorkbook wb = null;
         File cfgFile =
-                ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "static/车辆映射表.xlsx");
+                ResourceUtils.getFile("/home/data/serverconfig/车辆映射表.xlsx");
 
         InputStream in = new FileInputStream(cfgFile);
         wb = new XSSFWorkbook(in);

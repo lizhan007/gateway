@@ -11,4 +11,5 @@ public class AnalogDataDto {
     private String type;
     private List<AnalogDataItemDto> analogdata;
     private Long timestamp;
+    private Long ms;
 }

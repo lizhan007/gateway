@@ -27,8 +27,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_alarm", groupId = "casco_opgw_kafka_alarm")
     public void recvAlarmMsg(ConsumerRecord<String, String> consumerRecord){
 
-        System.out.println(consumerRecord.toString());
-
         AlarmMessage alarmMessage = JSON.parseObject(consumerRecord.value(), AlarmMessage.class);
 
         //1. 时间戳
@@ -40,8 +38,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_train_alarm", groupId = "casco_opgw_kafka_alarm")
     public void recvTrainAlarmMsg(ConsumerRecord<String, String> consumerRecord){
 
-        System.out.println(consumerRecord.toString());
-
         AlarmMessage alarmMessage = JSON.parseObject(consumerRecord.value(), AlarmMessage.class);
 
         //1. 时间戳
@@ -52,8 +48,6 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_iscs_alarm", groupId = "casco_opgw_kafka_alarm")
     public void recvISCSAlarmMsg(ConsumerRecord<String, String> consumerRecord){
-
-        System.out.println(consumerRecord.toString());
 
         AlarmMessage alarmMessage = JSON.parseObject(consumerRecord.value(), AlarmMessage.class);
 

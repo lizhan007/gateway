@@ -12,4 +12,5 @@ public class EnumDataDto {
     private String type;
     private List<EnumDataItemDto> enumdata;
     private Long timestamp;
+    private Long ms;
 }

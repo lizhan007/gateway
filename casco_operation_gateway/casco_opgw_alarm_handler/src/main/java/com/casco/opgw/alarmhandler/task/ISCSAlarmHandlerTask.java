@@ -78,7 +78,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
             kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
-            System.out.println(JSON.toJSONString(message));
             InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
 
         }else{

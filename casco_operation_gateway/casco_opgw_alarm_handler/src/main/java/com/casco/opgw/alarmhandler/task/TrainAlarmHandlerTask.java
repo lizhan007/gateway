@@ -56,7 +56,7 @@ public class TrainAlarmHandlerTask implements Runnable{
         }
 
         if(null == target){
-            log.info("【TrainAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
+            //log.info("【TrainAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
             return;
         }
         //2. 检修逻辑处理
@@ -64,7 +64,7 @@ public class TrainAlarmHandlerTask implements Runnable{
         if(InitTrainAlarmRule.getIsOverHaul() == 1
         && !digitMessage.getPointcodeTag().contains("_OVERHAUL_MODE_1")){
             //在检修状态下，除非是 OVERHAUL_MODE 检修消息，其他不做处理
-            log.info("【TrainAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
+            //log.info("【TrainAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
             return;
         }
 

@@ -40,7 +40,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
         if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -48,7 +47,7 @@ public class KafkaConsumer {
         }
 
         Point.Builder builder = Point.measurement("SIG_DIGIT");
-        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
         builder.addField("value",digitMessage.getValue());
         builder.tag("line", digitMessage.getLineTag());
         builder.tag("region",digitMessage.getRegionTag());
@@ -70,7 +69,7 @@ public class KafkaConsumer {
             return;
         }
         Point.Builder builder = Point.measurement("SIG_ENUM");
-        builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.time(enumMessage.getTimestamp(),TimeUnit.MILLISECONDS);
         builder.addField("value",enumMessage.getValue());
         builder.tag("line", enumMessage.getLineTag());
         builder.tag("region",enumMessage.getRegionTag());
@@ -84,7 +83,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
         if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -92,7 +90,7 @@ public class KafkaConsumer {
         }
 
         Point.Builder builder = Point.measurement("SIG_ANALOG");
-        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+        builder.time(analogMessage.getTimestamp(),TimeUnit.MILLISECONDS);
         builder.addField("value",analogMessage.getValue());
         builder.tag("line", analogMessage.getLineTag());
         builder.tag("region",analogMessage.getRegionTag());
@@ -111,7 +109,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_train_digit", groupId = "casco_opgw_train_kafka_to_influxdb")
     public void recvTrainDigitMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-        System.out.println("TD : " + consumerRecord.value());
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(),DigitMessage.class);
 
         if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -137,7 +134,6 @@ public class KafkaConsumer {
     public  void recvTrainAnalogMsg(ConsumerRecord<String, String> consumerRecord){
 
         log.debug(consumerRecord.value());
-        System.out.println("TA : " + consumerRecord.value());
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
         if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -162,7 +158,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_iscs_digit", groupId = "casco_opgw_iscs_kafka_to_influxdb")
     public void recvIscsDigitMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-        System.out.println("ID : " + consumerRecord.value());
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(),DigitMessage.class);
 
         if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
@@ -189,7 +184,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_iscs_analog", groupId = "casco_opgw_iscs_kafka_to_influxdb")
     public void recvIscsAnalogMsg(ConsumerRecord<String, String> consumerRecord){
         log.debug(consumerRecord.value());
-        System.out.println("IA : " + consumerRecord.value());
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
         if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){

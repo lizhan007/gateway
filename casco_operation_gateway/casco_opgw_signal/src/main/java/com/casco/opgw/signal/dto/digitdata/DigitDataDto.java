@@ -11,4 +11,5 @@ public class DigitDataDto {
     private String type;
     private List<DigitDataItemDto> digitdata;
     private Long timestamp;
+    private Long ms;
 }

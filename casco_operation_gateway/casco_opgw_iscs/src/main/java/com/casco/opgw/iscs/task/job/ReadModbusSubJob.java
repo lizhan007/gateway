@@ -73,7 +73,7 @@ public class ReadModbusSubJob implements Runnable{
 
                 for(VariableEntity item : tmp){
                     Integer value = IscsUtils.getBit(registerValues, IscsUtils.getStringToNumWithNoDecimal(item.getRegAddr()));
-                    System.out.println("value :" + value);
+
 
 
                     //如果变量发生改变则触发
