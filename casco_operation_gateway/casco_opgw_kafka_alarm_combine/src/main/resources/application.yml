@@ -1,0 +1,58 @@
+server:
+  port: 7521
+
+spring:
+
+  analysis:
+    waitTime: 600000
+    duration: 30
+
+  hive:
+    url: jdbc:hive2://192.168.0.101:10000/mpom
+    user: root
+    password: casco123
+    driverClass: org.apache.hive.jdbc.HiveDriver
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 1
+    minIdle: 3
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: select 1
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+
+  influx:
+    url: http://192.168.0.103:8086
+    user: root
+    password: 123456
+
+  kafka:
+    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.102:9092
+
+    producer:
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 1
+
+    consumer:
+      max-poll-records: 100
+      enable-auto-commit: false
+      auto-commit-interval: 100ms
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        session.timeout.ms: 15000
+
+kafka:
+  topic:
+    group-id: casco_opgw_combine_alarm
+    topic-name: casco_opgw_signal_alarm
