@@ -332,6 +332,7 @@ public class SignalController {
             alarmMessage.setArmLogicType3(Float.parseFloat(item.getLogictype3()));
             alarmMessage.setArmSaveNo(Float.parseFloat(item.getSaveno()));
             alarmMessage.setArmAddJson(item.getAddjson());
+            alarmMessage.setMajor("信号专业");
             //BeanUtils.copyProperties(item, alarmMessage);
             kafkaService.sendAlarmMessage(JSON.toJSONString(alarmMessage));
         }

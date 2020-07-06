@@ -98,6 +98,9 @@ public class SysAlarmTable extends Model<SysAlarmTable> {
     @TableField("ARM_ADD_JSON")
     private String armAddJson;
 
+    @TableField("MAJOR")
+    private String major;
+
 
     @Override
     protected Serializable pkVal() {

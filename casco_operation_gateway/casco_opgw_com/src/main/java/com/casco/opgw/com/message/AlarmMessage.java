@@ -29,5 +29,5 @@ public class AlarmMessage {
     private Float armIsMaintain;
     private Float armSaveNo;
     private String armAddJson;
-
+    private String major;
 }

@@ -94,6 +94,7 @@ public class TrainAlarmHandlerTask implements Runnable{
             message.setArmLevel(Float.valueOf(target.getAlarmLevel()));
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
+            message.setMajor("车辆专业");
             message.setArmAddJson(target.getVarName());
             kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
 
@@ -142,7 +143,7 @@ public class TrainAlarmHandlerTask implements Runnable{
                     message.setArmFaultBegin(table.getArmFaultBegin());
                     message.setArmFaultEnd(table.getArmFaultEnd());
                     message.setArmLevel(table.getArmLevel());
-
+                    message.setMajor(table.getMajor());
                     kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
 
                     InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
