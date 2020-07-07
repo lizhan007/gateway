@@ -77,6 +77,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
             message.setArmLevel(Float.valueOf(target.getAlarmLevel()));
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
+            message.setMajor("机电专业");
             kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
             InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
 
@@ -115,6 +116,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     message.setArmAddEqu(table.getArmAddEqu());
                     message.setArmFaultBegin(table.getArmFaultBegin());
                     message.setArmFaultEnd(table.getArmFaultEnd());
+                    message.setMajor(table.getMajor());
 
                     message.setArmAddJson(table.getArmAddJson());
                     kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
