@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -56,6 +57,19 @@ public class AnalysisService {
             EnumMessage enumMessage = (EnumMessage)baseMessage;
             analysisTask(enumMessage, mapCfg, enumMessage.getTimestamp(), KeyUtils.getKey(enumMessage), isAlarm);
         }
+    }
+
+    private void insatllAlarm(AlarmData alarmData, Map<String, Object> alarm) {
+        alarmData.setArmContent(alarm.get("b.arm_content").toString());
+        alarmData.setArmDbm(alarm.get("b.arm_dbm").toString());
+        alarmData.setArmSource(alarm.get("b.arm_source").toString());
+        alarmData.setArmEquName(alarm.get("b.arm_equ_name").toString());
+        alarmData.setArmEquType(alarm.get("b.arm_equ_type").toString());
+        alarmData.setArmEquCode(alarm.get("b.arm_equ_code").toString());
+        alarmData.setArmEquTypecode(Float.parseFloat(alarm.get("b.arm_equ_type_code").toString()));
+        alarmData.setArmLevel(Float.parseFloat(alarm.get("b.arm_level").toString()));
+        alarmData.setArmCode(Float.parseFloat(alarm.get("b.arm_code").toString()));
+
     }
 
     private void analysisTask(BaseMessage baseMessage,
@@ -104,6 +118,7 @@ public class AnalysisService {
                     LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.ofHours(8)));
             alarmData.setArmContent(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_content").toString());
             alarmData.setArmDbm(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_dbm").toString());
+            alarmData.setArmSource(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_source").toString());
             alarmData.setArmEquName(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_name").toString());
             alarmData.setArmEquCode(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_code").toString());
             alarmData.setArmEquType(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_type").toString());
@@ -140,26 +155,46 @@ public class AnalysisService {
 
                 List<Map<String, Object>> vehCodeInfo = jdbcTemplate.queryForList(sqlForVeh.toString());
 
-                labelA:
-                for (Map<String, Object> veh : vehCodeInfo) {
-                    String alarmCode = veh.get("a.key_id").toString();
-                    String alarmValue = veh.get("a.value").toString();
+                boolean isRunning = false;
+                String[] running = TableInfoConstant.VEHICLE_SKIDDING_RUNNING.split(",");
+                // 车辆打滑：先分析走行部异常
+                if (eventType.equals("0")) {
+                    labelA:
+                    for (Map<String, Object> veh : vehCodeInfo) {
+                        String alarmCode = veh.get("a.key_id").toString();
+                        String alarmValue = veh.get("a.value").toString();
 
-                    // 去匹配报警相关信息
-                    for (Map<String, Object> alarm : eventAlarmInfo) {
-                        // 找到原因：找到最早变位的点
-                        if (alarm.get("b.arm_veh_code").toString().equals(alarmCode)
-                                && alarm.get("b.arm_code_value").toString().equals(alarmValue)) {
-                            alarmData.setArmContent(alarm.get("b.arm_content").toString());
-                            alarmData.setArmDbm(alarm.get("b.arm_dbm").toString());
-                            alarmData.setArmEquName(alarm.get("b.arm_equ_name").toString());
-                            alarmData.setArmEquType(alarm.get("b.arm_equ_type").toString());
-                            alarmData.setArmEquCode(alarm.get("b.arm_equ_code").toString());
-                            alarmData.setArmEquTypecode(
-                                    Float.parseFloat(alarm.get("b.arm_equ_type_code").toString()));
-                            alarmData.setArmLevel(Float.parseFloat(alarm.get("b.arm_level").toString()));
-                            alarmData.setArmCode(Float.parseFloat(alarm.get("b.arm_code").toString()));
-                            break labelA;
+                        if (Arrays.asList(running).contains(alarmCode)) {
+                            // 去匹配报警相关信息
+                            for (Map<String, Object> alarm : eventAlarmInfo) {
+                                // 找到原因：找到最早变位的点
+                                if (alarm.get("b.arm_veh_code").toString().equals(alarmCode)
+                                        && alarm.get("b.arm_code_value").toString().equals(alarmValue)) {
+                                    insatllAlarm(alarmData, alarm);
+                                    isRunning = true;
+                                    break labelA;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (isRunning) {
+                    labelB:
+                    for (Map<String, Object> veh : vehCodeInfo) {
+                        String alarmCode = veh.get("a.key_id").toString();
+                        String alarmValue = veh.get("a.value").toString();
+
+                        if (!Arrays.asList(running).contains(alarmCode)) {
+                            // 去匹配报警相关信息
+                            for (Map<String, Object> alarm : eventAlarmInfo) {
+                                // 找到原因：找到最早变位的点
+                                if (alarm.get("b.arm_veh_code").toString().equals(alarmCode)
+                                        && alarm.get("b.arm_code_value").toString().equals(alarmValue)) {
+                                    insatllAlarm(alarmData, alarm);
+                                    break labelB;
+                                }
+                            }
                         }
                     }
                 }

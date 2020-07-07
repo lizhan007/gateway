@@ -4,7 +4,7 @@ server:
 spring:
 
   analysis:
-    waitTime: 600000
+    waitTime: 600
     duration: 30
 
   hive:
