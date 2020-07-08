@@ -61,6 +61,9 @@ public class DevDataController extends BaseController{
     @Autowired
     private AnalogRedisUtils analogRedisUtils;
 
+    @Autowired
+    private SysEnumMeanDefMapper sysEnumMeanDefMapper;
+
     @RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
     @ResponseBody
     public R listDevType() {
@@ -256,9 +259,22 @@ public class DevDataController extends BaseController{
             }
         }
 
-        res.setCode(R.SUCCESS);
-        res.setData(result);
-        return res;
+        if(major.equals("VEHICLE")){
+
+            Map<String, Object>  dataRes = new HashMap<>();
+            dataRes.put("data", result);
+            dataRes.put("total", total);
+            res.setCode(R.SUCCESS);
+            res.setData(result);
+            return res;
+
+        }else{
+
+            res.setCode(R.SUCCESS);
+            res.setData(result);
+            return res;
+
+        }
     }
 
 
@@ -299,13 +315,18 @@ public class DevDataController extends BaseController{
     @ResponseBody
     public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
 
+        List<Map> list = sysRelateCollectionDefMapper.listEnumAttr();
+
+        //获取枚举字典
         List<String> params = new ArrayList<>();
         for(DevVo vo:devIdList){
             params.add(vo.getDevId());
         }
 
         QueryWrapper<SysRelateCollectionDef> query = new QueryWrapper<>();
-        query.lambda().in(SysRelateCollectionDef::getDevId, params);
+        query.lambda().in(SysRelateCollectionDef::getDevId, params)
+                .orderByAsc(SysRelateCollectionDef::getCollectTypeId)
+        .orderByAsc(SysRelateCollectionDef::getInterfaceTypeId);
 
         List<SysRelateCollectionDef> sysRelateCollectionDefList
                 = sysRelateCollectionDefMapper.selectList(query);
@@ -321,9 +342,9 @@ public class DevDataController extends BaseController{
         for(SysRelateCollectionDef vo : sysRelateCollectionDefList){
             if(vo.getDataType() == 0){
                 dKeys.add(vo.getKeyId());
-            }else if(vo.getDataType() == 1){
+            }else if(vo.getDataType() == 4){
                 eKeys.add(vo.getKeyId());
-            }else if(vo.getDataType() == 2){
+            }else if(vo.getDataType() == 1){
                 aKeys.add(vo.getKeyId());
             }
         }
@@ -347,14 +368,14 @@ public class DevDataController extends BaseController{
                         break;
                     }
                 }
-            }else if(vo.getDataType() == 1){
+            }else if(vo.getDataType() == 4){
                 for(int i = 0; i < eKeys.size(); i++){
                     if(vo.getKeyId().equals(eKeys.get(i))){
                         map.get(vo.getDevId()).add(eres.get(i));
                         break;
                     }
                 }
-            }else if(vo.getDataType() == 2){
+            }else if(vo.getDataType() == 1){
                 for(int i = 0; i < aKeys.size(); i++){
                     if(vo.getKeyId().equals(aKeys.get(i))){
                         map.get(vo.getDevId()).add(ares.get(i));
@@ -363,6 +384,10 @@ public class DevDataController extends BaseController{
                 }
             }
         }//for(CollectionVo vo : collectionVoList){
+
+
+
+
 
         R<Object> res = new R<>();
         res.setCode(R.SUCCESS);
@@ -431,6 +456,27 @@ public class DevDataController extends BaseController{
                 }
             }
         }//for(CollectionVo vo : collectionVoList){
+
+        //处理枚举字典转换
+        /*QueryWrapper<SysEnumMeanDef> query = new QueryWrapper<>();
+        List<SysEnumMeanDef> typeList = sysEnumMeanDefMapper.selectList(query);
+
+        for(int i =0; i < collectionVoList.size(); i++){
+
+            String key    = result.get(i).keySet().iterator().next().toString();
+            String value  = result.get(i).get(key);
+
+            if(collectionVoList.get(i).getDataType() == 4){
+                for(int j = 0; j < typeList.size(); i++){
+
+                    if(collectionVoList.get(i).getCollectionName().equals(typeList.get(j).getTypeName())
+                    && value.equals(typeList.get(j).getEnumValue())){
+                        result.get(i).put(key, typeList.get(j).getEnumMean());
+                        break;
+                    }
+                }
+            }
+        }*/
 
         R<Object> res = new R<>();
         res.setCode(R.SUCCESS);
