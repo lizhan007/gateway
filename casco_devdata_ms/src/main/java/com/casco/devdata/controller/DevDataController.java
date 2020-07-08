@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /*-
@@ -99,7 +97,7 @@ public class DevDataController extends BaseController{
 
     @RequestMapping(value = "/devdata/listdev", method = RequestMethod.POST)
     @ResponseBody
-    public R listDev(String typeid, Integer start, Integer limit, String devId) {
+    public R listDev(String stationCode, String typeid, Integer start, Integer limit, String devId) {
 
         //http://localhost:7002/devdata/listdev?typeid=401
 //        QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
@@ -110,23 +108,21 @@ public class DevDataController extends BaseController{
 //
 //        list = sysRelateCollectionDefMapper.selectPage(page, collectQuery).getRecords();
 
-        R<List<SysDevList>> res = new R<>();
-
         //1. 查找所有的设备
         QueryWrapper<SysDevList> devquery = new QueryWrapper<>();
         if(devId == null || devId.trim().length() == 0){
-            devquery.lambda().eq(SysDevList::getDevTypeId, typeid);
+            devquery.lambda().eq(SysDevList::getDevTypeId, typeid).eq(SysDevList::getStationCode, stationCode);
         }else{
-            devquery.lambda().eq(SysDevList::getDevTypeId, typeid).eq(SysDevList::getDevId, devId);
+            devquery.lambda().eq(SysDevList::getDevTypeId, typeid).eq(SysDevList::getStationCode, stationCode).eq(SysDevList::getDevId, devId);
         }
 
         Page<SysDevList> page = new Page<>(start, limit);
 
-        List<SysDevList> list = sysDevListMapper.selectPage(page, devquery).getRecords();
-
-        res.setCode(R.SUCCESS);
-        res.setData(list);
-        return res;
+        R<Page<SysDigitTypeDef>> r = new R<>();
+        Page pages = sysDevListMapper.selectPage(page, devquery);
+        r.setCode(R.SUCCESS);
+        r.setData(pages);
+        return r;
     }
 
     //新的获取设备属性接口
@@ -164,6 +160,7 @@ public class DevDataController extends BaseController{
 
         //1. 查找设备采集项目
         List<SysRelateCollectionDef> list = null;
+        Long total = 0L;
 
         if(major.equals("VEHICLE")){
 
@@ -173,8 +170,10 @@ public class DevDataController extends BaseController{
                     eq(SysRelateCollectionDef::getDevId, devid);
 
             Page<SysRelateCollectionDef> page = new Page<>(start,limit);
-
-            list = sysRelateCollectionDefMapper.selectPage(page, collectQuery).getRecords();
+            R<Page<SysDigitTypeDef>> r = new R<>();
+            Page pages = sysRelateCollectionDefMapper.selectPage(page, collectQuery);
+            list = pages.getRecords();
+            total = pages.getTotal();
 
         }else {
 
@@ -300,8 +299,6 @@ public class DevDataController extends BaseController{
     @ResponseBody
     public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
 
-        Pattern p = Pattern.compile("\\s*|\t|\r|\n");
-
         List<String> params = new ArrayList<>();
         for(DevVo vo:devIdList){
             params.add(vo.getDevId());
@@ -321,18 +318,13 @@ public class DevDataController extends BaseController{
         List<String> eres = new ArrayList<>();
         List<String> ares = new ArrayList<>();
 
-
-
         for(SysRelateCollectionDef vo : sysRelateCollectionDefList){
             if(vo.getDataType() == 0){
-                Matcher m = p.matcher(vo.getKeyId());
-                dKeys.add(m.replaceAll(""));
+                dKeys.add(vo.getKeyId());
             }else if(vo.getDataType() == 1){
-                Matcher m = p.matcher(vo.getKeyId());
-                eKeys.add(m.replaceAll(""));
+                eKeys.add(vo.getKeyId());
             }else if(vo.getDataType() == 2){
-                Matcher m = p.matcher(vo.getKeyId());
-                aKeys.add(m.replaceAll(""));
+                aKeys.add(vo.getKeyId());
             }
         }
 
@@ -350,24 +342,21 @@ public class DevDataController extends BaseController{
 
             if(vo.getDataType() == 0){
                 for(int i = 0; i < dKeys.size(); i++){
-                    Matcher m = p.matcher(vo.getKeyId());
-                    if(m.replaceAll("").equals(dKeys.get(i))){
+                    if(vo.getKeyId().equals(dKeys.get(i))){
                         map.get(vo.getDevId()).add(dres.get(i));
                         break;
                     }
                 }
             }else if(vo.getDataType() == 1){
                 for(int i = 0; i < eKeys.size(); i++){
-                    Matcher m = p.matcher(vo.getKeyId());
-                    if(m.replaceAll("").equals(eKeys.get(i))){
+                    if(vo.getKeyId().equals(eKeys.get(i))){
                         map.get(vo.getDevId()).add(eres.get(i));
                         break;
                     }
                 }
             }else if(vo.getDataType() == 2){
                 for(int i = 0; i < aKeys.size(); i++){
-                    Matcher m = p.matcher(vo.getKeyId());
-                    if(m.replaceAll("").equals(aKeys.get(i))){
+                    if(vo.getKeyId().equals(aKeys.get(i))){
                         map.get(vo.getDevId()).add(ares.get(i));
                         break;
                     }
@@ -385,7 +374,7 @@ public class DevDataController extends BaseController{
 
     @RequestMapping(value = "/devdata/listcollections", method = RequestMethod.POST)
     @ResponseBody
-    public R listCollections(List<CollectionVo> collectionVoList) {
+    public R listCollections(@RequestBody List<CollectionVo> collectionVoList) {
 
         //数字1 枚举1 数字2 枚举1
         //数字1 数字2 枚举1 枚举2

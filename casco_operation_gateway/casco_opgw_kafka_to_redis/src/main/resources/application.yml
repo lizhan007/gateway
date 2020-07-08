@@ -13,6 +13,8 @@ spring:
         min-idle: 50
         max-wait: -1
         max-active: -1
+    expire: 5
+
 
   kafka:
     bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092

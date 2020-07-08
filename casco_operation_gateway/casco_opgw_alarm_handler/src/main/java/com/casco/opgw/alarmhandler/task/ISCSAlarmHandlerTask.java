@@ -89,6 +89,8 @@ public class ISCSAlarmHandlerTask implements Runnable{
             || !InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())){
                 //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
 
+                InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), 0);
+
                 LambdaQueryWrapper<SysAlarmTable> queryWrapper
                         =new QueryWrapper<SysAlarmTable>().lambda()
                         .eq(SysAlarmTable::getLineName,target.getLine())
@@ -120,7 +122,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
 
                     message.setArmAddJson(table.getArmAddJson());
                     kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
-                    InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
+
                 }
             }
         }//}else{
