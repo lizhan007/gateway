@@ -1,6 +1,6 @@
-package com.casco.opgw.combinealarm.business.impl;
+package com.casco.opgw.combinealarm.service.impl;
 
-import com.casco.opgw.combinealarm.business.ICacheManager;
+import com.casco.opgw.combinealarm.service.ICacheManager;
 import com.casco.opgw.combinealarm.dto.AlarmData;
 
 import java.util.Map;

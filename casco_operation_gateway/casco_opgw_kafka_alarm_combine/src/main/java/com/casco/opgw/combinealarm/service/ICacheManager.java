@@ -1,4 +1,4 @@
-package com.casco.opgw.combinealarm.business;
+package com.casco.opgw.combinealarm.service;
 
 import com.casco.opgw.combinealarm.dto.AlarmData;
 

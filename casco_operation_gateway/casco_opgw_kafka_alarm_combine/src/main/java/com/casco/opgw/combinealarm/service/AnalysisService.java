@@ -1,12 +1,16 @@
-package com.casco.opgw.combinealarm.business;
+package com.casco.opgw.combinealarm.service;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.casco.opgw.com.message.AnalogMessage;
 import com.casco.opgw.com.message.BaseMessage;
 import com.casco.opgw.com.message.DigitMessage;
 import com.casco.opgw.com.message.EnumMessage;
 import com.casco.opgw.com.utils.KeyUtils;
-import com.casco.opgw.combinealarm.business.impl.CacheManagerImpl;
+import com.casco.opgw.combinealarm.entity.SysEventAlarmInfo;
+import com.casco.opgw.combinealarm.entity.SysEventInfo;
+import com.casco.opgw.combinealarm.mapper.SysEventAlarmInfoMapper;
+import com.casco.opgw.combinealarm.service.impl.CacheManagerImpl;
 import com.casco.opgw.combinealarm.db.TableInfoConstant;
 import com.casco.opgw.combinealarm.dto.AlarmData;
 import com.casco.opgw.combinealarm.kafka.KafkaProducer;
@@ -41,56 +45,53 @@ public class AnalysisService {
     @Autowired
     private InfluxDB influxDB;
 
+    @Autowired
+    private SysEventAlarmInfoMapper sysEventAlarmInfoMapper;
+
     private static final Integer WAIT_NUM = 10;
 
     private static final Long WAIT_TIME = 60000L;
 
     @Async("executor")
-    public void startAnalysis(BaseMessage baseMessage, Map<String, Object> mapCfg, boolean isAlarm) {
+    public void startAnalysis(BaseMessage baseMessage, SysEventInfo sysEventInfo, boolean isAlarm) {
         if (baseMessage instanceof AnalogMessage) {
             AnalogMessage analogMessage = (AnalogMessage)baseMessage;
-            analysisTask(analogMessage, mapCfg, analogMessage.getTimestamp(), KeyUtils.getKey(analogMessage), isAlarm);
+            analysisTask(analogMessage, sysEventInfo, analogMessage.getTimestamp(), KeyUtils.getKey(analogMessage), isAlarm);
         } else if (baseMessage instanceof DigitMessage) {
             DigitMessage digitMessage = (DigitMessage)baseMessage;
-            analysisTask(digitMessage, mapCfg, digitMessage.getTimestamp(), KeyUtils.getKey(digitMessage), isAlarm);
+            analysisTask(digitMessage, sysEventInfo, digitMessage.getTimestamp(), KeyUtils.getKey(digitMessage), isAlarm);
         } else if (baseMessage instanceof EnumMessage) {
             EnumMessage enumMessage = (EnumMessage)baseMessage;
-            analysisTask(enumMessage, mapCfg, enumMessage.getTimestamp(), KeyUtils.getKey(enumMessage), isAlarm);
+            analysisTask(enumMessage, sysEventInfo, enumMessage.getTimestamp(), KeyUtils.getKey(enumMessage), isAlarm);
         }
     }
 
-    private void insatllAlarm(AlarmData alarmData, Map<String, Object> alarm) {
-        alarmData.setArmContent(alarm.get("b.arm_content").toString());
-        alarmData.setArmDbm(alarm.get("b.arm_dbm").toString());
-        alarmData.setArmSource(alarm.get("b.arm_source").toString());
-        alarmData.setArmEquName(alarm.get("b.arm_equ_name").toString());
-        alarmData.setArmEquType(alarm.get("b.arm_equ_type").toString());
-        alarmData.setArmEquCode(alarm.get("b.arm_equ_code").toString());
-        alarmData.setArmEquTypecode(Float.parseFloat(alarm.get("b.arm_equ_type_code").toString()));
-        alarmData.setArmLevel(Float.parseFloat(alarm.get("b.arm_level").toString()));
-        alarmData.setArmCode(Float.parseFloat(alarm.get("b.arm_code").toString()));
+    private void insatllAlarm(AlarmData alarmData, SysEventAlarmInfo sysEventAlarmInfo) {
+        alarmData.setArmContent(sysEventAlarmInfo.getArmContent());
+        alarmData.setArmDbm(sysEventAlarmInfo.getArmDbm());
+        alarmData.setArmSource(sysEventAlarmInfo.getArmSource());
+        alarmData.setArmEquName(sysEventAlarmInfo.getArmEquName());
+        alarmData.setArmEquType(sysEventAlarmInfo.getArmEquType());
+        alarmData.setArmEquCode(sysEventAlarmInfo.getArmEquCode());
+        alarmData.setArmEquTypecode(sysEventAlarmInfo.getArmEquTypeCode());
+        alarmData.setArmLevel(sysEventAlarmInfo.getArmLevel());
+        alarmData.setArmCode(sysEventAlarmInfo.getArmCode());
 
     }
 
     private void analysisTask(BaseMessage baseMessage,
-                              Map<String, Object> mapCfg, Long timestamp, String key, boolean isAlarm) {
+                              SysEventInfo sysEventInfo, Long timestamp, String key, boolean isAlarm) {
         try {
             Thread.sleep(waitTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        String eventType = mapCfg.get(TableInfoConstant.EVENT_INFO + ".event_type").toString();
+        Integer eventType = sysEventInfo.getEventType();
         if (isAlarm) {
-            // 从hive取出车辆专业点位对应报警信息
-            StringBuilder sql = new StringBuilder();
-            sql.append("select B.* from ");
-            sql.append(TableInfoConstant.EVENT_INFO);
-            sql.append(" A join ");
-            sql.append(TableInfoConstant.EVENT_ALARM_INFO);
-            sql.append(" B on A.id = B.event_type_id where A.event_type = ");
-            sql.append(eventType);
-            List<Map<String, Object>> eventAlarmInfo = jdbcTemplate.queryForList(sql.toString());
+            List<SysEventAlarmInfo> eventAlarmInfo = sysEventAlarmInfoMapper.selectList(
+                    new QueryWrapper<SysEventAlarmInfo>().eq("event_type_id", sysEventInfo.getId())
+            );
 
             // 从车辆表中获取点位信息
             StringBuilder sqlForVeh = new StringBuilder();
@@ -103,7 +104,7 @@ public class AnalysisService {
             sqlForVeh.append(") and (");
             for (int i = 0; i < eventAlarmInfo.size(); i++) {
                 sqlForVeh.append("A.key_id = '");
-                sqlForVeh.append(eventAlarmInfo.get(i).get("b.arm_veh_code").toString());
+                sqlForVeh.append(eventAlarmInfo.get(i).getArmVehCode());
                 if (i != eventAlarmInfo.size() - 1) {
                     sqlForVeh.append("' or ");
                 } else {
@@ -116,24 +117,21 @@ public class AnalysisService {
             alarmData.setArmUuid(UUID.randomUUID().toString());
             alarmData.setArmHappenTime(
                     LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.ofHours(8)));
-            alarmData.setArmContent(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_content").toString());
-            alarmData.setArmDbm(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_dbm").toString());
-            alarmData.setArmSource(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_source").toString());
-            alarmData.setArmEquName(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_name").toString());
-            alarmData.setArmEquCode(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_code").toString());
-            alarmData.setArmEquType(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_type").toString());
-            alarmData.setArmLevel(
-                    Float.parseFloat(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_level").toString()));
-            alarmData.setArmEquTypecode(
-                    Float.parseFloat(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_equ_type_code").toString()));
-            alarmData.setArmCode(
-                    Float.parseFloat(mapCfg.get(TableInfoConstant.EVENT_INFO + ".root_arm_code").toString()));
+            alarmData.setArmContent(sysEventInfo.getRootArmContent());
+            alarmData.setArmDbm(sysEventInfo.getRootArmDbm());
+            alarmData.setArmSource(sysEventInfo.getRootArmSource());
+            alarmData.setArmEquName(sysEventInfo.getRootArmEquName());
+            alarmData.setArmEquCode(sysEventInfo.getRootArmEquCode());
+            alarmData.setArmEquType(sysEventInfo.getRootArmEquType());
+            alarmData.setArmLevel(sysEventInfo.getRootArmLevel());
+            alarmData.setArmEquTypecode(sysEventInfo.getRootArmEquTypeCode());
+            alarmData.setArmCode(sysEventInfo.getRootArmCode());
 
             // 代码保护
             if (eventAlarmInfo.size() != 0) {
-                String majorName = eventAlarmInfo.get(0).get("b.arm_veh_code").toString().split("\\.")[0];
-                String lineName = eventAlarmInfo.get(0).get("b.arm_veh_code").toString().split("\\.")[1];
-                String trainName = eventAlarmInfo.get(0).get("b.arm_veh_code").toString().split("\\.")[2];
+                String majorName = eventAlarmInfo.get(0).getArmVehCode().split("\\.")[0];
+                String lineName = eventAlarmInfo.get(0).getArmVehCode().split("\\.")[1];
+                String trainName = eventAlarmInfo.get(0).getArmVehCode().split("\\.")[2];
 
                 // 获取OVERHAUL_MODE信息
                 String isMaintainCodeName = majorName + "." + lineName + "." + trainName + "." + "OVERHAUL_MODE";
@@ -157,41 +155,36 @@ public class AnalysisService {
 
                 boolean isRunning = false;
                 String[] running = TableInfoConstant.VEHICLE_SKIDDING_RUNNING.split(",");
-                // 车辆打滑：先分析走行部异常
-                if (eventType.equals("0")) {
-                    labelA:
+                labelA:
+                for (Map<String, Object> veh : vehCodeInfo) {
+                    String alarmCode = veh.get("a.key_id").toString();
+                    String alarmValue = veh.get("a.value").toString();
+                    // 去匹配报警相关信息
+                    for (SysEventAlarmInfo sysEventAlarmInfo : eventAlarmInfo) {
+                        // 找到原因：找到最早变位的点
+                        if (sysEventAlarmInfo.getArmVehCode().equals(alarmCode)
+                                && sysEventAlarmInfo.getArmCodeValue().toString().equals(alarmValue)) {
+                            insatllAlarm(alarmData, sysEventAlarmInfo);
+                            isRunning = true;
+                            break labelA;
+                        }
+                    }
+                }
+
+                // 走行部异常
+                if (isRunning && eventType.equals(0)) {
+                    labelB:
                     for (Map<String, Object> veh : vehCodeInfo) {
                         String alarmCode = veh.get("a.key_id").toString();
                         String alarmValue = veh.get("a.value").toString();
 
                         if (Arrays.asList(running).contains(alarmCode)) {
                             // 去匹配报警相关信息
-                            for (Map<String, Object> alarm : eventAlarmInfo) {
+                            for (SysEventAlarmInfo sysEventAlarmInfo : eventAlarmInfo) {
                                 // 找到原因：找到最早变位的点
-                                if (alarm.get("b.arm_veh_code").toString().equals(alarmCode)
-                                        && alarm.get("b.arm_code_value").toString().equals(alarmValue)) {
-                                    insatllAlarm(alarmData, alarm);
-                                    isRunning = true;
-                                    break labelA;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (isRunning) {
-                    labelB:
-                    for (Map<String, Object> veh : vehCodeInfo) {
-                        String alarmCode = veh.get("a.key_id").toString();
-                        String alarmValue = veh.get("a.value").toString();
-
-                        if (!Arrays.asList(running).contains(alarmCode)) {
-                            // 去匹配报警相关信息
-                            for (Map<String, Object> alarm : eventAlarmInfo) {
-                                // 找到原因：找到最早变位的点
-                                if (alarm.get("b.arm_veh_code").toString().equals(alarmCode)
-                                        && alarm.get("b.arm_code_value").toString().equals(alarmValue)) {
-                                    insatllAlarm(alarmData, alarm);
+                                if (sysEventAlarmInfo.getArmVehCode().equals(alarmCode)
+                                        && sysEventAlarmInfo.getArmCodeValue().toString().equals(alarmValue)) {
+                                    insatllAlarm(alarmData, sysEventAlarmInfo);
                                     break labelB;
                                 }
                             }

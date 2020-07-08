@@ -6,12 +6,12 @@ import com.casco.opgw.com.message.DigitMessage;
 import com.casco.opgw.com.message.EnumMessage;
 import com.casco.opgw.com.message.KafkaConstant;
 import com.casco.opgw.com.utils.KeyUtils;
-import com.casco.opgw.combinealarm.business.AnalysisService;
-import com.casco.opgw.combinealarm.db.TableInfoConstant;
+import com.casco.opgw.combinealarm.entity.SysEventInfo;
+import com.casco.opgw.combinealarm.mapper.SysEventInfoMapper;
+import com.casco.opgw.combinealarm.service.AnalysisService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +24,15 @@ import java.util.concurrent.Executor;
 @Service
 public class KafkaConsumer {
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private Executor executor;
 
     @Autowired
     private AnalysisService analysisService;
 
-    final private String sqlQuery = "select * from " + TableInfoConstant.EVENT_INFO;
+    @Autowired
+    private SysEventInfoMapper sysEventInfoMapper;
 
-    private static List<Map<String, Object>> list = null;
+    private static List<SysEventInfo> list = null;
 
     private static Map<String, Boolean> eventFlag = new HashMap<String, Boolean>();
 
@@ -50,13 +48,13 @@ public class KafkaConsumer {
 
         if (list == null) {
             synchronized (this) {
-                list = jdbcTemplate.queryForList(sqlQuery);
+                list = sysEventInfoMapper.selectList(null);
             }
         }
 
-        for (Map<String, Object> map : list) {
-            String codeName = map.get(TableInfoConstant.EVENT_INFO + ".signal_code_name").toString();
-            String codeValue = map.get(TableInfoConstant.EVENT_INFO + ".signal_code_value").toString();
+        for (SysEventInfo sysEventInfo : list) {
+            String codeName = sysEventInfo.getSignalCodeName();
+            String codeValue = sysEventInfo.getSignalCodeValue();
 
             String key = KeyUtils.getKey(digitMessage);
             if (codeName.equals(key)) {
@@ -65,13 +63,13 @@ public class KafkaConsumer {
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
                         eventFlag.put(key, true);
-                        analysisService.startAnalysis(digitMessage, map, true);
+                        analysisService.startAnalysis(digitMessage, sysEventInfo, true);
                     }
                 } else {
                     // 报警恢复
                     if (eventFlag.containsKey(key) && eventFlag.get(key).equals(true)) {
                         eventFlag.put(key, false);
-                        analysisService.startAnalysis(digitMessage, map, false);
+                        analysisService.startAnalysis(digitMessage, sysEventInfo, false);
                     }
                 }
             }
@@ -90,13 +88,13 @@ public class KafkaConsumer {
 
         if (list == null) {
             synchronized (this) {
-                list = jdbcTemplate.queryForList(sqlQuery);
+                list = sysEventInfoMapper.selectList(null);
             }
         }
 
-        for (Map<String, Object> map : list) {
-            String codeName = map.get(TableInfoConstant.EVENT_INFO + ".signal_code_name").toString();
-            String codeValue = map.get(TableInfoConstant.EVENT_INFO + ".signal_code_value").toString();
+        for (SysEventInfo sysEventInfo : list) {
+            String codeName = sysEventInfo.getSignalCodeName();
+            String codeValue = sysEventInfo.getSignalCodeValue();
 
             String key = KeyUtils.getKey(enumMessage);
             if (codeName.equals(key)) {
@@ -105,13 +103,13 @@ public class KafkaConsumer {
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
                         eventFlag.put(key, true);
-                        analysisService.startAnalysis(enumMessage, map, true);
+                        analysisService.startAnalysis(enumMessage, sysEventInfo, true);
                     }
                 } else {
                     // 报警恢复
                     if (eventFlag.containsKey(key) && eventFlag.get(key).equals(true)) {
                         eventFlag.put(key, false);
-                        analysisService.startAnalysis(enumMessage, map, false);
+                        analysisService.startAnalysis(enumMessage, sysEventInfo, false);
                     }
                 }
             }
@@ -130,13 +128,13 @@ public class KafkaConsumer {
 
         if (list == null) {
             synchronized (this) {
-                list = jdbcTemplate.queryForList(sqlQuery);
+                list = sysEventInfoMapper.selectList(null);
             }
         }
 
-        for (Map<String, Object> map : list) {
-            String codeName = map.get(TableInfoConstant.EVENT_INFO + ".signal_code_name").toString();
-            String codeValue = map.get(TableInfoConstant.EVENT_INFO + ".signal_code_value").toString();
+        for (SysEventInfo sysEventInfo : list) {
+            String codeName = sysEventInfo.getSignalCodeName();
+            String codeValue = sysEventInfo.getSignalCodeValue();
 
             String key = KeyUtils.getKey(analogMessage);
             if (codeName.equals(key)) {
@@ -145,13 +143,13 @@ public class KafkaConsumer {
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
                         eventFlag.put(key, true);
-                        analysisService.startAnalysis(analogMessage, map, true);
+                        analysisService.startAnalysis(analogMessage, sysEventInfo, true);
                     }
                 } else {
                     // 报警恢复
                     if (eventFlag.containsKey(key) && eventFlag.get(key).equals(true)) {
                         eventFlag.put(key, false);
-                        analysisService.startAnalysis(analogMessage, map, false);
+                        analysisService.startAnalysis(analogMessage, sysEventInfo, false);
                     }
                 }
             }

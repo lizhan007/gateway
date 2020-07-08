@@ -1,4 +1,4 @@
-package com.casco.opgw.combinealarm.business;
+package com.casco.opgw.combinealarm.service;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
