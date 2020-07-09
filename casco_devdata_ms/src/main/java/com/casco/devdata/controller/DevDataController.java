@@ -332,7 +332,7 @@ public class DevDataController extends BaseController{
     @ResponseBody
     public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
 
-        List<Map> list = sysRelateCollectionDefMapper.listEnumAttr();
+
 
 
         //获取枚举字典
@@ -340,6 +340,8 @@ public class DevDataController extends BaseController{
         for(DevVo vo:devIdList){
             params.add(vo.getDevId());
         }
+
+        List<Map> list = sysRelateCollectionDefMapper.listEnumAttr(params);
 
         QueryWrapper<SysRelateCollectionDef> query = new QueryWrapper<>();
         query.lambda().in(SysRelateCollectionDef::getDevId, params)

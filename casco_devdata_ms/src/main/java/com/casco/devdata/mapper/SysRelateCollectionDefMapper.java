@@ -37,10 +37,15 @@ public interface SysRelateCollectionDefMapper extends BaseMapper<SysRelateCollec
     List<Map> listDevAttr(@Param("devId") String devId);
 
 
-    @Select("SELECT COLLECT_TYPE_ID, SEM.`TYPE_NAME`, SEM.`ENUM_MEAN`, SEM.`ENUM_VALUE` FROM(\n" +
-            "SELECT COLLECT_TYPE_ID, TYPE_NAME FROM (SELECT COLLECT_TYPE_ID FROM SYS_RELATE_COLLECTION_DEF WHERE DATA_TYPE = 4) AS SR \n" +
+    @Select("<script>SELECT COLLECT_TYPE_ID, SEM.`TYPE_NAME`, SEM.`ENUM_MEAN`, SEM.`ENUM_VALUE` FROM(\n" +
+            "SELECT COLLECT_TYPE_ID, TYPE_NAME FROM (SELECT DISTINCT COLLECT_TYPE_ID FROM SYS_RELATE_COLLECTION_DEF WHERE DATA_TYPE = 4 AND  \n" +
+            "DEV_ID IN \n" +
+            "<foreach collection=\"devs\" index = \"index\" item = \"devid\" open= \"(\" separator=\",\" close=\")\">  \n" +
+            "#{devid} \n" +
+            "</foreach> \n" +
+            ") AS SR \n" +
             "LEFT JOIN SYS_ENUM_TYPE_DEF ED ON SR.`COLLECT_TYPE_ID` = ED.TYPE_ID) AS CT \n" +
-            "RIGHT JOIN SYS_ENUM_MEAN_DEF SEM ON CT.TYPE_NAME = SEM.`TYPE_NAME`")
-    List<Map> listEnumAttr();
+            "RIGHT JOIN SYS_ENUM_MEAN_DEF SEM ON CT.TYPE_NAME = SEM.`TYPE_NAME`</script>")
+    List<Map> listEnumAttr(@Param("devs") List<String> device);
 
 }
