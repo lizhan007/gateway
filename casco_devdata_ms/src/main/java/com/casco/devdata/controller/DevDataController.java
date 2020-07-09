@@ -214,7 +214,7 @@ public class DevDataController extends BaseController{
 
                 result.add(collectionVo);
 
-            }else if(item.getDataType() == 1){ //enum
+            }else if(item.getDataType() == 4){ //enum
 
                 //1.1 获取类型名称
                 QueryWrapper<SysEnumTypeDef> etquery
@@ -235,7 +235,7 @@ public class DevDataController extends BaseController{
 
                 result.add(collectionVo);
 
-            }else if(item.getDataType() == 2){ //analog
+            }else if(item.getDataType() == 1){ //analog
 
                 //1.1 获取类型名称
                 QueryWrapper<SysAnalogTypeDef> atquery
