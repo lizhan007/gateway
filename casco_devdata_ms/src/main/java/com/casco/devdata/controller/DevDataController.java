@@ -318,9 +318,10 @@ public class DevDataController extends BaseController{
     private String changeEnumvalue(final List<Map> enumMapList, String CollectId, String value){
 
         for(int i = 0; i < enumMapList.size(); i++){
+            
+            if(CollectId.equals(enumMapList.get(i).get("COLLECT_TYPE_ID").toString())
+            && value.equals(enumMapList.get(i).get("ENUM_VALUE").toString())){
 
-            if(CollectId.equals(enumMapList.get(i).get("COLLECT_TYPE_ID"))
-            && value.equals(enumMapList.get(i).get("ENUM_VALUE"))){
                 return (String) enumMapList.get(i).get("ENUM_MEAN");
             }
         }

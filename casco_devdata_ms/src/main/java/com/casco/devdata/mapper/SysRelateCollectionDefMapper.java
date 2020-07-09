@@ -46,6 +46,23 @@ public interface SysRelateCollectionDefMapper extends BaseMapper<SysRelateCollec
             ") AS SR \n" +
             "LEFT JOIN SYS_ENUM_TYPE_DEF ED ON SR.`COLLECT_TYPE_ID` = ED.TYPE_ID) AS CT \n" +
             "RIGHT JOIN SYS_ENUM_MEAN_DEF SEM ON CT.TYPE_NAME = SEM.`TYPE_NAME`</script>")
+    List<Map> listOldEnumAttr(@Param("devs") List<String> device);
+
+
+
+    @Select("<script>SELECT * FROM (\n" +
+            "SELECT SR.COLLECT_TYPE_ID, ED.TYPE_NAME FROM (SELECT DISTINCT COLLECT_TYPE_ID FROM SYS_RELATE_COLLECTION_DEF WHERE DATA_TYPE = 4 AND DEV_ID IN" +
+            "<foreach collection=\"devs\" index = \"index\" item = \"devid\" open= \"(\" separator=\",\" close=\")\">  \n" +
+            "#{devid} \n" +
+            "</foreach> \n" +
+            ") AS SR \n" +
+            "LEFT JOIN SYS_ENUM_TYPE_DEF ED ON SR.`COLLECT_TYPE_ID` = ED.TYPE_ID ) AS CT\n" +
+            "RIGHT JOIN (SELECT * FROM SYS_ENUM_MEAN_DEF WHERE TYPE_ID IN (SELECT DISTINCT COLLECT_TYPE_ID FROM SYS_RELATE_COLLECTION_DEF WHERE DATA_TYPE = 4 \n" +
+            "AND DEV_ID IN" +
+            "<foreach collection=\"devs\" index = \"index\" item = \"devid\" open= \"(\" separator=\",\" close=\")\">  \n" +
+            "#{devid} \n" +
+            "</foreach> \n" +
+            ")) SEM ON CT.TYPE_NAME = SEM.`TYPE_NAME`</script>")
     List<Map> listEnumAttr(@Param("devs") List<String> device);
 
 }
