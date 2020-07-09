@@ -157,7 +157,7 @@ public class DevDataController extends BaseController{
          * 查 INTERFACE_SOURCE_NAME 作为来源
          */
 
-        R<List<CollectionVo>> res = new R<>();
+
 
         List<CollectionVo> result = new ArrayList<>();
 
@@ -259,13 +259,16 @@ public class DevDataController extends BaseController{
             }
         }
 
+        //R<List<CollectionVo>> res = new R<>();
+        R<Object> res = new R<>();
+
         if(major.equals("VEHICLE")){
 
             Map<String, Object>  dataRes = new HashMap<>();
             dataRes.put("data", result);
             dataRes.put("total", total);
             res.setCode(R.SUCCESS);
-            res.setData(result);
+            res.setData(dataRes);
             return res;
 
         }else{
@@ -311,11 +314,26 @@ public class DevDataController extends BaseController{
         return res;
     }
 
+
+    private String changeEnumvalue(final List<Map> enumMapList, String CollectId, String value){
+
+        for(int i = 0; i < enumMapList.size(); i++){
+
+            if(CollectId.equals(enumMapList.get(i).get("COLLECT_TYPE_ID"))
+            && value.equals(enumMapList.get(i).get("ENUM_VALUE"))){
+                return (String) enumMapList.get(i).get("ENUM_MEAN");
+            }
+        }
+
+        return null;
+    }
+
     @RequestMapping(value = "/devdata/listdevscollects", method = RequestMethod.POST)
     @ResponseBody
     public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
 
         List<Map> list = sysRelateCollectionDefMapper.listEnumAttr();
+
 
         //获取枚举字典
         List<String> params = new ArrayList<>();
@@ -371,7 +389,8 @@ public class DevDataController extends BaseController{
             }else if(vo.getDataType() == 4){
                 for(int i = 0; i < eKeys.size(); i++){
                     if(vo.getKeyId().equals(eKeys.get(i))){
-                        map.get(vo.getDevId()).add(eres.get(i));
+                        map.get(vo.getDevId()).add(changeEnumvalue(list,
+                                String.valueOf(vo.getCollectTypeId()), eres.get(i)));
                         break;
                     }
                 }
@@ -384,9 +403,6 @@ public class DevDataController extends BaseController{
                 }
             }
         }//for(CollectionVo vo : collectionVoList){
-
-
-
 
 
         R<Object> res = new R<>();
