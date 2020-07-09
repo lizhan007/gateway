@@ -415,9 +415,9 @@ public class DevDataController extends BaseController{
         for(CollectionVo vo : collectionVoList){
             if(vo.getDataType() == 0){
                 dKeys.add(vo.getKeyid());
-            }else if(vo.getDataType() == 1){
+            }else if(vo.getDataType() == 4){
                 eKeys.add(vo.getKeyid());
-            }else if(vo.getDataType() == 2){
+            }else if(vo.getDataType() == 1){
                 aKeys.add(vo.getKeyid());
             }
         }
