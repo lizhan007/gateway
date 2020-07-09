@@ -53,6 +53,8 @@ public class DevDataController extends BaseController{
     private SysKeyVisibleMapper sysKeyVisibleMapper;
     @Autowired
     private SysInterfaceTypeDefMapper sysInterfaceTypeDefMapper;
+    @Autowired
+    private SysAnalogQuantityDefMapper sysAnalogQuantityDefMapper;
 
     @Autowired
     private DigitalRedisUtils digitalRedisUtils;
@@ -64,9 +66,9 @@ public class DevDataController extends BaseController{
     @Autowired
     private SysEnumMeanDefMapper sysEnumMeanDefMapper;
 
-    @RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
+    /*@RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
     @ResponseBody
-    public R listDevType() {
+    public R OldlistDevType() {
 
         R<List<SysDevMainTypeDefVo>> res = new R<>();
 
@@ -96,7 +98,40 @@ public class DevDataController extends BaseController{
         res.setCode(R.SUCCESS);
         res.setData(devTypeVoList);
         return res;
+    }*/
+
+    @RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
+    @ResponseBody
+    public R listDevType() {
+
+        List<SysDevMainTypeDef> mList = sysDevMainTypeDefMapper.listValidMainType();
+        List<SysDevTypeDef> list = sysDevTypeDefMapper.listValidType();
+        R<List<SysDevMainTypeDefVo>> res = new R<>();
+        List<SysDevMainTypeDefVo> devTypeVoList = new ArrayList<>();
+
+        for(SysDevMainTypeDef item: mList){
+            SysDevMainTypeDefVo devTypeVo = new SysDevMainTypeDefVo();
+            BeanUtils.copyProperties(item, devTypeVo);
+            QueryWrapper<SysDevTypeDef> query = new QueryWrapper<>();
+            query.lambda().eq(SysDevTypeDef::getDevMainTypeId, item.getDevMainTypeId());
+
+            for(SysDevTypeDef type: list){
+                if(type.getDevMainTypeId().equals(item.getDevMainTypeId())){
+                    SysDevTypeDefVo sysDevTypeDefVo = new SysDevTypeDefVo();
+                    BeanUtils.copyProperties(type, sysDevTypeDefVo);
+                    devTypeVo.getSysDevTypeDefVoList().add(sysDevTypeDefVo);
+                }
+            }
+
+            devTypeVoList.add(devTypeVo);
+        }
+
+
+        res.setCode(R.SUCCESS);
+        res.setData(devTypeVoList);
+        return res;
     }
+
 
     @RequestMapping(value = "/devdata/listdev", method = RequestMethod.POST)
     @ResponseBody
@@ -318,7 +353,7 @@ public class DevDataController extends BaseController{
     private String changeEnumvalue(final List<Map> enumMapList, String CollectId, String value){
 
         for(int i = 0; i < enumMapList.size(); i++){
-            
+
             if(CollectId.equals(enumMapList.get(i).get("COLLECT_TYPE_ID").toString())
             && value.equals(enumMapList.get(i).get("ENUM_VALUE").toString())){
 
@@ -329,12 +364,21 @@ public class DevDataController extends BaseController{
         return null;
     }
 
+    private String changeAnalogValue(final  List<SysAnalogQuantityDef> list, String keyid, String value){
+        for(SysAnalogQuantityDef item: list){
+            if(item.getKeyId().equals(keyid)){
+                if(value != null && value.length() > 0){
+                    return value + " " + item.getUnit();
+                }
+            }
+        }
+
+        return value;
+    }
+
     @RequestMapping(value = "/devdata/listdevscollects", method = RequestMethod.POST)
     @ResponseBody
     public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
-
-
-
 
         //获取枚举字典
         List<String> params = new ArrayList<>();
@@ -343,6 +387,7 @@ public class DevDataController extends BaseController{
         }
 
         List<Map> list = sysRelateCollectionDefMapper.listEnumAttr(params);
+        List<SysAnalogQuantityDef> unitList = sysAnalogQuantityDefMapper.listAnalogUnit(params);
 
         QueryWrapper<SysRelateCollectionDef> query = new QueryWrapper<>();
         query.lambda().in(SysRelateCollectionDef::getDevId, params)
@@ -400,7 +445,8 @@ public class DevDataController extends BaseController{
             }else if(vo.getDataType() == 1){
                 for(int i = 0; i < aKeys.size(); i++){
                     if(vo.getKeyId().equals(aKeys.get(i))){
-                        map.get(vo.getDevId()).add(ares.get(i));
+                        //map.get(vo.getDevId()).add(ares.get(i));
+                        map.get(vo.getDevId()).add(changeAnalogValue(unitList, aKeys.get(i), ares.get(i)));
                         break;
                     }
                 }
