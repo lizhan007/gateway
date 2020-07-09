@@ -3,6 +3,7 @@ package com.casco.siganalysis.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.casco.siganalysis.common.dto.R;
+import com.casco.siganalysis.controller.vo.ListAlarmVo;
 import com.casco.siganalysis.entity.SysAlarmTable;
 import com.casco.siganalysis.entity.SysCombineRelated;
 import com.casco.siganalysis.entity.SysCombineScene;
@@ -52,6 +53,7 @@ public class AppController {
             data.put("line_name", scene.getLineName());
             data.put("arm_code_set", scene.getArmCodeSet());
             data.put("train_name", scene.getTrainName());
+            data.put("scene_id", scene.getArmSceneId());
 
             List<String> tmp = new ArrayList<>();
 
@@ -73,11 +75,11 @@ public class AppController {
 
     @RequestMapping(value = "/siganalysis/listalarm", method = RequestMethod.POST)
     @ResponseBody
-    public R getAlarm(List<String> alarmCode, String start, String end){
+    public R getAlarm(@RequestBody ListAlarmVo listAlarmVo){
 
         QueryWrapper<SysAlarmTable> query = new QueryWrapper<>();
-        query.lambda().in(SysAlarmTable::getArmCode, alarmCode)
-            .ge(SysAlarmTable::getArmHappenTime, start).lt(SysAlarmTable::getArmHappenTime, end);
+        query.lambda().in(SysAlarmTable::getArmCode, listAlarmVo.getAlarmCode())
+            .ge(SysAlarmTable::getArmHappenTime, listAlarmVo.getStart()).lt(SysAlarmTable::getArmHappenTime, listAlarmVo.getEnd());
 
         List<SysAlarmTable> mList = sysAlarmTableMapper.selectList(query);
 
