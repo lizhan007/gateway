@@ -53,6 +53,8 @@ public class DevDataController extends BaseController{
     private SysKeyVisibleMapper sysKeyVisibleMapper;
     @Autowired
     private SysInterfaceTypeDefMapper sysInterfaceTypeDefMapper;
+    @Autowired
+    private SysAnalogQuantityDefMapper sysAnalogQuantityDefMapper;
 
     @Autowired
     private DigitalRedisUtils digitalRedisUtils;
@@ -61,9 +63,12 @@ public class DevDataController extends BaseController{
     @Autowired
     private AnalogRedisUtils analogRedisUtils;
 
-    @RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
+    @Autowired
+    private SysEnumMeanDefMapper sysEnumMeanDefMapper;
+
+    /*@RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
     @ResponseBody
-    public R listDevType() {
+    public R OldlistDevType() {
 
         R<List<SysDevMainTypeDefVo>> res = new R<>();
 
@@ -93,7 +98,40 @@ public class DevDataController extends BaseController{
         res.setCode(R.SUCCESS);
         res.setData(devTypeVoList);
         return res;
+    }*/
+
+    @RequestMapping(value = "/devdata/listdevtype", method = RequestMethod.POST)
+    @ResponseBody
+    public R listDevType() {
+
+        List<SysDevMainTypeDef> mList = sysDevMainTypeDefMapper.listValidMainType();
+        List<SysDevTypeDef> list = sysDevTypeDefMapper.listValidType();
+        R<List<SysDevMainTypeDefVo>> res = new R<>();
+        List<SysDevMainTypeDefVo> devTypeVoList = new ArrayList<>();
+
+        for(SysDevMainTypeDef item: mList){
+            SysDevMainTypeDefVo devTypeVo = new SysDevMainTypeDefVo();
+            BeanUtils.copyProperties(item, devTypeVo);
+            QueryWrapper<SysDevTypeDef> query = new QueryWrapper<>();
+            query.lambda().eq(SysDevTypeDef::getDevMainTypeId, item.getDevMainTypeId());
+
+            for(SysDevTypeDef type: list){
+                if(type.getDevMainTypeId().equals(item.getDevMainTypeId())){
+                    SysDevTypeDefVo sysDevTypeDefVo = new SysDevTypeDefVo();
+                    BeanUtils.copyProperties(type, sysDevTypeDefVo);
+                    devTypeVo.getSysDevTypeDefVoList().add(sysDevTypeDefVo);
+                }
+            }
+
+            devTypeVoList.add(devTypeVo);
+        }
+
+
+        res.setCode(R.SUCCESS);
+        res.setData(devTypeVoList);
+        return res;
     }
+
 
     @RequestMapping(value = "/devdata/listdev", method = RequestMethod.POST)
     @ResponseBody
@@ -154,7 +192,7 @@ public class DevDataController extends BaseController{
          * 查 INTERFACE_SOURCE_NAME 作为来源
          */
 
-        R<List<CollectionVo>> res = new R<>();
+
 
         List<CollectionVo> result = new ArrayList<>();
 
@@ -211,7 +249,7 @@ public class DevDataController extends BaseController{
 
                 result.add(collectionVo);
 
-            }else if(item.getDataType() == 1){ //enum
+            }else if(item.getDataType() == 4){ //enum
 
                 //1.1 获取类型名称
                 QueryWrapper<SysEnumTypeDef> etquery
@@ -232,7 +270,7 @@ public class DevDataController extends BaseController{
 
                 result.add(collectionVo);
 
-            }else if(item.getDataType() == 2){ //analog
+            }else if(item.getDataType() == 1){ //analog
 
                 //1.1 获取类型名称
                 QueryWrapper<SysAnalogTypeDef> atquery
@@ -256,9 +294,25 @@ public class DevDataController extends BaseController{
             }
         }
 
-        res.setCode(R.SUCCESS);
-        res.setData(result);
-        return res;
+        //R<List<CollectionVo>> res = new R<>();
+        R<Object> res = new R<>();
+
+        if(major.equals("VEHICLE")){
+
+            Map<String, Object>  dataRes = new HashMap<>();
+            dataRes.put("data", result);
+            dataRes.put("total", total);
+            res.setCode(R.SUCCESS);
+            res.setData(dataRes);
+            return res;
+
+        }else{
+
+            res.setCode(R.SUCCESS);
+            res.setData(result);
+            return res;
+
+        }
     }
 
 
@@ -295,17 +349,50 @@ public class DevDataController extends BaseController{
         return res;
     }
 
+
+    private String changeEnumvalue(final List<Map> enumMapList, String CollectId, String value){
+
+        for(int i = 0; i < enumMapList.size(); i++){
+
+            if(CollectId.equals(enumMapList.get(i).get("COLLECT_TYPE_ID").toString())
+            && value.equals(enumMapList.get(i).get("ENUM_VALUE").toString())){
+
+                return (String) enumMapList.get(i).get("ENUM_MEAN");
+            }
+        }
+
+        return null;
+    }
+
+    private String changeAnalogValue(final  List<SysAnalogQuantityDef> list, String keyid, String value){
+        for(SysAnalogQuantityDef item: list){
+            if(item.getKeyId().equals(keyid) && item.getUnit() != null && item.getUnit().length() > 0){
+                if(value != null && value.length() > 0){
+                    return value + " " + item.getUnit();
+                }
+            }
+        }
+
+        return value;
+    }
+
     @RequestMapping(value = "/devdata/listdevscollects", method = RequestMethod.POST)
     @ResponseBody
     public R listDevsCollects(@RequestBody  List<DevVo> devIdList) {
 
+        //获取枚举字典
         List<String> params = new ArrayList<>();
         for(DevVo vo:devIdList){
             params.add(vo.getDevId());
         }
 
+        List<Map> list = sysRelateCollectionDefMapper.listEnumAttr(params);
+        List<SysAnalogQuantityDef> unitList = sysAnalogQuantityDefMapper.listAnalogUnit(params);
+
         QueryWrapper<SysRelateCollectionDef> query = new QueryWrapper<>();
-        query.lambda().in(SysRelateCollectionDef::getDevId, params);
+        query.lambda().in(SysRelateCollectionDef::getDevId, params)
+                .orderByAsc(SysRelateCollectionDef::getCollectTypeId)
+        .orderByAsc(SysRelateCollectionDef::getInterfaceTypeId);
 
         List<SysRelateCollectionDef> sysRelateCollectionDefList
                 = sysRelateCollectionDefMapper.selectList(query);
@@ -321,9 +408,9 @@ public class DevDataController extends BaseController{
         for(SysRelateCollectionDef vo : sysRelateCollectionDefList){
             if(vo.getDataType() == 0){
                 dKeys.add(vo.getKeyId());
-            }else if(vo.getDataType() == 1){
+            }else if(vo.getDataType() == 4){
                 eKeys.add(vo.getKeyId());
-            }else if(vo.getDataType() == 2){
+            }else if(vo.getDataType() == 1){
                 aKeys.add(vo.getKeyId());
             }
         }
@@ -347,22 +434,25 @@ public class DevDataController extends BaseController{
                         break;
                     }
                 }
-            }else if(vo.getDataType() == 1){
+            }else if(vo.getDataType() == 4){
                 for(int i = 0; i < eKeys.size(); i++){
                     if(vo.getKeyId().equals(eKeys.get(i))){
-                        map.get(vo.getDevId()).add(eres.get(i));
+                        map.get(vo.getDevId()).add(changeEnumvalue(list,
+                                String.valueOf(vo.getCollectTypeId()), eres.get(i)));
                         break;
                     }
                 }
-            }else if(vo.getDataType() == 2){
+            }else if(vo.getDataType() == 1){
                 for(int i = 0; i < aKeys.size(); i++){
                     if(vo.getKeyId().equals(aKeys.get(i))){
-                        map.get(vo.getDevId()).add(ares.get(i));
+                        //map.get(vo.getDevId()).add(ares.get(i));
+                        map.get(vo.getDevId()).add(changeAnalogValue(unitList, aKeys.get(i), ares.get(i)));
                         break;
                     }
                 }
             }
         }//for(CollectionVo vo : collectionVoList){
+
 
         R<Object> res = new R<>();
         res.setCode(R.SUCCESS);
@@ -390,9 +480,9 @@ public class DevDataController extends BaseController{
         for(CollectionVo vo : collectionVoList){
             if(vo.getDataType() == 0){
                 dKeys.add(vo.getKeyid());
-            }else if(vo.getDataType() == 1){
+            }else if(vo.getDataType() == 4){
                 eKeys.add(vo.getKeyid());
-            }else if(vo.getDataType() == 2){
+            }else if(vo.getDataType() == 1){
                 aKeys.add(vo.getKeyid());
             }
         }
@@ -431,6 +521,27 @@ public class DevDataController extends BaseController{
                 }
             }
         }//for(CollectionVo vo : collectionVoList){
+
+        //处理枚举字典转换
+        /*QueryWrapper<SysEnumMeanDef> query = new QueryWrapper<>();
+        List<SysEnumMeanDef> typeList = sysEnumMeanDefMapper.selectList(query);
+
+        for(int i =0; i < collectionVoList.size(); i++){
+
+            String key    = result.get(i).keySet().iterator().next().toString();
+            String value  = result.get(i).get(key);
+
+            if(collectionVoList.get(i).getDataType() == 4){
+                for(int j = 0; j < typeList.size(); i++){
+
+                    if(collectionVoList.get(i).getCollectionName().equals(typeList.get(j).getTypeName())
+                    && value.equals(typeList.get(j).getEnumValue())){
+                        result.get(i).put(key, typeList.get(j).getEnumMean());
+                        break;
+                    }
+                }
+            }
+        }*/
 
         R<Object> res = new R<>();
         res.setCode(R.SUCCESS);

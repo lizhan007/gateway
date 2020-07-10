@@ -6,7 +6,7 @@ spring:
     name: casco_opgw_alarm_handler
   datasource:
     name: test
-    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/alarm?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8
+    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8
     username: root
     password: Casco123
     type: com.alibaba.druid.pool.DruidDataSource

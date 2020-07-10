@@ -23,6 +23,7 @@ import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
+import org.apache.hive.service.cli.HiveSQLException;
 import org.flume.hive.entity.EnumEntity;
 import org.flume.hive.util.KeysUtil;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import com.google.common.collect.Lists;
 
 
 public class SIGEnumSink extends AbstractSink implements Configurable {
-	
+
 
 	private Logger log = LoggerFactory.getLogger(SIGEnumSink.class);
 	private String metastore;
@@ -50,7 +51,7 @@ public class SIGEnumSink extends AbstractSink implements Configurable {
 	private static ResultSet res = null;
 
 	public SIGEnumSink() {
-		log.debug("EnumSink Start...");
+
 	}
 
 	@Override
@@ -69,9 +70,19 @@ public class SIGEnumSink extends AbstractSink implements Configurable {
 		Preconditions.checkNotNull(batchSize > 0, "batchSize must be a positive number!!");
 	}
 
+	/**
+	 * 程序启动时进行初始化操作
+	 */
 	@Override
 	public synchronized void start() {
 		super.start();
+		getConnection();
+	}
+
+	/**
+	 * 获取或者刷新连接
+	 */
+	private void getConnection() {
 		try {
 			Class.forName("org.apache.hive.jdbc.HiveDriver");
 		} catch (Exception e) {
@@ -85,7 +96,6 @@ public class SIGEnumSink extends AbstractSink implements Configurable {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
-
 	}
 
 	@Override
@@ -109,18 +119,16 @@ public class SIGEnumSink extends AbstractSink implements Configurable {
 
 	@Override
 	public Status process() throws EventDeliveryException {
-		System.out.println("...........................");
 		Status result = Status.READY;
-        Channel channel = getChannel();
-        Transaction transaction = channel.getTransaction();
-        Event event;
-        String content;
-        transaction.begin();
-        List<EnumEntity> infos = Lists.newArrayList();
+		Channel channel = getChannel();
+		Transaction transaction = channel.getTransaction();
+		Event event;
+		String content;
+		transaction.begin();
+		List<EnumEntity> infos = Lists.newArrayList();
 		for (int i = 0; i < batchSize; i++) {
 			event = channel.take(); // 从channel中获取一条数据
-			log.debug(">>> " + i + "  : 数据传输开始... ");
-			System.out.println("枚举量开始传输");
+
 			if (event != null) {
 				content = new String(event.getBody());
 				EnumEntity entity = JSON.parseObject(content, EnumEntity.class);
@@ -134,12 +142,12 @@ public class SIGEnumSink extends AbstractSink implements Configurable {
 			if (infos.size() > 0) {
 				File fout = new File(filepath + table + ".txt");
 				FileOutputStream fos = null;
-		        try {
+				try {
 					fos = new FileOutputStream(fout);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				}
-		        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 				for (EnumEntity entity : infos) {
 					if(entity.getTypeTag()==null) {
 						continue;
@@ -152,31 +160,29 @@ public class SIGEnumSink extends AbstractSink implements Configurable {
 					String pointcodeTag = entity.getPointcodeTag()!=null?entity.getPointcodeTag():"";
 					Long time = entity.getTimestamp()!=null?entity.getTimestamp():0;
 					Integer value = entity.getValue()!=null?entity.getValue():0;
-					
+
 					try {
-						bw.write(lineTag+","+regionTag+","+KeysUtil.getKey(entity)+","+srcIdTag+","+typeTag+","+pointcodeTag+","+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(time*1000)+","+value);
+						bw.write(lineTag+","+regionTag+","+KeysUtil.getKey(entity)+","+srcIdTag+","+typeTag+","+pointcodeTag+","+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(time)+","+value);
 						bw.newLine();
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					} 
+					}
 				}
 				bw.close();
 				fos.close();
 				statement.setString(1, new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 				statement.executeUpdate();
-				System.out.println("...............写入完成...............");
 			}
 			transaction.commit();
 		} catch (Exception e) {
 			try {
-				System.out.println("------------transaction.rollback()------------");
 				transaction.rollback(); // 执行回滚操作
-				
+				getConnection();
+				System.out.println(">>>SE Time Out");
 			} catch (Exception e2) {
 				System.out.println("-------------Exception in rollback. Rollback might not have been" + "successful.");
 			}
-			System.out.println("---------------Failed to commit transaction." + "Transaction rolled back.");
 			Throwables.propagate(e);
 		}finally {
 			transaction.close();

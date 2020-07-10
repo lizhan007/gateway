@@ -1,1 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["notfound"],{ee1e:function(n,t,e){"use strict";e.r(t);var a=function(){var n=this,t=n.$createElement,e=n._self._c||t;return e("div",{staticClass:"datagovern-login"},[n._v("404")])},o=[],u={name:"notfound",data:function(){return{}}},l=u,r=e("2877"),s=Object(r["a"])(l,a,o,!1,null,null,null);t["default"]=s.exports}}]);
