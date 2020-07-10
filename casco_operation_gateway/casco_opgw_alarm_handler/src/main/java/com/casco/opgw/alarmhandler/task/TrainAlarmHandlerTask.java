@@ -148,6 +148,9 @@ public class TrainAlarmHandlerTask implements Runnable{
 
                 }
             }
+
+            InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), 0);
+
         }//}else{
     }
 }
