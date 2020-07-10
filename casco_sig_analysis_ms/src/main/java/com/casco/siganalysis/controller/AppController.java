@@ -59,7 +59,7 @@ public class AppController {
 
             for(Map map: sumList){
                 if(scene.getArmSummarySet().contains(map.get("KEY_ID").toString())){
-                    tmp.add(map.get("KEY_ID") +"#" + map.get("RES_TYPE_NAME"));
+                    tmp.add(map.get("KEY_ID") +"#" + map.get("RES_TYPE_NAME") + "#" + map.get("DATA_TYPE") + "#" + map.get("DEV_NAME"));
                 }
             }
             data.put("summary_set", tmp);

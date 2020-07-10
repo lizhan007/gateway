@@ -112,16 +112,23 @@ public class SysDataAccessController extends BaseController {
     @RequestMapping("/list")
     public R<Page<SysDataAccess>> list(@NotNull Long current,
                                        @NotNull Long size,
-                                       @NotNull Integer type) {
+                                       Integer type) {
 
         Page<SysDataAccess> sysDataAccessPage = new Page<>();
         sysDataAccessPage.setCurrent(current);
         sysDataAccessPage.setSize(size);
+        Page<SysDataAccess> sysTLinePage = null;
+        if (type != null && !type.equals("")) {
+            sysTLinePage = sysDataAccessService.page(sysDataAccessPage,
+                    new QueryWrapper<SysDataAccess>()
+                            .lambda()
+                            .eq(SysDataAccess::getType, type));
+        }else{
+            sysTLinePage = sysDataAccessService.page(sysDataAccessPage,
+                    new QueryWrapper<SysDataAccess>()
+                            );
+        }
 
-        Page<SysDataAccess> sysTLinePage = sysDataAccessService.page(sysDataAccessPage,
-                new QueryWrapper<SysDataAccess>()
-                        .lambda()
-                        .eq(SysDataAccess::getType, type));
         R<Page<SysDataAccess>> r = new R<>();
         r.setCode(R.SUCCESS);
         r.setData(sysTLinePage);
