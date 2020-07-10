@@ -19,7 +19,7 @@ import java.util.Map;
 public interface SysRelateCollectionDefMapper extends BaseMapper<SysRelateCollectionDef> {
 
 
-    @Select("SELECT DEV_ID, DATA_TYPE, COLLECT_TYPE_ID,SRC_NAME, I_TYPE_NAME, KEY_ID,\n" +
+    @Select("SELECT DEV_ID, DATA_TYPE, COLLECT_TYPE_ID,SRC_NAME, I_TYPE_NAME, KEY_ID,INTERFACE_TYPE_ID,\n" +
             "      CASE U.DATA_TYPE \n" +
             "            WHEN '0' THEN U.DIGIT_TYPE_NAME \n" +
             "            WHEN '4' THEN U.ENUM_TYPE_NAME \n" +
