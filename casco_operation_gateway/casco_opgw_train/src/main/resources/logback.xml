@@ -2,7 +2,7 @@
 
 <configuration debug="false" scan="false">
     <springProperty scop="context" name="spring.application.name" source="spring.application.name" defaultValue="casco_opgw_train"/>
-    <property name="log.path" value="/data/logs/${spring.application.name}" />
+    <property name="log.path" value="./data/logs/${spring.application.name}" />
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{MM-dd HH:mm:ss.SSS} %-5level [%logger{50}] - %msg%n</pattern>
