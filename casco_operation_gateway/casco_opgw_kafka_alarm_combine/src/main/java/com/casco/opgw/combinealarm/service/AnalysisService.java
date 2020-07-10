@@ -15,18 +15,20 @@ import com.casco.opgw.combinealarm.db.TableInfoConstant;
 import com.casco.opgw.combinealarm.dto.AlarmData;
 import com.casco.opgw.combinealarm.kafka.KafkaProducer;
 import org.influxdb.InfluxDB;
+import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AnalysisService {
@@ -42,8 +44,8 @@ public class AnalysisService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    private InfluxDB influxDB;
+    @Resource(name = "TRAIN")
+    private InfluxDB trainInfluxDB;
 
     @Autowired
     private SysEventAlarmInfoMapper sysEventAlarmInfoMapper;
@@ -79,6 +81,31 @@ public class AnalysisService {
 
     }
 
+    // 适用单条查询语句
+    private List<Map<String, Object>> packageData(QueryResult results) {
+        if (results.getResults() == null) {
+            return null;
+        }
+
+        QueryResult.Result oneResult = results.getResults().get(0);
+        List<QueryResult.Series> seriesList = oneResult.getSeries();
+        // 封装查询结果
+        List<Map<String, Object>> dataList = new LinkedList<>();
+        for (QueryResult.Series series : seriesList) {
+            List<List<Object>> values = series.getValues();       //字段字集合
+            List<String> columns = series.getColumns();           //字段名
+
+            for (List<Object> value : values) {
+                Map<String, Object> dataMap = new HashMap<>(columns.size());
+                for (int j = 0; j < columns.size(); ++j){
+                    dataMap.put(columns.get(j),value.get(j));
+                }
+                dataList.add(dataMap);
+            }
+        }
+        return dataList;
+    }
+
     private void analysisTask(BaseMessage baseMessage,
                               SysEventInfo sysEventInfo, Long timestamp, String key, boolean isAlarm) {
         try {
@@ -92,25 +119,6 @@ public class AnalysisService {
             List<SysEventAlarmInfo> eventAlarmInfo = sysEventAlarmInfoMapper.selectList(
                     new QueryWrapper<SysEventAlarmInfo>().eq("event_type_id", sysEventInfo.getId())
             );
-
-            // 从车辆表中获取点位信息
-            StringBuilder sqlForVeh = new StringBuilder();
-            sqlForVeh.append("select * from ");
-            sqlForVeh.append(TableInfoConstant.VEHICLE_TABLE_DIGIT);
-            sqlForVeh.append(" A where (unix_timestamp(A.record_time) >= ");
-            sqlForVeh.append(timestamp - duration);
-            sqlForVeh.append(" and unix_timestamp(A.record_time) <= ");
-            sqlForVeh.append(timestamp + duration);
-            sqlForVeh.append(") and (");
-            for (int i = 0; i < eventAlarmInfo.size(); i++) {
-                sqlForVeh.append("A.key_id = '");
-                sqlForVeh.append(eventAlarmInfo.get(i).getArmVehCode());
-                if (i != eventAlarmInfo.size() - 1) {
-                    sqlForVeh.append("' or ");
-                } else {
-                    sqlForVeh.append("') order by A.record_time");
-                }
-            }
 
             AlarmData alarmData = new AlarmData();
             alarmData.setLineName(baseMessage.getLineTag());
@@ -127,65 +135,81 @@ public class AnalysisService {
             alarmData.setArmEquTypecode(sysEventInfo.getRootArmEquTypeCode());
             alarmData.setArmCode(sysEventInfo.getRootArmCode());
 
-            // 代码保护
+            // 防止查询语句出错
             if (eventAlarmInfo.size() != 0) {
-                String majorName = eventAlarmInfo.get(0).getArmVehCode().split("\\.")[0];
-                String lineName = eventAlarmInfo.get(0).getArmVehCode().split("\\.")[1];
-                String trainName = eventAlarmInfo.get(0).getArmVehCode().split("\\.")[2];
+                String startTime = LocalDateTime.ofEpochSecond(timestamp - duration, 0,
+                        ZoneOffset.ofHours(8)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
+                String endTime = LocalDateTime.ofEpochSecond(timestamp + duration, 0,
+                        ZoneOffset.ofHours(8)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
+                String cmdPrefix =
+                        String.format("SELECT * FROM \"%s\" WHERE time > '%s' AND time < '%s' ", TableInfoConstant.VEHICLE_TABLE_DIGIT,startTime, endTime);
 
-                // 获取OVERHAUL_MODE信息
-                String isMaintainCodeName = majorName + "." + lineName + "." + trainName + "." + "OVERHAUL_MODE";
-                StringBuilder sqlIsMaintain = new StringBuilder();
-                sqlIsMaintain.append("select * from ");
-                sqlIsMaintain.append(TableInfoConstant.VEHICLE_TABLE_DIGIT);
-                sqlIsMaintain.append(" A where unix_timestamp(A.record_time) >= ");
-                sqlIsMaintain.append(timestamp - duration);
-                sqlIsMaintain.append(" and unix_timestamp(A.record_time) <= ");
-                sqlIsMaintain.append(timestamp + duration);
-                sqlIsMaintain.append(" and A.key_id = '");
-                sqlIsMaintain.append(isMaintainCodeName);
-                sqlIsMaintain.append("' limit 1");
-                List<Map<String, Object>> vehIsMaintain = jdbcTemplate.queryForList(sqlIsMaintain.toString());
-                if (vehIsMaintain.size() != 0) {
-                    Map<String, Object> isMaintain = vehIsMaintain.get(0);
-                    alarmData.setArmIsMaintain(Float.parseFloat(isMaintain.get("a.value").toString()));
+                // 从influxDB查询车辆是否为维修状态
+                String isMaintain =
+                        String.format("%s AND pointcode = '%S' ORDER BY time DESC LIMIT 1 tz('Asia/Shanghai')", cmdPrefix, TableInfoConstant.MAINTAIN_CODE_NAME);
+                Query queryMaintain = new Query(isMaintain, TableInfoConstant.VEHICLE_DB_NAME);
+                QueryResult results = trainInfluxDB.query(queryMaintain);
+
+                List<Map<String, Object>> maintains = packageData(results);
+                if (maintains != null && maintains.size() > 0) {
+                    Map<String, Object> maintain = maintains.get(0);
+                    alarmData.setArmIsMaintain(Float.parseFloat(maintain.get("value").toString()));
                 }
 
-                List<Map<String, Object>> vehCodeInfo = jdbcTemplate.queryForList(sqlForVeh.toString());
-
-                boolean isRunning = false;
-                String[] running = TableInfoConstant.VEHICLE_SKIDDING_RUNNING.split(",");
-                labelA:
-                for (Map<String, Object> veh : vehCodeInfo) {
-                    String alarmCode = veh.get("a.key_id").toString();
-                    String alarmValue = veh.get("a.value").toString();
-                    // 去匹配报警相关信息
-                    for (SysEventAlarmInfo sysEventAlarmInfo : eventAlarmInfo) {
-                        // 找到原因：找到最早变位的点
-                        if (sysEventAlarmInfo.getArmVehCode().equals(alarmCode)
-                                && sysEventAlarmInfo.getArmCodeValue().toString().equals(alarmValue)) {
-                            insatllAlarm(alarmData, sysEventAlarmInfo);
-                            isRunning = true;
-                            break labelA;
-                        }
+                // 从influxDB查询车辆点位数据
+                StringBuilder cmdForVeh = new StringBuilder();
+                cmdForVeh.append(String.format("%s AND (", cmdPrefix));
+                for (int i = 0; i < eventAlarmInfo.size(); i++) {
+                    cmdForVeh.append("pointcode = '");
+                    cmdForVeh.append(eventAlarmInfo.get(i).getArmVehCode());
+                    if (i != eventAlarmInfo.size() - 1) {
+                        cmdForVeh.append("' OR ");
+                    } else {
+                        cmdForVeh.append("') ORDER BY time tz('Asia/Shanghai')");
                     }
                 }
+                Query queryForVeh = new Query(cmdForVeh.toString(), TableInfoConstant.VEHICLE_DB_NAME);
+                QueryResult resultsForVeh = trainInfluxDB.query(queryForVeh);
+                List<Map<String, Object>> vehCodeInfo = packageData(resultsForVeh);
 
-                // 走行部异常
-                if (isRunning && eventType.equals(0)) {
-                    labelB:
+                if (vehCodeInfo != null) {
+                    boolean isRunning = false;
+                    String[] running = TableInfoConstant.VEHICLE_SKIDDING_RUNNING.split(",");
+                    labelA:
                     for (Map<String, Object> veh : vehCodeInfo) {
-                        String alarmCode = veh.get("a.key_id").toString();
-                        String alarmValue = veh.get("a.value").toString();
+                        String alarmCode = veh.get("pointcode").toString();
+                        Float alarmValue = Float.parseFloat(veh.get("value").toString());
 
-                        if (Arrays.asList(running).contains(alarmCode)) {
-                            // 去匹配报警相关信息
+                        // 匹配是否车轮打滑
+                        if (!Arrays.asList(running).contains(alarmCode)) {
                             for (SysEventAlarmInfo sysEventAlarmInfo : eventAlarmInfo) {
                                 // 找到原因：找到最早变位的点
                                 if (sysEventAlarmInfo.getArmVehCode().equals(alarmCode)
-                                        && sysEventAlarmInfo.getArmCodeValue().toString().equals(alarmValue)) {
+                                        && (sysEventAlarmInfo.getArmCodeValue() - alarmValue) == 0) {
                                     insatllAlarm(alarmData, sysEventAlarmInfo);
-                                    break labelB;
+                                    isRunning = true;
+                                    break labelA;
+                                }
+                            }
+                        }
+                    }
+
+                    // 是车轮打滑，继续分析是否走行部异常
+                    if (isRunning && eventType.equals(0)) {
+                        labelB:
+                        for (Map<String, Object> veh : vehCodeInfo) {
+                            String alarmCode = veh.get("pointcode").toString();
+                            Float alarmValue = Float.parseFloat(veh.get("value").toString());
+
+                            if (Arrays.asList(running).contains(alarmCode)) {
+                                // 去匹配报警相关信息
+                                for (SysEventAlarmInfo sysEventAlarmInfo : eventAlarmInfo) {
+                                    // 找到原因：找到最早变位的点
+                                    if (sysEventAlarmInfo.getArmVehCode().equals(alarmCode)
+                                            && (sysEventAlarmInfo.getArmCodeValue() - alarmValue) == 0) {
+                                        insatllAlarm(alarmData, sysEventAlarmInfo);
+                                        break labelB;
+                                    }
                                 }
                             }
                         }

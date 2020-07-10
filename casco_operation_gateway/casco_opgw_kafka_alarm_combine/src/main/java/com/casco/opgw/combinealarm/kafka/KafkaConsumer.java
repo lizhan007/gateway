@@ -38,7 +38,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_combine_alarm")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        // System.out.println(consumerRecord.value());
 
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
@@ -54,11 +54,11 @@ public class KafkaConsumer {
 
         for (SysEventInfo sysEventInfo : list) {
             String codeName = sysEventInfo.getSignalCodeName();
-            String codeValue = sysEventInfo.getSignalCodeValue();
+            Integer codeValue = Integer.parseInt(sysEventInfo.getSignalCodeValue());
 
             String key = KeyUtils.getKey(digitMessage);
             if (codeName.equals(key)) {
-                if (codeValue.equals(Integer.toString(digitMessage.getValue()))) {
+                if ((codeValue - digitMessage.getValue()) == 0) {
                     // 发生报警
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
@@ -78,7 +78,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_combine_alarm")
     public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        // System.out.println(consumerRecord.value());
 
         EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
 
@@ -94,11 +94,11 @@ public class KafkaConsumer {
 
         for (SysEventInfo sysEventInfo : list) {
             String codeName = sysEventInfo.getSignalCodeName();
-            String codeValue = sysEventInfo.getSignalCodeValue();
+            Integer codeValue = Integer.parseInt(sysEventInfo.getSignalCodeValue());
 
             String key = KeyUtils.getKey(enumMessage);
             if (codeName.equals(key)) {
-                if (codeValue.equals(Integer.toString(enumMessage.getValue()))) {
+                if ((codeValue - enumMessage.getValue()) == 0) {
                     // 发生报警
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
@@ -118,7 +118,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_combine_alarm")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord.value());
+        // System.out.println(consumerRecord.value());
 
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
@@ -134,11 +134,11 @@ public class KafkaConsumer {
 
         for (SysEventInfo sysEventInfo : list) {
             String codeName = sysEventInfo.getSignalCodeName();
-            String codeValue = sysEventInfo.getSignalCodeValue();
+            Float codeValue = Float.parseFloat(sysEventInfo.getSignalCodeValue());
 
             String key = KeyUtils.getKey(analogMessage);
             if (codeName.equals(key)) {
-                if (codeValue.equals(Float.toString(analogMessage.getValue()))) {
+                if ((codeValue - analogMessage.getValue()) == 0) {
                     // 发生报警
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
