@@ -110,7 +110,7 @@ public class TrainAlarmHandlerTask implements Runnable{
             || !InitTrainAlarmRule.trainCache.contains(digitMessage.getPointcodeTag())){
 
                 //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
-
+                InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), 0);
 
                 LambdaQueryWrapper<SysAlarmTable> queryWrapper
                         =new QueryWrapper<SysAlarmTable>().lambda()
@@ -146,9 +146,11 @@ public class TrainAlarmHandlerTask implements Runnable{
                     message.setMajor(table.getMajor());
                     kafkaService.sendTrainAlarmMessage(JSON.toJSONString(message));
 
-                    InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
                 }
             }
+
+            InitTrainAlarmRule.trainCache.put(digitMessage.getPointcodeTag(), 0);
+
         }//}else{
     }
 }

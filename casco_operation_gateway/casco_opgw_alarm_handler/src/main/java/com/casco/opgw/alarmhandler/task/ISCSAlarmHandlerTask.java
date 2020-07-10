@@ -125,6 +125,9 @@ public class ISCSAlarmHandlerTask implements Runnable{
 
                 }
             }
+
+            InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), 0);
+
         }//}else{
     }
 }
