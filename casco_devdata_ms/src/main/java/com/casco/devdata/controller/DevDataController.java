@@ -366,7 +366,7 @@ public class DevDataController extends BaseController{
 
     private String changeAnalogValue(final  List<SysAnalogQuantityDef> list, String keyid, String value){
         for(SysAnalogQuantityDef item: list){
-            if(item.getKeyId().equals(keyid)){
+            if(item.getKeyId().equals(keyid) && item.getUnit() != null && item.getUnit().length() > 0){
                 if(value != null && value.length() > 0){
                     return value + " " + item.getUnit();
                 }
