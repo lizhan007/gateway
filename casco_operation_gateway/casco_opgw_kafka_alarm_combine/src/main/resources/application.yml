@@ -28,25 +28,6 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
 
-  hive:
-    url: jdbc:hive2://192.168.0.101:10000/mpom
-    user: root
-    password: casco123
-    driverClass: org.apache.hive.jdbc.HiveDriver
-    type: com.alibaba.druid.pool.DruidDataSource
-    initialSize: 1
-    minIdle: 3
-    maxActive: 20
-    maxWait: 60000
-    timeBetweenEvictionRunsMillis: 60000
-    minEvictableIdleTimeMillis: 30000
-    validationQuery: select 1
-    testWhileIdle: true
-    testOnBorrow: false
-    testOnReturn: false
-    poolPreparedStatements: true
-    maxPoolPreparedStatementPerConnectionSize: 20
-
   influx:
     url: http://192.168.0.103:8086
     user: root

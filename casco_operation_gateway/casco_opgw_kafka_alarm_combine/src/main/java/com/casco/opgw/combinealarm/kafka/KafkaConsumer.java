@@ -38,7 +38,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_combine_alarm")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        // System.out.println(consumerRecord.value());
+        System.out.println(consumerRecord.value());
 
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
@@ -78,7 +78,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_combine_alarm")
     public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        // System.out.println(consumerRecord.value());
+        System.out.println(consumerRecord.value());
 
         EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
 
@@ -118,7 +118,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_combine_alarm")
     public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        // System.out.println(consumerRecord.value());
+        System.out.println(consumerRecord.value());
 
         AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
 
