@@ -3,12 +3,16 @@ package com.casco.opgw.kafkaalarm.task;
 import com.casco.opgw.com.message.AlarmMessage;
 import com.casco.opgw.kafkaalarm.BeanPorvider;
 import com.casco.opgw.kafkaalarm.entity.SysAlarmTable;
+import com.casco.opgw.kafkaalarm.kafka.KafkaConsumer;
+import com.casco.opgw.kafkaalarm.mapper.AdsAlarmCountTableMapper;
 import com.casco.opgw.kafkaalarm.mapper.SysAlarmTableMapper;
 import org.springframework.beans.BeanUtils;
 
 public class AlarmStoreTask implements Runnable{
 
     private SysAlarmTableMapper sysAlarmTableMapper;
+
+    private AdsAlarmCountTableMapper adsAlarmCountTableMapper;
 
     private AlarmMessage alarmMessage;
 
@@ -21,6 +25,10 @@ public class AlarmStoreTask implements Runnable{
 
         sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
 
+        adsAlarmCountTableMapper = BeanPorvider.getApplicationContext().getBean(AdsAlarmCountTableMapper.class);
+
+        KafkaConsumer.initAdsAlarmCount();
+
         SysAlarmTable sysAlarmTable = new SysAlarmTable();
 
         BeanUtils.copyProperties(alarmMessage, sysAlarmTable);
@@ -28,12 +36,21 @@ public class AlarmStoreTask implements Runnable{
         SysAlarmTable message = sysAlarmTableMapper.selectById(sysAlarmTable.getArmUuid());
 
         if(message!=null){
+            if(sysAlarmTable.getArmLevel()==1||sysAlarmTable.getArmLevel()==2){
+                KafkaConsumer.adsAlarmCountTable.setAlarmCount(KafkaConsumer.adsAlarmCountTable.getAlarmCount()-1);
+            }else{
+                KafkaConsumer.adsAlarmCountTable.setEarlyAlarmCount(KafkaConsumer.adsAlarmCountTable.getEarlyAlarmCount()-1);
+            }
             sysAlarmTableMapper.updateById(sysAlarmTable);
         }else{
+            if(sysAlarmTable.getArmLevel()==1||sysAlarmTable.getArmLevel()==2){
+                KafkaConsumer.adsAlarmCountTable.setAlarmCount(KafkaConsumer.adsAlarmCountTable.getAlarmCount()+1);
+            }else{
+                KafkaConsumer.adsAlarmCountTable.setEarlyAlarmCount(KafkaConsumer.adsAlarmCountTable.getEarlyAlarmCount()+1);
+            }
             sysAlarmTableMapper.insert(sysAlarmTable);
         }
-
         message = null;
-
+        adsAlarmCountTableMapper.update(KafkaConsumer.adsAlarmCountTable,null);
     }
 }
