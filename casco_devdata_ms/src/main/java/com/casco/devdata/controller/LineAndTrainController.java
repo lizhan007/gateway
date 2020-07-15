@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.casco.devdata.aspect.BaseController;
 import com.casco.devdata.common.dto.R;
-import com.casco.devdata.entity.SysKeyVisible;
-import com.casco.devdata.entity.SysTLine;
-import com.casco.devdata.entity.SysTStation;
-import com.casco.devdata.entity.SysTTrain;
+import com.casco.devdata.entity.*;
 import com.casco.devdata.mapper.SysTLineMapper;
 import com.casco.devdata.mapper.SysTStationMapper;
 import com.casco.devdata.mapper.SysTTrainMapper;
+import com.casco.devdata.mapper.SysVerticalDevTypeMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +33,9 @@ public class LineAndTrainController extends BaseController {
     private SysTStationMapper sysTStationMapper;
 
     @Autowired
+    private SysVerticalDevTypeMapper sysVerticalDevTypeMapper;
+
+    @Autowired
     private SysTTrainMapper sysTTrainMapper;
 
     @RequestMapping(value = "/devdata/linelist", method = RequestMethod.GET)
@@ -51,7 +52,9 @@ public class LineAndTrainController extends BaseController {
     @RequestMapping(value = "/devdata/stationlist", method = RequestMethod.GET)
     @ResponseBody
     public R stationList() {
-        List<SysTStation> list = sysTStationMapper.selectList(new QueryWrapper<>());
+        QueryWrapper<SysTStation> collectQuery = new QueryWrapper<>();
+        collectQuery.orderByAsc("DISPLAY_NUMBER");
+        List<SysTStation> list = sysTStationMapper.selectList(collectQuery);
 
         R<List<SysTStation>> res = new R<>();
         res.setCode(R.SUCCESS);
@@ -65,6 +68,18 @@ public class LineAndTrainController extends BaseController {
         List<SysTTrain> list = sysTTrainMapper.selectList(new QueryWrapper<>());
 
         R<List<SysTTrain>> res = new R<>();
+        res.setCode(R.SUCCESS);
+        res.setData(list);
+        return res;
+    }
+
+
+    @RequestMapping(value = "/devdata/vertical/devtype", method = RequestMethod.GET)
+    @ResponseBody
+    public R verticalDevType() {
+        List<SysVerticalDevType> list = sysVerticalDevTypeMapper.selectList(new QueryWrapper<>());
+
+        R<List<SysVerticalDevType>> res = new R<>();
         res.setCode(R.SUCCESS);
         res.setData(list);
         return res;

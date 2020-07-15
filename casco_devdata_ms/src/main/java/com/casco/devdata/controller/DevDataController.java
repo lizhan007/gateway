@@ -200,7 +200,7 @@ public class DevDataController extends BaseController{
         List<SysRelateCollectionDef> list = null;
         Long total = 0L;
 
-        if(major.equals("VEHICLE")){
+//        if(major.equals("VEHICLE")){
 
             //车辆的话需要分页
             QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
@@ -213,13 +213,21 @@ public class DevDataController extends BaseController{
             list = pages.getRecords();
             total = pages.getTotal();
 
-        }else {
-
-            QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
-            collectQuery.lambda().eq(SysRelateCollectionDef::getDevId, devid);
-
-            list = sysRelateCollectionDefMapper.selectList(collectQuery);
-        }
+//        }else {
+//
+//            QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
+//            collectQuery.lambda().eq(SysRelateCollectionDef::getDevId, devid);
+//
+//            Page<SysRelateCollectionDef> page = new Page<>(start,limit);
+//            R<Page<SysDigitTypeDef>> r = new R<>();
+//            Page pages = sysRelateCollectionDefMapper.selectPage(page, collectQuery);
+//            list = pages.getRecords();
+//            total = pages.getTotal();
+//
+//            list = sysRelateCollectionDefMapper.selectList(collectQuery);
+//            list = pages.getRecords();
+//            total = pages.getTotal();
+//        }
 
 
         for(SysRelateCollectionDef item: list){
@@ -237,7 +245,9 @@ public class DevDataController extends BaseController{
 
                 SysDigitTypeDef def = sysDigitTypeDefMapper.selectOne(dtquery);
 
-                collectionVo.setCollectionName(def.getTypeName());
+                if(def!=null){
+                    collectionVo.setCollectionName(def.getTypeName());
+                }
 
                 //1.2 获取类型来源和key
                 QueryWrapper<SysInterfaceTypeDef> iquery
@@ -258,7 +268,9 @@ public class DevDataController extends BaseController{
 
                 SysEnumTypeDef def = sysEnumTypeDefMapper.selectOne(etquery);
 
-                collectionVo.setCollectionName(def.getTypeName());
+                if(def!=null){
+                    collectionVo.setCollectionName(def.getTypeName());
+                }
 
                 //1.2 获取类型来源和key
                 QueryWrapper<SysInterfaceTypeDef> iquery
@@ -279,7 +291,9 @@ public class DevDataController extends BaseController{
 
                 SysAnalogTypeDef def = sysAnalogTypeDefMapper.selectOne(atquery);
 
-                collectionVo.setCollectionName(def.getTypeName());
+                if(def!=null){
+                    collectionVo.setCollectionName(def.getTypeName());
+                }
 
                 //1.2 获取类型来源和key
                 QueryWrapper<SysInterfaceTypeDef> iquery
@@ -297,7 +311,7 @@ public class DevDataController extends BaseController{
         //R<List<CollectionVo>> res = new R<>();
         R<Object> res = new R<>();
 
-        if(major.equals("VEHICLE")){
+//        if(major.equals("VEHICLE")){
 
             Map<String, Object>  dataRes = new HashMap<>();
             dataRes.put("data", result);
@@ -306,13 +320,13 @@ public class DevDataController extends BaseController{
             res.setData(dataRes);
             return res;
 
-        }else{
-
-            res.setCode(R.SUCCESS);
-            res.setData(result);
-            return res;
-
-        }
+//        }else{
+//
+//            res.setCode(R.SUCCESS);
+//            res.setData(result);
+//            return res;
+//
+//        }
     }
 
 
@@ -321,7 +335,9 @@ public class DevDataController extends BaseController{
     public R getVisible(String typeid){
 
         QueryWrapper<SysKeyVisible> query = new QueryWrapper<>();
-        query.lambda().eq(SysKeyVisible::getTypeId, typeid);
+        query.lambda().eq(SysKeyVisible::getTypeId, typeid)
+                .eq(SysKeyVisible::getIsVisible, 1)
+                .orderByAsc(SysKeyVisible::getKeyId);
 
         List<SysKeyVisible> list = sysKeyVisibleMapper.selectList(query);
 

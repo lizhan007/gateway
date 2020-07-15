@@ -15,5 +15,7 @@ public class SysDevMainTypeDefVo {
 
     private String major;
 
+    private Integer displayNumber;
+
     List<SysDevTypeDefVo> sysDevTypeDefVoList = new ArrayList<>();
 }
