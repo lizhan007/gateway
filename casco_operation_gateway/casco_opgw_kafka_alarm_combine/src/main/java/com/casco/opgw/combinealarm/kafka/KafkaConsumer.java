@@ -1,13 +1,8 @@
 package com.casco.opgw.combinealarm.kafka;
 
 import com.alibaba.fastjson.JSON;
-import com.casco.opgw.com.message.AnalogMessage;
-import com.casco.opgw.com.message.DigitMessage;
-import com.casco.opgw.com.message.EnumMessage;
-import com.casco.opgw.com.message.KafkaConstant;
+import com.casco.opgw.com.message.*;
 import com.casco.opgw.com.utils.KeyUtils;
-import com.casco.opgw.combinealarm.entity.SysEventInfo;
-import com.casco.opgw.combinealarm.mapper.SysEventInfoMapper;
 import com.casco.opgw.combinealarm.service.AnalysisService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,25 +11,22 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 @Slf4j
 @Service
 public class KafkaConsumer {
-    @Autowired
-    private Executor executor;
 
     @Autowired
     private AnalysisService analysisService;
 
-    @Autowired
-    private SysEventInfoMapper sysEventInfoMapper;
-
-    private static List<SysEventInfo> list = null;
+    private static Map<String, Object> map = new HashMap<>();
 
     private static Map<String, Boolean> eventFlag = new HashMap<String, Boolean>();
+
+    static {
+        map.put("SIG.9.CDI.90009.E0.39", 1);
+    }
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_combine_alarm")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
@@ -46,30 +38,25 @@ public class KafkaConsumer {
             return;
         }
 
-        if (list == null) {
-            synchronized (this) {
-                list = sysEventInfoMapper.selectList(null);
-            }
-        }
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String mapKey = entry.getKey();
+            Object mapValue = entry.getValue();
 
-        for (SysEventInfo sysEventInfo : list) {
-            String codeName = sysEventInfo.getSignalCodeName();
-            Integer codeValue = Integer.parseInt(sysEventInfo.getSignalCodeValue());
-
-            String key = KeyUtils.getKey(digitMessage);
-            if (codeName.equals(key)) {
-                if ((codeValue - digitMessage.getValue()) == 0) {
+            if (mapValue instanceof Integer) {
+                Integer codeValue = (Integer)mapValue;
+                String key = KeyUtils.getKey(digitMessage);
+                if (mapKey.equals(key) && codeValue.equals(digitMessage.getValue())) {
                     // 发生报警
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
                         eventFlag.put(key, true);
-                        analysisService.startAnalysis(digitMessage, sysEventInfo, true);
+                        analysisService.startActiviti(digitMessage, codeValue, digitMessage.getTimestamp(), key);
                     }
                 } else {
                     // 报警恢复
                     if (eventFlag.containsKey(key) && eventFlag.get(key).equals(true)) {
                         eventFlag.put(key, false);
-                        analysisService.startAnalysis(digitMessage, sysEventInfo, false);
+                        analysisService.alarmRestore(digitMessage.getTimestamp(), key);
                     }
                 }
             }
@@ -86,30 +73,25 @@ public class KafkaConsumer {
             return;
         }
 
-        if (list == null) {
-            synchronized (this) {
-                list = sysEventInfoMapper.selectList(null);
-            }
-        }
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String mapKey = entry.getKey();
+            Object mapValue = entry.getValue();
 
-        for (SysEventInfo sysEventInfo : list) {
-            String codeName = sysEventInfo.getSignalCodeName();
-            Integer codeValue = Integer.parseInt(sysEventInfo.getSignalCodeValue());
-
-            String key = KeyUtils.getKey(enumMessage);
-            if (codeName.equals(key)) {
-                if ((codeValue - enumMessage.getValue()) == 0) {
+            if (mapValue instanceof Integer) {
+                Integer codeValue = (Integer)mapValue;
+                String key = KeyUtils.getKey(enumMessage);
+                if (mapKey.equals(key) && codeValue.equals(enumMessage.getValue())) {
                     // 发生报警
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
                         eventFlag.put(key, true);
-                        analysisService.startAnalysis(enumMessage, sysEventInfo, true);
+                        analysisService.startActiviti(enumMessage, codeValue, enumMessage.getTimestamp(), key);
                     }
                 } else {
                     // 报警恢复
                     if (eventFlag.containsKey(key) && eventFlag.get(key).equals(true)) {
                         eventFlag.put(key, false);
-                        analysisService.startAnalysis(enumMessage, sysEventInfo, false);
+                        analysisService.alarmRestore(enumMessage.getTimestamp(), key);
                     }
                 }
             }
@@ -126,30 +108,25 @@ public class KafkaConsumer {
             return;
         }
 
-        if (list == null) {
-            synchronized (this) {
-                list = sysEventInfoMapper.selectList(null);
-            }
-        }
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String mapKey = entry.getKey();
+            Object mapValue = entry.getValue();
 
-        for (SysEventInfo sysEventInfo : list) {
-            String codeName = sysEventInfo.getSignalCodeName();
-            Float codeValue = Float.parseFloat(sysEventInfo.getSignalCodeValue());
-
-            String key = KeyUtils.getKey(analogMessage);
-            if (codeName.equals(key)) {
-                if ((codeValue - analogMessage.getValue()) == 0) {
+            if (mapValue instanceof Float) {
+                Float codeValue = (Float)mapValue;
+                String key = KeyUtils.getKey(analogMessage);
+                if (mapKey.equals(key) && codeValue.equals(analogMessage.getValue())) {
                     // 发生报警
                     if (!eventFlag.containsKey(key)
                             || (eventFlag.containsKey(key) && eventFlag.get(key).equals(false))) {
                         eventFlag.put(key, true);
-                        analysisService.startAnalysis(analogMessage, sysEventInfo, true);
+                        analysisService.startActiviti(analogMessage, codeValue, analogMessage.getTimestamp(), key);
                     }
                 } else {
                     // 报警恢复
                     if (eventFlag.containsKey(key) && eventFlag.get(key).equals(true)) {
                         eventFlag.put(key, false);
-                        analysisService.startAnalysis(analogMessage, sysEventInfo, false);
+                        analysisService.alarmRestore(analogMessage.getTimestamp(), key);
                     }
                 }
             }
