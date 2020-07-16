@@ -158,6 +158,7 @@ public class FlowService implements JavaDelegate {
         String[] equNames = this.equNamesString.split(",");
         String[] equCodes = this.equCodesString.split(",");
 
+        String flowNameStr = (String)flowName.getValue(execution);
         String cmdPrefix = String.format(
                 "SELECT * FROM %s WHERE time > '%s' AND time < '%s' ", TableInfoConstant.VEHICLE_TABLE_DIGIT, startTime, endTime
         );
@@ -192,7 +193,11 @@ public class FlowService implements JavaDelegate {
                                 String alarmDataStr = (String)execution.getVariable("alarmDataString");
                                 if (!alarmDataStr.isEmpty()) {
                                     AlarmData alarmData = JSON.parseObject(alarmDataStr, AlarmData.class);
-                                    alarmData.setArmContent(contents[i]);
+                                    if (flowNameStr.equals("SLIDE_SUPPRESSION")) {
+                                        alarmData.setArmContent(contents[0]);
+                                    } else {
+                                        alarmData.setArmContent(contents[i]);
+                                    }
                                     alarmData.setArmEquName(equNames[i]);
                                     alarmData.setArmEquCode(equCodes[i]);
                                     execution.setVariable("alarmDataString", JSON.toJSONString(alarmData));
@@ -205,8 +210,6 @@ public class FlowService implements JavaDelegate {
                 }
             }
         }
-
-        String flowNameStr = (String)flowName.getValue(execution);
         switch (flowNameStr) {
             case "SLIDE_SUPPRESSION":           // 防滑抑制
                 if (armFlag) {

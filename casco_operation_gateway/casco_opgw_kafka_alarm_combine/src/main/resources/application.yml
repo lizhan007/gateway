@@ -9,9 +9,9 @@ spring:
 
   mysql:
     name: combine
-    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8&nullCatalogMeansCurrent=true
+    url: jdbc:mysql://${MYSQL_HOST:192.168.0.101}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8&nullCatalogMeansCurrent=true
     username: root
-    password: Casco123
+    password: Casco@123
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.jdbc.Driver
     filters: stat
