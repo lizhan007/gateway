@@ -18,14 +18,14 @@ import java.util.Map;
  */
 public interface SysDevMainTypeDefMapper extends BaseMapper<SysDevMainTypeDef> {
 
-    @Select("SELECT * FROM SYS_DEV_MAIN_TYPE_DEF " +
-            "WHERE DEV_MAIN_TYPE_ID IN (" +
-            "   SELECT DISTINCT DEV_MAIN_TYPE_ID " +
-            "   FROM SYS_DEV_TYPE_DEF " +
-            "   WHERE DEV_TYPE_ID IN (" +
-            "       SELECT DISTINCT DEV_TYPE_ID FROM SYS_DEV_LIST" +
-            "   )" +
-            ") " +
+    @Select("SELECT * FROM SYS_DEV_MAIN_TYPE_DEF \n" +
+            "WHERE DEV_MAIN_TYPE_ID IN (\n" +
+            "\tSELECT DISTINCT DEV_MAIN_TYPE_ID \n" +
+            "\tFROM SYS_DEV_TYPE_DEF \n" +
+            "\tWHERE DEV_TYPE_ID IN (\n" +
+            "\t\tSELECT DISTINCT DEV_TYPE_ID FROM SYS_DEV_LIST\n" +
+            "\t)\n" +
+            ") AND DISPLAY_NUMBER <> -1\n" +
             "ORDER BY DISPLAY_NUMBER ASC")
     public List<SysDevMainTypeDef> listValidMainType();
 }

@@ -53,7 +53,7 @@ public class LineAndTrainController extends BaseController {
     @ResponseBody
     public R stationList() {
         QueryWrapper<SysTStation> collectQuery = new QueryWrapper<>();
-        collectQuery.orderByAsc("DISPLAY_NUMBER");
+        collectQuery.ne("DISPLAY_NUMBER", -1).orderByAsc("DISPLAY_NUMBER");
         List<SysTStation> list = sysTStationMapper.selectList(collectQuery);
 
         R<List<SysTStation>> res = new R<>();
