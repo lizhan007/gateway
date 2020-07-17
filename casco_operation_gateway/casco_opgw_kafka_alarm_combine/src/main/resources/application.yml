@@ -4,14 +4,14 @@ server:
 spring:
 
   analysis:
-    waitTime: 60000
+    waitTime: 600
     duration: 30
 
   mysql:
     name: combine
-    url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8
+    url: jdbc:mysql://${MYSQL_HOST:192.168.0.101}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8&nullCatalogMeansCurrent=true
     username: root
-    password: Casco123
+    password: Casco@123
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.jdbc.Driver
     filters: stat
@@ -27,6 +27,11 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
+
+  activiti:
+    db-history-used: true
+    async-executor-enabled: true
+    async-executor-activate: true
 
   influx:
     url: http://192.168.0.103:8086

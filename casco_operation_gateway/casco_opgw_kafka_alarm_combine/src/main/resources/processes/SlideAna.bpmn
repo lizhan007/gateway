@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="slideana" name="My process" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="servicetask3"></sequenceFlow>
+    <serviceTask id="servicetask2" name="车辆监测到打滑" activiti:async="true" activiti:delegateExpression="${flowService}">
+      <extensionElements>
+        <activiti:field name="keys">
+          <activiti:string><![CDATA[SIG.9.CDI.90009.E0.52]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="values">
+          <activiti:string><![CDATA[1]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="contents">
+          <activiti:string><![CDATA[车辆打滑]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equNames">
+          <activiti:string><![CDATA[T9]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equCodes">
+          <activiti:string><![CDATA[T9]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="flowName">
+          <activiti:string><![CDATA[TRAIN_SLIDE]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="duration">
+          <activiti:string><![CDATA[30]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow3" name="是" sourceRef="servicetask3" targetRef="servicetask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isCCAlarm == "true"}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <serviceTask id="servicetask3" name="CC检测到打滑" activiti:async="true" activiti:delegateExpression="${flowService}">
+      <extensionElements>
+        <activiti:field name="values">
+          <activiti:string><![CDATA[1]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="keys">
+          <activiti:string><![CDATA[SIG.9.CDI.90009.E0.39]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="contents">
+          <activiti:string><![CDATA[信号和车辆打滑状态不一致]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equNames">
+          <activiti:string><![CDATA[T9]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equCodes">
+          <activiti:string><![CDATA[T9]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="flowName">
+          <activiti:string><![CDATA[CC_SLIP_SLIDE]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="duration">
+          <activiti:string><![CDATA[30]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="servicetask4" name="检测到防滑保护不正常" activiti:async="true" activiti:delegateExpression="${flowService}">
+      <extensionElements>
+        <activiti:field name="flowName">
+          <activiti:string><![CDATA[SLIDE_SUPPRESSION]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="keys">
+          <activiti:string><![CDATA[T9_CTHM_Ax1WSPFltTCBg1_B1_69,T9_CTHM_Ax2WSPFltTCBg1_B1_69,T9_CTHM_Ax1WSPFltTCBg2_B1_69,T9_CTHM_Ax2WSPFltTCBg2_B1_69,T9_CTHM_Ax1WSPFltMP13Bg1_B1_69,T9_CTHM_Ax2WSPFltMP13Bg1_B1_69,T9_CTHM_Ax1WSPFltMP13Bg2_B1_69,T9_CTHM_Ax2WSPFltMP13Bg2_B1_69,T9_CTHM_Ax1WSPFltM13Bg1_B1_69,T9_CTHM_Ax2WSPFltM13Bg1_B1_69,T9_CTHM_Ax1WSPFltM13Bg2_B1_69,T9_CTHM_Ax2WSPFltM13Bg2_B1_69,T9_CTHM_Ax1WSPFltMP2M2Bg1_B1_69,T9_CTHM_Ax2WSPFltMP2M2Bg1_B1_69,T9_CTHM_Ax1WSPFltMP2M2Bg2_B1_69,T9_CTHM_Ax2WSPFltMP2M2Bg2_B1_69,T9_CTHM_Ax1WSPFltMP2M2Bg1_B1_6A,T9_CTHM_Ax2WSPFltMP2M2Bg1_B1_6A,T9_CTHM_Ax1WSPFltMP2M2Bg2_B1_6A,T9_CTHM_Ax2WSPFltMP2M2Bg2_B1_6A,T9_CTHM_Ax1WSPFltM13Bg1_B1_6A,T9_CTHM_Ax2WSPFltM13Bg1_B1_6A,T9_CTHM_Ax1WSPFltM13Bg2_B1_6A,T9_CTHM_Ax2WSPFltM13Bg2_B1_6A,T9_CTHM_Ax1WSPFltMP13Bg1_B1_6A,T9_CTHM_Ax2WSPFltMP13Bg1_B1_6A,T9_CTHM_Ax1WSPFltMP13Bg2_B1_6A,T9_CTHM_Ax2WSPFltMP13Bg2_B1_6A,T9_CTHM_Ax1WSPFltTCBg1_B1_6A,T9_CTHM_Ax2WSPFltTCBg1_B1_6A,T9_CTHM_Ax1WSPFltTCBg2_B1_6A,T9_CTHM_Ax2WSPFltTCBg2_B1_6A]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="values">
+          <activiti:string><![CDATA[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="contents">
+          <activiti:string><![CDATA[防滑抑制]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equNames">
+          <activiti:string><![CDATA[1车_架1轴1,1车_架1轴2,1车_架2轴3,1车_架2轴4,2车_架1轴1,2车_架1轴2,2车_架2轴3,2车_架2轴4,3车_架1轴1,3车_架1轴2,3车_架2轴3,3车_架2轴4,7车_架1轴1,7车_架1轴2,7车_架2轴3,7车_架2轴4,6车_架1轴1,6车_架1轴2,6车_架2轴3,6车_架2轴4,5车_架1轴1,5车_架1轴2,5车_架2轴3,5车_架2轴4,4车_架1轴1,4车_架1轴2,4车_架2轴3,4车_架2轴4,8车_架1轴1,8车_架1轴2,8车_架2轴3,8车_架2轴4]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equCodes">
+          <activiti:string><![CDATA[3230100009,3230100010,3230100011,3230100012,3230100021,3230100022,3230100023,3230100024,3230100033,3230100034,3230100035,3230100036,3230100081,3230100082,3230100083,3230100084,3230100069,3230100070,3230100071,3230100072,3230100057,3230100058,3230100059,3230100060,3230100045,3230100046,3230100047,3230100048,3230100093,3230100094,3230100095,3230100096]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="duration">
+          <activiti:string><![CDATA[30]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow4" name="是" sourceRef="servicetask2" targetRef="servicetask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isTrainAlarm == "true"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask5" name="检测到防滑激活" activiti:async="true" activiti:delegateExpression="${flowService}">
+      <extensionElements>
+        <activiti:field name="keys">
+          <activiti:string><![CDATA[T9_BRCT_SlideTCBg1_B1_61,T9_BRCT_SlideTCBg1_B1_64,T9_BRCT_SlideTCBg1_B1_65,T9_BRCT_SlideTCBg1_B1_68,T9_BRCT_SlideTCBg2_B1_61,T9_BRCT_SlideTCBg2_B1_64,T9_BRCT_SlideTCBg2_B1_65,T9_BRCT_SlideTCBg2_B1_68,T9_BRCT_SlideMp13Bg1_B1_61,T9_BRCT_SlideMp13Bg1_B1_64,T9_BRCT_SlideMp13Bg1_B1_65,T9_BRCT_SlideMp13Bg1_B1_68,T9_BRCT_Slide MP13Bg2_B1_61,T9_BRCT_Slide MP13Bg2_B1_64,T9_BRCT_Slide MP13Bg2_B1_65,T9_BRCT_Slide MP13Bg2_B1_68,T9_BRCT_SlideM13Bg1_B1_61,T9_BRCT_SlideM13Bg1_B1_64,T9_BRCT_SlideM13Bg1_B1_65,T9_BRCT_SlideM13Bg1_B1_68,T9_BRCT_SlideM13Bg2_B1_61,T9_BRCT_SlideM13Bg2_B1_64,T9_BRCT_SlideM13Bg2_B1_65,T9_BRCT_SlideM13Bg2_B1_68,T9_BRCT_SlideMP2M2Bg1_B1_61,T9_BRCT_SlideMP2M2Bg1_B1_64,T9_BRCT_SlideMP2M2Bg1_B1_65,T9_BRCT_SlideMP2M2Bg1_B1_68,T9_BRCT_Slide MP2M2Bg2_B1_61,T9_BRCT_Slide MP2M2Bg2_B1_64,T9_BRCT_Slide MP2M2Bg2_B1_65,T9_BRCT_Slide MP2M2Bg2_B1_68]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="values">
+          <activiti:string><![CDATA[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="contents">
+          <activiti:string><![CDATA[防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2,防滑激活1,防滑激活2]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equNames">
+          <activiti:string><![CDATA[1车_车架1,1车_车架1,8车_车架1,8车_车架1,1车_车架2,1车_车架2,8车_车架2,8车_车架2,2车_车架1,2车_车架1,4车_车架1,4车_车架1,2车_车架2,2车_车架2,4车_车架2,4车_车架2,3车_车架1,3车_车架1,5车_车架1,5车_车架1,3车_车架2,3车_车架2,5车_车架2,5车_车架2,7车_车架1,7车_车架1,6车_车架1,6车_车架1,7车_车架2,7车_车架2,6车_车架2,6车_车架2]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equCodes">
+          <activiti:string><![CDATA[3240100001,3240100001,3240100015,3240100015,3240100002,3240100002,3240100016,3240100016,3240100003,3240100003,3240100007,3240100007,3240100004,3240100004,3240100008,3240100008,3240100005,3240100005,3240100009,3240100009,3240100006,3240100006,3240100010,3240100010,3240100013,3240100013,3240100011,3240100011,3240100014,3240100014,3240100012,3240100012]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="flowName">
+          <activiti:string><![CDATA[SLIDE_ACTIVE]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="duration">
+          <activiti:string><![CDATA[30]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow5" name="否" sourceRef="servicetask4" targetRef="servicetask5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isSlipSupp == "false"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask6" name="报警：CC与车辆打滑状态不一致" activiti:async="true" activiti:delegateExpression="${alarmService}">
+      <extensionElements>
+        <activiti:field name="alarmType">
+          <activiti:string><![CDATA[CC_TRAIN_DIFF]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow6" name="否" sourceRef="servicetask2" targetRef="servicetask6">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isTrainAlarm == "false"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask7" name="报警：防滑抑制" activiti:async="true" activiti:delegateExpression="${alarmService}">
+      <extensionElements>
+        <activiti:field name="alarmType">
+          <activiti:string><![CDATA[SLIDE_SUPPRESSION]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow7" name="是" sourceRef="servicetask4" targetRef="servicetask7">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isSlipSupp == "true"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask9" name="轮径差故障" activiti:async="true" activiti:delegateExpression="${flowService}">
+      <extensionElements>
+        <activiti:field name="flowName">
+          <activiti:string><![CDATA[WHEEL_DIAMETER_DIFF]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="keys">
+          <activiti:string><![CDATA[T9_TRCT_WhlDiaFlt1_B1_42,T9_TRCT_WhlDiaFlt1_B1_43,T9_TRCT_WhlDiaFlt1_B1_44,T9_TRCT_WhlDiaFlt1_B1_45,T9_TRCT_WhlDiaFlt1_B1_46,T9_TRCT_WhlDiaFlt1_B1_47,T9_TRCT_WhlDiaFlt2_B1_42,T9_TRCT_WhlDiaFlt2_B1_43,T9_TRCT_WhlDiaFlt2_B1_44,T9_TRCT_WhlDiaFlt2_B1_45,T9_TRCT_WhlDiaFlt2_B1_46,T9_TRCT_WhlDiaFlt2_B1_47]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="values">
+          <activiti:string><![CDATA[1,1,1,1,1,1,1,1,1,1,1,1]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="contents">
+          <activiti:string><![CDATA[轮径差故障1,轮径差故障1,轮径差故障1,轮径差故障1,轮径差故障1,轮径差故障1,轮径差故障2,轮径差故障2,轮径差故障2,轮径差故障2,轮径差故障2,轮径差故障2]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equNames">
+          <activiti:string><![CDATA[2车_牵引,3车_牵引,7车_牵引,6车_牵引,5车_牵引,4车_牵引,2车_牵引,3车_牵引,7车_牵引,6车_牵引,5车_牵引,4车_牵引]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="equCodes">
+          <activiti:string><![CDATA[3170100002,3170100003,3170100007,3170100006,3170100005,3170100004,3170100002,3170100003,3170100007,3170100006,3170100005,3170100004]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="duration">
+          <activiti:string><![CDATA[30]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow9" name="是" sourceRef="servicetask5" targetRef="servicetask9">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isSlideActive == "true"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask10" name="报警：车辆打滑" activiti:async="true" activiti:delegateExpression="${alarmService}">
+      <extensionElements>
+        <activiti:field name="alarmType">
+          <activiti:string><![CDATA[TRAIN_SLIDE]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow10" name="否" sourceRef="servicetask5" targetRef="servicetask10">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isSlideActive == "false"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow12" name="否" sourceRef="servicetask3" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isCCAlarm == "false"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow13" sourceRef="servicetask6" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="servicetask7" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow15" sourceRef="servicetask10" targetRef="endevent1"></sequenceFlow>
+    <serviceTask id="servicetask11" name="报警：轮径差故障" activiti:async="true" activiti:delegateExpression="${alarmService}">
+      <extensionElements>
+        <activiti:field name="alarmType">
+          <activiti:string><![CDATA[WHEEL_DIAMETER_DIFF]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow16" name="是" sourceRef="servicetask9" targetRef="servicetask11">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isWheelDiameterDiff == "true"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask12" name="报警：防滑激活" activiti:async="true" activiti:delegateExpression="${alarmService}">
+      <extensionElements>
+        <activiti:field name="alarmType">
+          <activiti:string><![CDATA[SLIDE_ACTIVE]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow17" name="否" sourceRef="servicetask9" targetRef="servicetask12">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${isWheelDiameterDiff == "false"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow18" sourceRef="servicetask11" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="servicetask12" targetRef="endevent1"></sequenceFlow>
+    <dataObject id="code" name="CC检测打滑点位" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>SIG.9.CDI.90009.E0.39</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="value" name="CC检测打滑点位值" itemSubjectRef="xsd:int">
+      <extensionElements>
+        <activiti:value>0</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="line" name="线路号" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>9</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="timestamp" name="时间按戳" itemSubjectRef="xsd:long">
+      <extensionElements>
+        <activiti:value>0</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="alarmDataString" name="报警数据字符串" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value></activiti:value>
+      </extensionElements>
+    </dataObject>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_slideana">
+    <bpmndi:BPMNPlane bpmnElement="slideana" id="BPMNPlane_slideana">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="30.0" y="104.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="290.0" y="94.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="30.0" y="270.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="110.0" y="94.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask4" id="BPMNShape_servicetask4">
+        <omgdc:Bounds height="55.0" width="141.0" x="460.0" y="94.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
+        <omgdc:Bounds height="55.0" width="105.0" x="650.0" y="94.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
+        <omgdc:Bounds height="55.0" width="174.0" x="256.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask7" id="BPMNShape_servicetask7">
+        <omgdc:Bounds height="55.0" width="105.0" x="478.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask9" id="BPMNShape_servicetask9">
+        <omgdc:Bounds height="55.0" width="105.0" x="800.0" y="94.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask10" id="BPMNShape_servicetask10">
+        <omgdc:Bounds height="55.0" width="105.0" x="650.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask11" id="BPMNShape_servicetask11">
+        <omgdc:Bounds height="55.0" width="127.0" x="789.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask12" id="BPMNShape_servicetask12">
+        <omgdc:Bounds height="55.0" width="105.0" x="950.0" y="94.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="65.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="110.0" y="121.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="215.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="121.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="239.0" y="125.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="395.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="121.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="409.0" y="125.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="601.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="650.0" y="121.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="619.0" y="125.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="342.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="343.0" y="190.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="350.0" y="159.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="530.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="190.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="540.0" y="159.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="755.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="121.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="769.0" y="125.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="702.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="702.0" y="190.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="710.0" y="159.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="162.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="162.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="65.0" y="287.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="170.0" y="159.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="343.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="342.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="65.0" y="287.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="530.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="65.0" y="287.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="702.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="702.0" y="287.0"></omgdi:waypoint>
+        <omgdi:waypoint x="65.0" y="287.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="852.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="852.0" y="190.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="860.0" y="159.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="905.0" y="121.0"></omgdi:waypoint>
+        <omgdi:waypoint x="950.0" y="121.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="919.0" y="125.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="852.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="849.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="65.0" y="287.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="1002.0" y="149.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1000.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="65.0" y="287.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
