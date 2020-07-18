@@ -24,6 +24,18 @@ spring:
     testOnReturn: false
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
+  redis:
+    host: 192.168.0.102
+    password: casco123
+    port: 6379
+    timeout: 1000s
+    jedis:
+      pool:
+        max-idle: 500
+        min-idle: 50
+        max-wait: -1
+        max-active: -1
+    expire: 5
 
   kafka:
     bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
