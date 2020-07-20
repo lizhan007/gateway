@@ -8,12 +8,12 @@ logging:
 
 spring:
   application:
-    name: xiot-device-srv
+    name: casco_operation_portal
   datasource:
     name: casco
-#    url: jdbc:mysql://${MYSQL_HOST:172.30.81.85}:${MYSQL_PORT:3306}/casco_zhgs?useUnicode=true&characterEncoding=UTF8
+#    url: jdbc:mysql://${MYSQL_HOST:172.30.81.114}:${MYSQL_PORT:3306}/casco_zhgs?useUnicode=true&characterEncoding=UTF8
 #    username: root
-#    password: yeexun
+#    password: 123456
     url: jdbc:mysql://${MYSQL_HOST:192.168.0.103}:${MYSQL_PORT:3306}/casco_zhgs?useUnicode=true&characterEncoding=UTF8
     username: root
     password: Casco123
@@ -56,6 +56,8 @@ hive:
       driverClassName: org.apache.hive.jdbc.HiveDriver
       #配置基本属性
 #      url: jdbc:hive2://172.30.81.114:10011/test
+#      username: root
+#      password:
       url: jdbc:hive2://192.168.0.101:10000/mpom
       username: admin
       password: admin
