@@ -23,3 +23,5 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+/casco_devdata_ms/.idea/
+/casco_devdata_ms/.idea/workspace.xml
