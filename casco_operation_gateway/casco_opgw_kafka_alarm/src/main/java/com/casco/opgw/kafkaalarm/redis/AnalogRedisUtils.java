@@ -24,8 +24,8 @@ public class AnalogRedisUtils {
 
     public boolean set(String key, String value) {
         try {
-            //stringRedisTemplate.opsForValue().set(key, value);
-            stringRedisTemplate.opsForValue().set(key, value,EXPIRE_TIME_MINITES,  TimeUnit.MINUTES);
+            stringRedisTemplate.opsForValue().set(key, value);
+            //stringRedisTemplate.opsForValue().set(key, value,EXPIRE_TIME_MINITES,  TimeUnit.MINUTES);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
