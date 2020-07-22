@@ -17,7 +17,7 @@ spring:
 #         max-wait: -1
 #         max-active: -1
   redis:
-    host: 192.168.0.102
+    host: 10.153.102.2
     password: casco123
     port: 6379
     timeout: 1000s

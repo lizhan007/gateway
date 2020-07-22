@@ -4,14 +4,14 @@ server:
 spring:
   modbus:
     master:
-      ip: 192.168.0.153
+      ip: 10.153.102.4
       port: 2000
     slave:
-      ip: 192.168.0.153
+      ip: 10.153.102.5
       port: 2000
 
   kafka:
-    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
 
     producer:
       retries: 0
