@@ -28,7 +28,10 @@ public class NumberUtil {
 
     //获取当前时间时间戳
     public static String getTimeStamp(){
-//        return Long.toString(LocalDateTime.now().toInstant(ZoneOffset.of("+8")).toEpochMilli());
         return Long.toString(LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
+    }
+
+    public static String getTimeStamp(LocalDateTime localDateTime){
+        return Long.toString(localDateTime.toEpochSecond(ZoneOffset.of("+8")));
     }
 }

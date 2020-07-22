@@ -30,7 +30,7 @@ public class SysStatistics extends Model<SysStatistics> {
     private Long id;
 
     /**
-     * 数据类型：0：数字，1：模拟，4：枚举
+     * 数据类型：0：信号，1：车辆，2：水泵
      */
     private Integer type;
 

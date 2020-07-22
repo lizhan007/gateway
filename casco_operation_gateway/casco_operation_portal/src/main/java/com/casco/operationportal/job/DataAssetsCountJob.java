@@ -1,7 +1,10 @@
 package com.casco.operationportal.job;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.casco.operationportal.entity.SysStatistics;
 import com.casco.operationportal.models.DataAssetsModel;
+import com.casco.operationportal.service.SysStatisticsService;
 import com.casco.operationportal.utils.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,19 +34,23 @@ public class DataAssetsCountJob {
     @Autowired
     @Qualifier("hiveJdbcTemplate")
     private JdbcTemplate hiveJdbcTemplate;
+    @Autowired
+    SysStatisticsService sysStatisticsService;
 
     //直接指定时间间隔，例如：10000：100秒
-    @Scheduled(fixedRate=3600000)
+    @Scheduled(fixedRate=600000)
 //    @Scheduled(fixedRate=600000)
-    private void configureTasks() {
+    private void baseTask() {
 
         String uuid = NumberUtil.getTimeStamp();
-        log.info("|" + uuid + "|开始执行DataAssetsCountJob");
-        dataTypeCount(uuid);
+        log.info("|" + uuid + "|开始执行DataAssetsCountJob-baseTask");
 //        majorCount(uuid);
 //        lineCount(uuid);
+
         collectionPointCount(uuid);
-        log.info("|" + uuid + "|本次DataAssetsCountJob执行完毕");
+        dataTypeCount(uuid);
+        dataTypeCountByMonth(uuid);
+        log.info("|" + uuid + "|本次DataAssetsCountJob-baseTask执行完毕");
     }
 
 
@@ -69,7 +79,7 @@ public class DataAssetsCountJob {
         map.put("模拟量", i);
 
         sql = "select count(1) from SIG_ENUM_QUANTITY_RECORD";
-        i += hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        i = hiveJdbcTemplate.queryForObject(sql, Integer.class);
         map.put("枚举量", i);
 
         log.info("|" + uuid + "|DataAssetsCountJob更新DataTypeCount：" + JSON.toJSONString(map));
@@ -293,5 +303,101 @@ public class DataAssetsCountJob {
         log.info("|" + uuid + "|DataAssetsCountJob更新collectionPointCount：" + JSON.toJSONString(map));
         dataAssetsModel.setCollectionPointCount(map);
         dataAssetsModel.setCollectionPointByDataTypeCount(map2);
+    }
+
+
+    private void dataTypeCountByMonth(String uuid) {
+
+        log.info("|" + uuid + "|DataAssetsCountJob开始更新dataTypeCountByMonth...");
+
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String firstDay = df.format(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
+        String lastDay = df.format(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()));
+        System.out.println(firstDay);
+        System.out.println(lastDay);
+
+        String[] strings = firstDay.split("-");
+        String month = strings[0] + strings[1];
+        String monthSql = strings[0] + "-" + strings[1] + "%";
+        System.out.println(month);
+        System.out.println(monthSql);
+
+        Map<String, Integer> map = new HashMap<>();
+        int i = 0;
+        int isThereAValue = 0;
+        String sql = "";
+
+        sql = "select count(1) from SIG_DIGIT_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i = hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        sql = "select count(1) from SIG_ANALOG_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i = hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        sql = "select count(1) from SIG_ENUM_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i += hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        System.out.println(i);
+        if(i == 0){
+            isThereAValue = 0;
+        }else{
+            isThereAValue = 1;
+        }
+        SysStatistics sysStatistics0 = sysStatisticsService.getOne(new QueryWrapper<SysStatistics>()
+                .lambda()
+                .eq(SysStatistics::getMonth, month).eq(SysStatistics::getType, 0));
+        if(null == sysStatistics0){
+            SysStatistics sysStatistics = new SysStatistics();
+            sysStatistics.setType(0).setMonth(month).setIsThereAValue(isThereAValue).setCount((long)i);
+            sysStatisticsService.save(sysStatistics);
+        }else{
+            sysStatistics0.setIsThereAValue(isThereAValue).setCount((long)i);
+            sysStatisticsService.updateById(sysStatistics0);
+        }
+
+
+        sql = "select count(1) from VEH_DIGIT_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i = hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        sql = "select count(1) from VEH_ANALOG_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i += hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        System.out.println(i);
+        if(i == 0){
+            isThereAValue = 0;
+        }else{
+            isThereAValue = 1;
+        }
+        SysStatistics sysStatistics1 = sysStatisticsService.getOne(new QueryWrapper<SysStatistics>()
+                .lambda()
+                .eq(SysStatistics::getMonth, month).eq(SysStatistics::getType, 1));
+        if(null == sysStatistics1){
+            SysStatistics sysStatistics = new SysStatistics();
+            sysStatistics.setType(1).setMonth(month).setIsThereAValue(isThereAValue).setCount((long)i);
+            sysStatisticsService.save(sysStatistics);
+        }else{
+            sysStatistics1.setIsThereAValue(isThereAValue).setCount((long)i);
+            sysStatisticsService.updateById(sysStatistics1);
+        }
+
+
+        sql = "select count(1) from BAS_DIGIT_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i = hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        sql = "select count(1) from BAS_ANALOG_QUANTITY_RECORD where dt like '" + monthSql + "'";
+        i += hiveJdbcTemplate.queryForObject(sql, Integer.class);
+        System.out.println(i);
+        if(i == 0){
+            isThereAValue = 0;
+        }else{
+            isThereAValue = 1;
+        }
+        SysStatistics sysStatistics3 = sysStatisticsService.getOne(new QueryWrapper<SysStatistics>()
+                .lambda()
+                .eq(SysStatistics::getMonth, month).eq(SysStatistics::getType, 2));
+        if(null == sysStatistics3){
+            SysStatistics sysStatistics = new SysStatistics();
+            sysStatistics.setType(2).setMonth(month).setIsThereAValue(isThereAValue).setCount((long)i);
+            sysStatisticsService.save(sysStatistics);
+        }else{
+            sysStatistics3.setIsThereAValue(isThereAValue).setCount((long)i);
+            sysStatisticsService.updateById(sysStatistics3);
+        }
+
+        log.info("|" + uuid + "|DataAssetsCountJob更新dataTypeCountByMonth：" + JSON.toJSONString(map));
+        dataAssetsModel.setDataTypeCount(map);
     }
 }
