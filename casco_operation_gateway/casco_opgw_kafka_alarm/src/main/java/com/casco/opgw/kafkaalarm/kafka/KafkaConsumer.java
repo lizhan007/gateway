@@ -50,13 +50,26 @@ public class KafkaConsumer {
                     =new QueryWrapper<SysAlarmTable>().lambda()
                     .in(SysAlarmTable::getArmLevel,1,2)
                     .isNull(SysAlarmTable::getArmRestoreTime);
-            adsAlarmCountTable.setAlarmCount(sysAlarmTableMapper.selectCount(queryWrapper));
+            int alarmCount = sysAlarmTableMapper.selectCount(queryWrapper);
+            queryWrapper
+                    =new QueryWrapper<SysAlarmTable>().lambda()
+                    .in(SysAlarmTable::getArmLevel,1,2)
+                    .lt(SysAlarmTable::getArmRestoreTime,"1970-01-02 08:00:00");
+            alarmCount = alarmCount + sysAlarmTableMapper.selectCount(queryWrapper);
+            adsAlarmCountTable.setAlarmCount(alarmCount);
 
             queryWrapper
                     =new QueryWrapper<SysAlarmTable>().lambda()
                     .notIn(SysAlarmTable::getArmLevel,1,2)
                     .isNull(SysAlarmTable::getArmRestoreTime);
-            adsAlarmCountTable.setEarlyAlarmCount(sysAlarmTableMapper.selectCount(queryWrapper));
+
+            int earlyAlarmCount = sysAlarmTableMapper.selectCount(queryWrapper);
+            queryWrapper
+                    =new QueryWrapper<SysAlarmTable>().lambda()
+                    .notIn(SysAlarmTable::getArmLevel,1,2)
+                    .lt(SysAlarmTable::getArmRestoreTime,"1970-01-02 08:00:00");
+            earlyAlarmCount = earlyAlarmCount + sysAlarmTableMapper.selectCount(queryWrapper);
+            adsAlarmCountTable.setEarlyAlarmCount(earlyAlarmCount);
         }
     }
 
