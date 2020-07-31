@@ -39,7 +39,7 @@ public class InitTimerTask implements CommandLineRunner {
                 .build();
         scheduler.scheduleJob(masterJobDetail , masterTrigger);
 
-        log.info("start slave timer");
+        //log.info("start slave timer");
 
         JobKey slaveJobKey         = new JobKey("slave" , "slave");
         JobDetail slaveJobDetail   = JobBuilder.newJob(MasterJob.class).withIdentity(slaveJobKey).build();
@@ -50,7 +50,7 @@ public class InitTimerTask implements CommandLineRunner {
                 // 每隔5秒执行 并一直重复
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(100).repeatForever())
                 .build();
-        scheduler.scheduleJob(slaveJobDetail , slaveTrigger);
+        //scheduler.scheduleJob(slaveJobDetail , slaveTrigger);
 
 
 
