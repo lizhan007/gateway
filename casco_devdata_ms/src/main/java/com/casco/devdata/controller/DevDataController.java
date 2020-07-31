@@ -435,6 +435,24 @@ public class DevDataController extends BaseController{
         eres = enumRedisUtils.gets(eKeys);
         ares = analogRedisUtils.gets(aKeys);
 
+        if(dres == null || dres.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                dres.add("");
+            }
+        }
+
+        if(eres == null || eres.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                eres.add("");
+            }
+        }
+
+        if(ares == null || ares.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                ares.add("");
+            }
+        }
+
         Map<String, List> map = new HashMap<>();
 
         for(SysRelateCollectionDef vo : sysRelateCollectionDefList){
