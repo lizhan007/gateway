@@ -66,4 +66,26 @@ public interface SysRelateCollectionDefMapper extends BaseMapper<SysRelateCollec
             "</foreach> \n" +
             ")) SEM ON CT.TYPE_NAME = SEM.`TYPE_NAME`</script>")
     List<Map> listEnumAttr(@Param("devs") List<String> device);
+
+    @Select("<script>SELECT DEV_ID, COUNT(KEY_ID) AS NUM FROM sys_relate_collection_def WHERE KEY_ID IN \n" +
+            "<foreach collection=\"keys\" index = \"index\" item = \"key\" open= \"(\" separator=\",\" close=\")\">  \n" +
+            "#{key} \n" +
+            "</foreach> \n" +
+            " GROUP BY dev_id ORDER BY NUM LIMIT 1</script>")
+    List<Map> getLongestDevByKeys(@Param("keys") List<String> keys);
+
+
+    @Select("SELECT collect_name FROM sys_dev_type_relate_collection_def " +
+            "WHERE dev_type_id = (SELECT DEV_TYPE_ID FROM sys_dev_list WHERE DEV_ID = #{devId}) " +
+            "ORDER BY  COLLECT_TYPE_ID ASC, INTERFACE_TYPE_ID ASC")
+    List<String> getCollectionsByDevType(@Param("devId") String devId);
+
+    @Select("<script>SELECT * FROM sys_relate_collection_def AS SR LEFT JOIN sys_dev_type_relate_collection_def " +
+            "AS SD ON SR.`COLLECT_TYPE_ID` = SD.`collect_type_id` WHERE DEV_ID IN " +
+            "<foreach collection=\"devs\" index = \"index\" item = \"dev\" open= \"(\" separator=\",\" close=\")\">  \n" +
+            "#{dev} \n" +
+            "</foreach> \n" +
+            "</script>")
+    List<Map> listBasCollection(@Param("devs") List<String> device);
+
 }
