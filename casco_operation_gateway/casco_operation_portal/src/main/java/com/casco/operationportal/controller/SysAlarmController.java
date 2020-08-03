@@ -1,14 +1,18 @@
 package com.casco.operationportal.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.casco.operationportal.common.dto.R;
-import com.casco.operationportal.entity.SysAlarmList;
-import com.casco.operationportal.service.SysAlarmListService;
+import com.casco.operationportal.entity.AlarmDef;
+import com.casco.operationportal.mapper.SysAlarmDefMapper;
 import com.sun.istack.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @program: xiot_platform
@@ -18,24 +22,44 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Transactional
 @RestController
-@RequestMapping("/operationportal/sysAlarm")
+@RequestMapping("/operationportal/alarmdef")
 public class SysAlarmController {
 
     @Autowired
-    SysAlarmListService sysAlarmListService;
+    private SysAlarmDefMapper sysAlarmDefMapper;
+
+    @RequestMapping("/major")
+    public R<List<AlarmDef>> majorList() {
+        QueryWrapper<AlarmDef> query = new QueryWrapper<>();
+        query.select("DISTINCT major");
+        List<AlarmDef> list = sysAlarmDefMapper.selectList(query);
+        R<List<AlarmDef>> r = new R<>();
+        r.setCode(R.SUCCESS);
+        r.setData(list);
+        return r;
+    }
 
     @RequestMapping("/list")
-    public R<Page<SysAlarmList>> list(@NotNull Long current,
-                                      @NotNull Long size) {
+    public R<Page<AlarmDef>> list(String major,
+                                  String keyword,
+                                  @NotNull Long current,
+                                  @NotNull Long size) {
+        QueryWrapper<AlarmDef> query = new QueryWrapper<>();
+        if(!StringUtils.isEmpty(major)){
+            query.lambda().eq(AlarmDef::getMajor, major);
+        }
+        if(!StringUtils.isEmpty(keyword)){
+            query.lambda().like(AlarmDef::getAlarmContent, keyword);
+        }
 
-        Page<SysAlarmList> page = new Page<>();
+        Page<AlarmDef> page = new Page<>();
         page.setCurrent(current);
         page.setSize(size);
 
-        sysAlarmListService.page(page);
-        R<Page<SysAlarmList>> r = new R<>();
+        Page<AlarmDef> pages = sysAlarmDefMapper.selectPage(page, query);
+        R<Page<AlarmDef>> r = new R<>();
         r.setCode(R.SUCCESS);
-        r.setData(page);
+        r.setData(pages);
         return r;
     }
 }
