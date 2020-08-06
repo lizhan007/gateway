@@ -2,7 +2,7 @@ server:
   port: 2001
 spring:
   kafka:
-    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
 
     producer:
       retries: 0

@@ -200,7 +200,7 @@ public class DevDataController extends BaseController{
         List<SysRelateCollectionDef> list = null;
         Long total = 0L;
 
-        if(major.equals("VEHICLE")){
+//        if(major.equals("VEHICLE")){
 
             //车辆的话需要分页
             QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
@@ -213,13 +213,21 @@ public class DevDataController extends BaseController{
             list = pages.getRecords();
             total = pages.getTotal();
 
-        }else {
-
-            QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
-            collectQuery.lambda().eq(SysRelateCollectionDef::getDevId, devid);
-
-            list = sysRelateCollectionDefMapper.selectList(collectQuery);
-        }
+//        }else {
+//
+//            QueryWrapper<SysRelateCollectionDef> collectQuery = new QueryWrapper<>();
+//            collectQuery.lambda().eq(SysRelateCollectionDef::getDevId, devid);
+//
+//            Page<SysRelateCollectionDef> page = new Page<>(start,limit);
+//            R<Page<SysDigitTypeDef>> r = new R<>();
+//            Page pages = sysRelateCollectionDefMapper.selectPage(page, collectQuery);
+//            list = pages.getRecords();
+//            total = pages.getTotal();
+//
+//            list = sysRelateCollectionDefMapper.selectList(collectQuery);
+//            list = pages.getRecords();
+//            total = pages.getTotal();
+//        }
 
 
         for(SysRelateCollectionDef item: list){
@@ -237,7 +245,9 @@ public class DevDataController extends BaseController{
 
                 SysDigitTypeDef def = sysDigitTypeDefMapper.selectOne(dtquery);
 
-                collectionVo.setCollectionName(def.getTypeName());
+                if(def!=null){
+                    collectionVo.setCollectionName(def.getTypeName());
+                }
 
                 //1.2 获取类型来源和key
                 QueryWrapper<SysInterfaceTypeDef> iquery
@@ -258,7 +268,9 @@ public class DevDataController extends BaseController{
 
                 SysEnumTypeDef def = sysEnumTypeDefMapper.selectOne(etquery);
 
-                collectionVo.setCollectionName(def.getTypeName());
+                if(def!=null){
+                    collectionVo.setCollectionName(def.getTypeName());
+                }
 
                 //1.2 获取类型来源和key
                 QueryWrapper<SysInterfaceTypeDef> iquery
@@ -279,7 +291,9 @@ public class DevDataController extends BaseController{
 
                 SysAnalogTypeDef def = sysAnalogTypeDefMapper.selectOne(atquery);
 
-                collectionVo.setCollectionName(def.getTypeName());
+                if(def!=null){
+                    collectionVo.setCollectionName(def.getTypeName());
+                }
 
                 //1.2 获取类型来源和key
                 QueryWrapper<SysInterfaceTypeDef> iquery
@@ -297,7 +311,7 @@ public class DevDataController extends BaseController{
         //R<List<CollectionVo>> res = new R<>();
         R<Object> res = new R<>();
 
-        if(major.equals("VEHICLE")){
+//        if(major.equals("VEHICLE")){
 
             Map<String, Object>  dataRes = new HashMap<>();
             dataRes.put("data", result);
@@ -306,13 +320,13 @@ public class DevDataController extends BaseController{
             res.setData(dataRes);
             return res;
 
-        }else{
-
-            res.setCode(R.SUCCESS);
-            res.setData(result);
-            return res;
-
-        }
+//        }else{
+//
+//            res.setCode(R.SUCCESS);
+//            res.setData(result);
+//            return res;
+//
+//        }
     }
 
 
@@ -321,7 +335,9 @@ public class DevDataController extends BaseController{
     public R getVisible(String typeid){
 
         QueryWrapper<SysKeyVisible> query = new QueryWrapper<>();
-        query.lambda().eq(SysKeyVisible::getTypeId, typeid);
+        query.lambda().eq(SysKeyVisible::getTypeId, typeid)
+                .eq(SysKeyVisible::getIsVisible, 1)
+                .orderByAsc(SysKeyVisible::getKeyId);
 
         List<SysKeyVisible> list = sysKeyVisibleMapper.selectList(query);
 
@@ -418,6 +434,24 @@ public class DevDataController extends BaseController{
         dres = digitalRedisUtils.gets(dKeys);
         eres = enumRedisUtils.gets(eKeys);
         ares = analogRedisUtils.gets(aKeys);
+
+        if(dres == null || dres.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                dres.add("");
+            }
+        }
+
+        if(eres == null || eres.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                eres.add("");
+            }
+        }
+
+        if(ares == null || ares.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                ares.add("");
+            }
+        }
 
         Map<String, List> map = new HashMap<>();
 
@@ -547,5 +581,140 @@ public class DevDataController extends BaseController{
         res.setCode(R.SUCCESS);
         res.setData(result);
         return res;
+    }
+
+
+    @RequestMapping(value = "/devdata/listbascollections", method = RequestMethod.POST)
+    @ResponseBody
+    public R listBasCollections(@RequestBody List<DevVo> devIdList) {
+
+        //获取枚举字典
+        List<String> params = new ArrayList<>();
+        for(DevVo vo:devIdList){
+            params.add(vo.getDevId());
+        }
+
+        List<Map> list = sysRelateCollectionDefMapper.listEnumAttr(params);
+        List<SysAnalogQuantityDef> unitList = sysAnalogQuantityDefMapper.listAnalogUnit(params);
+
+        QueryWrapper<SysRelateCollectionDef> query = new QueryWrapper<>();
+        query.lambda().in(SysRelateCollectionDef::getDevId, params)
+                .orderByAsc(SysRelateCollectionDef::getCollectTypeId)
+                .orderByAsc(SysRelateCollectionDef::getInterfaceTypeId);
+
+        List<Map> sysRelateCollectionDefList
+                = sysRelateCollectionDefMapper.listBasCollection(params);
+
+        List<String> dKeys = new ArrayList<>();
+        List<String> eKeys = new ArrayList<>();
+        List<String> aKeys = new ArrayList<>();
+        List<String> keys  = new ArrayList<>();
+
+        List<String> dres = new ArrayList<>();
+        List<String> eres = new ArrayList<>();
+        List<String> ares = new ArrayList<>();
+
+        for(Map vo : sysRelateCollectionDefList){
+            if((Integer) vo.get("DATA_TYPE") == 0){
+                dKeys.add(vo.get("KEY_ID").toString());
+            }else if((Integer)vo.get("DATA_TYPE") == 4){
+                eKeys.add(vo.get("KEY_ID").toString());
+            }else if((Integer)vo.get("DATA_TYPE") == 1){
+                aKeys.add(vo.get("KEY_ID").toString());
+            }
+
+            keys.add(vo.get("KEY_ID").toString());
+        }
+
+        List<Map> map1 = sysRelateCollectionDefMapper.getLongestDevByKeys(keys);
+
+        //根据keyID 获取当前设备类型的 collection 列表
+        List<String> collects = sysRelateCollectionDefMapper
+                .getCollectionsByDevType(map1.get(0).get("DEV_ID").toString());
+
+        dres = digitalRedisUtils.gets(dKeys);
+        eres = enumRedisUtils.gets(eKeys);
+        ares = analogRedisUtils.gets(aKeys);
+
+        if(dres == null || dres.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                dres.add("");
+            }
+        }
+
+        if(eres == null || eres.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                eres.add("");
+            }
+        }
+
+        if(ares == null || ares.size() == 0){
+            for(int i=0;i<dKeys.size();i++){
+                ares.add("");
+            }
+        }
+
+        Map<String, List<CollectionVo>> map = new HashMap<>();
+
+        for(Map vo : sysRelateCollectionDefList){
+
+            if(!map.containsKey(vo.get("DEV_ID"))){
+
+                List<CollectionVo> tmp = new ArrayList<>();
+
+                for(int i = 0; i < collects.size(); i++){
+                    CollectionVo v = new CollectionVo();
+                    v.setCollectionName(collects.get(i));
+                    tmp.add(v);
+                }
+
+                map.put(vo.get("DEV_ID").toString(), tmp);
+            }
+
+            if((Integer) vo.get("DATA_TYPE") == 0){
+                for(int i = 0; i < dKeys.size(); i++){
+                    if(vo.get("KEY_ID").equals(dKeys.get(i))){
+
+                        for(int j = 0; j < map.get(vo.get("DEV_ID")).size(); j++){
+                            if(map.get(vo.get("DEV_ID")).get(j).getCollectionName().equals(vo.get("collect_name"))){
+                                map.get(vo.get("DEV_ID")).get(j).setValue(dres.get(i));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }else if((Integer) vo.get("DATA_TYPE") == 4){
+                for(int i = 0; i < eKeys.size(); i++){
+                    if(vo.get("KEY_ID").equals(eKeys.get(i))){
+
+                        for(int j = 0; j < map.get(vo.get("DEV_ID")).size(); j++){
+                            if(map.get(vo.get("DEV_ID")).get(j).getCollectionName().equals(vo.get("collect_name"))){
+                                map.get(vo.get("DEV_ID")).get(j).setValue(changeEnumvalue(list, String.valueOf(vo.get("collect_type_id")), eres.get(i)));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }else if((Integer) vo.get("DATA_TYPE") == 1){
+                for(int i = 0; i < aKeys.size(); i++){
+                    if(vo.get("KEY_ID").equals(aKeys.get(i))){
+                        for(int j = 0; j < map.get(vo.get("DEV_ID")).size(); j++){
+                            if(map.get(vo.get("DEV_ID")).get(j).getCollectionName().equals(vo.get("collect_name"))){
+                                map.get(vo.get("DEV_ID")).get(j).setValue(changeAnalogValue(unitList, aKeys.get(i), ares.get(i)));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }//for(CollectionVo vo : collectionVoList){
+
+
+        R<Object> res = new R<>();
+        res.setCode(R.SUCCESS);
+        res.setData(map);
+
+        return res;
+
     }
 }

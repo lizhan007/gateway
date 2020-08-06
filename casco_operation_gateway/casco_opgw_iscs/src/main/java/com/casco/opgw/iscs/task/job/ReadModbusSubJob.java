@@ -53,7 +53,8 @@ public class ReadModbusSubJob implements Runnable{
 
         try {
 
-            registerValues = modbusMaster.readInputRegisters(serverAddr, addr, 1)[0];
+            //registerValues = modbusMaster.readInputRegisters(serverAddr, addr, 1)[0];
+            registerValues = modbusMaster.readHoldingRegisters(serverAddr, addr, 1)[0];
 
             //解析modbus返回值
             List<VariableEntity> tmp = new ArrayList<>();

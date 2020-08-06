@@ -17,6 +17,10 @@ import java.util.Map;
  */
 public interface SysDevTypeDefMapper extends BaseMapper<SysDevTypeDef> {
 
-    @Select("SELECT * FROM SYS_DEV_TYPE_DEF WHERE DEV_TYPE_ID IN (SELECT DISTINCT DEV_TYPE_ID FROM SYS_DEV_LIST)")
+    @Select("SELECT * FROM SYS_DEV_TYPE_DEF " +
+            "WHERE DEV_TYPE_ID IN (" +
+            "   SELECT DISTINCT DEV_TYPE_ID " +
+            "   FROM SYS_DEV_LIST" +
+            ")")
     public List<SysDevTypeDef> listValidType();
 }

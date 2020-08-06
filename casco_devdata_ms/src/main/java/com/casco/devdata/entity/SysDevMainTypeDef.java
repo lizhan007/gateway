@@ -34,6 +34,9 @@ public class SysDevMainTypeDef extends Model<SysDevMainTypeDef> {
     @TableField("MAJOR")
     private String major;
 
+    @TableField("DISPLAY_NUMBER")
+    private Integer displayNumber;
+
 
     @Override
     protected Serializable pkVal() {

@@ -26,9 +26,9 @@ public class CodeGenerator {
 	public static String parent = "com.casco";
 	public static String moduleName = "operationportal";
 
-	public static String dbUrl = "jdbc:mysql://172.30.81.85:3306/casco_zhgs?useUnicode=true&useSSL=false&characterEncoding=utf8";
+	public static String dbUrl = "jdbc:mysql://172.30.81.114:3306/casco_zhgs?useUnicode=true&useSSL=false&characterEncoding=utf8";
 	public static String dbUserName = "root";
-	public static String dbPassword = "yeexun";
+	public static String dbPassword = "123456";
 
 	//生成代码的controller 的 公共父类
 //	public static String superControllerClass = "com.yeexun.xiot.base.controller.BaseController";

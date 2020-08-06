@@ -2,13 +2,19 @@ package com.casco.opgw.kafkaalarm.kafka;
 
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.casco.opgw.com.message.AlarmMessage;
 import com.casco.opgw.kafkaalarm.BeanPorvider;
 import com.casco.opgw.kafkaalarm.entity.AdsAlarmCountTable;
+import com.casco.opgw.kafkaalarm.entity.SysAlarmTable;
 import com.casco.opgw.kafkaalarm.mapper.AdsAlarmCountTableMapper;
+import com.casco.opgw.kafkaalarm.mapper.SysAlarmTableMapper;
+import com.casco.opgw.kafkaalarm.redis.AnalogRedisUtils;
 import com.casco.opgw.kafkaalarm.task.AlarmStoreTask;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -16,7 +22,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -34,8 +43,33 @@ public class KafkaConsumer {
      */
     public static void initAdsAlarmCount(){
         if(adsAlarmCountTable==null){
-            AdsAlarmCountTableMapper adsAlarmCountTableMapper = BeanPorvider.getApplicationContext().getBean(AdsAlarmCountTableMapper.class);
-            adsAlarmCountTable = adsAlarmCountTableMapper.selectOne(null);
+            //AdsAlarmCountTableMapper adsAlarmCountTableMapper = BeanPorvider.getApplicationContext().getBean(AdsAlarmCountTableMapper.class);
+            SysAlarmTableMapper sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
+            adsAlarmCountTable = new AdsAlarmCountTable();
+            LambdaQueryWrapper<SysAlarmTable> queryWrapper
+                    =new QueryWrapper<SysAlarmTable>().lambda()
+                    .in(SysAlarmTable::getArmLevel,1,2)
+                    .isNull(SysAlarmTable::getArmRestoreTime);
+            int alarmCount = sysAlarmTableMapper.selectCount(queryWrapper);
+            queryWrapper
+                    =new QueryWrapper<SysAlarmTable>().lambda()
+                    .in(SysAlarmTable::getArmLevel,1,2)
+                    .lt(SysAlarmTable::getArmRestoreTime,"1970-01-02 08:00:00");
+            alarmCount = alarmCount + sysAlarmTableMapper.selectCount(queryWrapper);
+            adsAlarmCountTable.setAlarmCount(alarmCount);
+
+            queryWrapper
+                    =new QueryWrapper<SysAlarmTable>().lambda()
+                    .notIn(SysAlarmTable::getArmLevel,1,2)
+                    .isNull(SysAlarmTable::getArmRestoreTime);
+
+            int earlyAlarmCount = sysAlarmTableMapper.selectCount(queryWrapper);
+            queryWrapper
+                    =new QueryWrapper<SysAlarmTable>().lambda()
+                    .notIn(SysAlarmTable::getArmLevel,1,2)
+                    .lt(SysAlarmTable::getArmRestoreTime,"1970-01-02 08:00:00");
+            earlyAlarmCount = earlyAlarmCount + sysAlarmTableMapper.selectCount(queryWrapper);
+            adsAlarmCountTable.setEarlyAlarmCount(earlyAlarmCount);
         }
     }
 

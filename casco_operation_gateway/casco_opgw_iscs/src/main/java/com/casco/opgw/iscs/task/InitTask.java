@@ -78,8 +78,15 @@ public class InitTask implements CommandLineRunner {
             variableEntity.setVarName(row.getCell(COL_NUM_VARNAME).toString());
             variableEntity.setVarType(row.getCell(COL_NUM_VARTYPE).toString());
             variableEntity.setIoType(row.getCell(COL_NUM_IOTYPE).toString());
-            variableEntity.setModbusAddr(row.getCell(COL_NUM_MODBUSADDR).toString());
-            Integer addr = IscsUtils.getStringToNumWithNoDecimal(row.getCell(COL_NUM_MODBUSADDR).toString());
+
+            Integer addr_read = IscsUtils.getStringToNumWithNoDecimal(row.getCell(COL_NUM_MODBUSADDR).toString());
+
+            //去除头，表示类型而非地址
+            String tmp   = String.valueOf(addr_read);
+            String value = tmp.substring(1, tmp.length());
+            Integer addr = Integer.valueOf(value);
+
+            variableEntity.setModbusAddr(String.valueOf(addr));
 
             if(!modbusAddr.contains(addr)){
                 modbusAddr.add(addr);

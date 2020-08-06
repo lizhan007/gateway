@@ -2,7 +2,7 @@ server:
   port: 3001
 spring:
   kafka:
-    bootstrap-servers: 192.168.0.101:9092,192.168.0.101:9092,192.168.0.101:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
 
     producer:
       retries: 0
@@ -28,7 +28,7 @@ kafka:
 
 ice:
   service_name: ssip_publisher
-  service_endpoint: tcp -h 192.168.0.153 -p 12000
+  service_endpoint: tcp -h 172.25.114.51 -p 12000
   adapter_name: observer
-  adapter_endpoint: tcp -h 192.168.0.103 -p 10000
+  adapter_endpoint: tcp -h 10.153.102.3 -p 10000
 

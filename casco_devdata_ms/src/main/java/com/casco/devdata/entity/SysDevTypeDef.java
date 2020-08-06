@@ -37,7 +37,6 @@ public class SysDevTypeDef extends Model<SysDevTypeDef> {
     @TableField("MAJOR")
     private String major;
 
-
     @Override
     protected Serializable pkVal() {
         return this.devTypeId;

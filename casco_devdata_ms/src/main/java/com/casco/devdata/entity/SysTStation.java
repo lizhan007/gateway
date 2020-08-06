@@ -37,6 +37,9 @@ public class SysTStation extends Model<SysTStation> {
     @TableField("LINE_NAME")
     private String lineName;
 
+    @TableField("DISPLAY_NUMBER")
+    private String displayNumber;
+
 
     @Override
     protected Serializable pkVal() {
