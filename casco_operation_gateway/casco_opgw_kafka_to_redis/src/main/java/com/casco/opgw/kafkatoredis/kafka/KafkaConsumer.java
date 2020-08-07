@@ -44,146 +44,187 @@ public class KafkaConsumer {
 
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_redis")
-    public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-
-        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
+    public void recvDigitMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
 
-        //缓存更新,修改redis写入为channel0
-        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("0", digitMessage.getKeys());
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug(record.value());
 
-            digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+            DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);
+
+            //缓存更新,修改redis写入为channel0
+            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("0", digitMessage.getKeys());
+
+                digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+            //更新redis
+            maps.put(KeyUtils.getKey(digitMessage).getBytes(), digitMessage.getValue().toString().getBytes());
+            //digitalRedisUtils.set(KeyUtils.getKey(digitMessage), digitMessage.getValue().toString());
         }
-
-        //更新redis
-        digitalRedisUtils.set(KeyUtils.getKey(digitMessage), digitMessage.getValue().toString());
-
-
+        digitalRedisUtils.batchSet(maps);
     }
 
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_kafka_to_redis")
-    public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
+    public void recvEnumMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-        EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-        //缓存更新
-        if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug(record.value());
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("1", enumMessage.getKeys());
+            EnumMessage enumMessage = JSON.parseObject(record.value(), EnumMessage.class);
 
+            //缓存更新
+            if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
 
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("1", enumMessage.getKeys());
 
-            enumRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+                enumRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+
+            //更新redis
+            maps.put(KeyUtils.getKey(enumMessage).getBytes(),enumMessage.getValue().toString().getBytes());
+            //enumRedisUtils.set(KeyUtils.getKey(enumMessage), enumMessage.getValue().toString());
         }
-
-        //更新redis
-        enumRedisUtils.set(KeyUtils.getKey(enumMessage), enumMessage.getValue().toString());
-
-
+        enumRedisUtils.batchSet(maps);
     }
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_redis")
-    public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
+    public void recvAnalogMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-        //缓存更新
-        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug(record.value());
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("2", analogMessage.getKeys());
+            AnalogMessage analogMessage = JSON.parseObject(record.value(), AnalogMessage.class);
 
-            analogRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+            //缓存更新
+            if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("2", analogMessage.getKeys());
+
+                analogRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+
+            //更新redis
+            maps.put(KeyUtils.getKey(analogMessage).getBytes(),analogMessage.getValue().toString().getBytes());
+            //analogRedisUtils.set(KeyUtils.getKey(analogMessage), analogMessage.getValue().toString());
         }
-
-        //更新redis
-        analogRedisUtils.set(KeyUtils.getKey(analogMessage), analogMessage.getValue().toString());
-
+        analogRedisUtils.batchSet(maps);
     }
 
     @KafkaListener(topics = "casco_opgw_train_digit", groupId = "casco_opgw_train_kafka_to_redis")
-    public void recvTrainDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
+    public void recvTrainDigitMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-        //缓存更新,修改redis写入为channel0
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug(record.value());
+            DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("0", digitMessage.getKeys());
+            //缓存更新,修改redis写入为channel0
 
-            digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("0", digitMessage.getKeys());
+
+                digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+            //更新redis
+            maps.put(KeyUtils.getTrainKey(digitMessage).getBytes(),digitMessage.getValue().toString().getBytes());
+            //digitalRedisUtils.set(KeyUtils.getTrainKey(digitMessage), digitMessage.getValue().toString());
         }
-        //更新redis
-        digitalRedisUtils.set(KeyUtils.getTrainKey(digitMessage), digitMessage.getValue().toString());
+        digitalRedisUtils.batchSet(maps);
     }
 
     @KafkaListener(topics = "casco_opgw_train_analog", groupId = "casco_opgw_train_kafka_to_redis")
-    public void recvTrainAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+    public void recvTrainAnalogMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-        //缓存更新
-        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("2", analogMessage.getKeys());
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug(record.value());
+            AnalogMessage analogMessage = JSON.parseObject(record.value(), AnalogMessage.class);
 
-            analogRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+            //缓存更新
+            if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("2", analogMessage.getKeys());
+
+                analogRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+            //更新redis
+            maps.put(KeyUtils.getTrainKey(analogMessage).getBytes(),analogMessage.getValue().toString().getBytes());
+            //analogRedisUtils.set(KeyUtils.getTrainKey(analogMessage), analogMessage.getValue().toString());
         }
-        //更新redis
-        analogRedisUtils.set(KeyUtils.getTrainKey(analogMessage), analogMessage.getValue().toString());
+        analogRedisUtils.batchSet(maps);
     }
 
     @KafkaListener(topics = "casco_opgw_iscs_digit", groupId = "casco_opgw_iscs_kafka_to_redis")
-    public void recvIscsDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug("iscsdit " + consumerRecord.value());
+    public void recvIscsDigitMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-        //缓存更新,修改redis写入为channel0
-        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug("iscsdit " + record.value());
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("0", digitMessage.getKeys());
+            DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);
 
-            digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+            //缓存更新,修改redis写入为channel0
+            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("0", digitMessage.getKeys());
+
+                digitalRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+            //更新redis
+            maps.put(KeyUtils.getISCSKey(digitMessage).getBytes(),digitMessage.getValue().toString().getBytes());
+            //digitalRedisUtils.set(KeyUtils.getISCSKey(digitMessage), digitMessage.getValue().toString());
         }
-        //更新redis
-        digitalRedisUtils.set(KeyUtils.getISCSKey(digitMessage), digitMessage.getValue().toString());
+        digitalRedisUtils.batchSet(maps);
     }
 
     @KafkaListener(topics = "casco_opgw_iscs_analog", groupId = "casco_opgw_iscs_kafka_to_redis")
-    public void recvIscsAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(" iscsanalog : " + consumerRecord.value());
-        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+    public void recvIscsAnalogMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-        //缓存更新
-        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+        Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
-            Map<String, List<String>> map = new HashMap<>();
-            map.put("2", analogMessage.getKeys());
-            analogRedisUtils.publish("channel0", JSON.toJSONString(map));
-            return;
+        for(ConsumerRecord<String, String> record:consumerRecord){
+            log.debug(" iscsanalog : " + record.value());
+            AnalogMessage analogMessage = JSON.parseObject(record.value(), AnalogMessage.class);
+
+            //缓存更新
+            if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+
+                Map<String, List<String>> map = new HashMap<>();
+                map.put("2", analogMessage.getKeys());
+                analogRedisUtils.publish("channel0", JSON.toJSONString(map));
+                continue;
+            }
+
+            //更新redis
+            maps.put(KeyUtils.getISCSKey(analogMessage).getBytes(),analogMessage.getValue().toString().getBytes());
+            //analogRedisUtils.set(KeyUtils.getISCSKey(analogMessage), analogMessage.getValue().toString());
         }
-
-        //更新redis
-        analogRedisUtils.set(KeyUtils.getISCSKey(analogMessage), analogMessage.getValue().toString());
+        analogRedisUtils.batchSet(maps);
     }
 
 }

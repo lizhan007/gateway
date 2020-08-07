@@ -4,10 +4,17 @@ package com.casco.opgw.kafkatoredis.redis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import redis.clients.jedis.Jedis;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -45,5 +52,25 @@ public class DigitalRedisUtils {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * redis 批量写入
+     * @param maps
+     */
+    public void batchSet(Map<byte[],byte[]> maps){
+        List result = stringRedisTemplate.executePipelined(new RedisCallback<Object>() {
+
+            @Override
+            public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                connection.openPipeline();
+                connection.mSet(maps);
+                for(byte[] key:maps.keySet()){
+                    connection.expire(key,EXPIRE_TIME_MINITES*60);
+                }
+                connection.closePipeline();
+                return null;
+            }
+        });
     }
 }
