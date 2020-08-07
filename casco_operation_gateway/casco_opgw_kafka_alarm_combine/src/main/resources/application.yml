@@ -4,7 +4,7 @@ server:
 spring:
 
   analysis:
-    waitTime: 600
+    waitTime: 60000
     duration: 30
 
   mysql:
@@ -39,7 +39,7 @@ spring:
     password: 123456
 
   kafka:
-    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092,10.153.102.2:9092
 
     producer:
       retries: 0
