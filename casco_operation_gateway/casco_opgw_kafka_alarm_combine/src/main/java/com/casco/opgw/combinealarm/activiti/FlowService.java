@@ -67,9 +67,9 @@ public class FlowService implements JavaDelegate {
         armFlag = false;
 
         String startTime = LocalDateTime.ofEpochSecond(timestamp - Long.parseLong(durationStr),
-                0, ZoneOffset.ofHours(8)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
+                0, ZoneOffset.ofHours(8)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
         String endTime = LocalDateTime.ofEpochSecond(timestamp + Long.parseLong(durationStr),
-                0, ZoneOffset.ofHours(8)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
+                0, ZoneOffset.ofHours(8)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
 
         switch (flowNameStr) {
             case "CC_SLIP_SLIDE":

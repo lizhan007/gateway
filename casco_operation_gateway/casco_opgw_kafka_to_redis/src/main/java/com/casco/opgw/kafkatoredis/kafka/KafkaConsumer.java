@@ -46,10 +46,11 @@ public class KafkaConsumer {
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_redis")
     public void recvDigitMsg(List<ConsumerRecord<String, String>> consumerRecord){
 
-
         Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
         for(ConsumerRecord<String, String> record:consumerRecord){
+            // System.out.println(record.value());
+
             log.debug(record.value());
 
             DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);
@@ -131,6 +132,8 @@ public class KafkaConsumer {
         Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
         for(ConsumerRecord<String, String> record:consumerRecord){
+            // System.out.println(record.value());
+
             log.debug(record.value());
             DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);
 
@@ -182,6 +185,8 @@ public class KafkaConsumer {
         Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
         for(ConsumerRecord<String, String> record:consumerRecord){
+            // System.out.println(record.value());
+
             log.debug("iscsdit " + record.value());
 
             DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);

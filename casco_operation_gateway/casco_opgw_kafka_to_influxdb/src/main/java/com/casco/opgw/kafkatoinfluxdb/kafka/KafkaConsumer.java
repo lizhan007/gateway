@@ -39,6 +39,8 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_influxdb")
     public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
+        System.out.println(consumerRecord);
+
         log.debug(consumerRecord.value());
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
 
@@ -47,7 +49,8 @@ public class KafkaConsumer {
         }
 
         Point.Builder builder = Point.measurement("SIG_DIGIT");
-        builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+        // builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
         builder.addField("value",digitMessage.getValue());
         builder.tag("line", digitMessage.getLineTag());
         builder.tag("region",digitMessage.getRegionTag());
@@ -69,7 +72,8 @@ public class KafkaConsumer {
             return;
         }
         Point.Builder builder = Point.measurement("SIG_ENUM");
-        builder.time(enumMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+        // builder.time(enumMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+        builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
         builder.addField("value",enumMessage.getValue());
         builder.tag("line", enumMessage.getLineTag());
         builder.tag("region",enumMessage.getRegionTag());
@@ -90,7 +94,8 @@ public class KafkaConsumer {
         }
 
         Point.Builder builder = Point.measurement("SIG_ANALOG");
-        builder.time(analogMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+        // builder.time(analogMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
         builder.addField("value",analogMessage.getValue());
         builder.tag("line", analogMessage.getLineTag());
         builder.tag("region",analogMessage.getRegionTag());
@@ -170,7 +175,7 @@ public class KafkaConsumer {
         builder.tag("line", digitMessage.getLineTag());
         builder.tag("region",digitMessage.getRegionTag());
         builder.tag("srcId","水泵系统");
-        builder.tag("type",digitMessage.getSrcIdTag());  //Type未知
+        builder.tag("type","");  //Type未知
         builder.tag("pointcode",digitMessage.getPointcodeTag());
         Point point = builder.build();
         BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
@@ -196,7 +201,7 @@ public class KafkaConsumer {
         builder.tag("line", analogMessage.getLineTag());
         builder.tag("region",analogMessage.getRegionTag());
         builder.tag("srcId","水泵系统");
-        builder.tag("type",analogMessage.getSrcIdTag());  //Type未知
+        builder.tag("type","");  //Type未知
         builder.tag("pointcode",analogMessage.getPointcodeTag());
         Point point = builder.build() ;
         BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);

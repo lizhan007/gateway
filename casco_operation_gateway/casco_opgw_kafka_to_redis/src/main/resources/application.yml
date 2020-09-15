@@ -3,7 +3,7 @@ server:
 
 spring:
   redis:
-    host: 10.153.102.2
+    host: 192.168.1.104
     password: casco123
     port: 6379
     timeout: 1000s
@@ -17,7 +17,7 @@ spring:
 
 
   kafka:
-    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
+    bootstrap-servers: 192.168.1.101:9092,192.168.1.102:9092
     listener:
       type: batch
     producer:

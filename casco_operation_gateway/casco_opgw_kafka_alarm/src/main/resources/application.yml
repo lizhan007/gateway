@@ -6,7 +6,7 @@ spring:
     name: casco_opgw_kafka_alarm
   datasource:
     name: test
-    url: jdbc:mysql://${MYSQL_HOST:10.153.102.3}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8
+    url: jdbc:mysql://${MYSQL_HOST:192.168.1.103}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF8
     username: root
     password: Casco@123
     type: com.alibaba.druid.pool.DruidDataSource
@@ -25,7 +25,7 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
   redis:
-    host: 192.168.0.102
+    host: 192.168.1.104
     password: casco123
     port: 6379
     timeout: 1000s
@@ -38,7 +38,7 @@ spring:
     expire: 5
 
   kafka:
-    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
+    bootstrap-servers: 192.168.1.101:9092,192.168.1.102:9092
 
     producer:
       retries: 0

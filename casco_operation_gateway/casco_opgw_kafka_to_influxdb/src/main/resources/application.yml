@@ -4,12 +4,12 @@ server:
 spring:
 
   influx:
-    url: http://10.153.102.3:8086
+    url: http://192.168.1.103:8086
     user: root
     password: 123456
 
   kafka:
-    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
+    bootstrap-servers: 192.168.1.101:9092,192.168.1.102:9092
 
     producer:
       retries: 0
