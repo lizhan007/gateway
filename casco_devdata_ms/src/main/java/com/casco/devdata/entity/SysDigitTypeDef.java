@@ -1,6 +1,5 @@
 package com.casco.devdata.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
@@ -14,12 +13,11 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author yeexun
- * @since 2020-06-19
+ * @since 2020-09-15
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("SYS_DIGIT_TYPE_DEF")
 public class SysDigitTypeDef extends Model<SysDigitTypeDef> {
 
     private static final long serialVersionUID = 1L;
@@ -29,6 +27,9 @@ public class SysDigitTypeDef extends Model<SysDigitTypeDef> {
 
     @TableField("TYPE_NAME")
     private String typeName;
+
+    @TableField("ATTR_GROUP")
+    private String attrGroup;
 
 
     @Override

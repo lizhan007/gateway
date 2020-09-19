@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author yeexun
- * @since 2020-06-19
+ * @since 2020-09-15
  */
 public interface SysDigitTypeDefMapper extends BaseMapper<SysDigitTypeDef> {
 

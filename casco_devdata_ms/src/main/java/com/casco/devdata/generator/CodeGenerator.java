@@ -20,17 +20,16 @@ public class CodeGenerator {
     public static String parent = "com.casco";
     public static String moduleName = "devdata";
 
-    public static String dbUrl = "jdbc:mysql://172.30.81.85:3306/casco_zhgs?useUnicode=true&useSSL=false&characterEncoding=utf8";
+    public static String dbUrl = "jdbc:mysql://127.0.0.1:3306/casco?serverTimezone=UTC&useUnicode=true&useSSL=false&characterEncoding=utf8";
     public static String dbUserName = "root";
-    public static String dbPassword = "yeexun";
+    public static String dbPassword = "root";
 
     //生成代码的controller 的 公共父类
 //	public static String superControllerClass = "com.yeexun.xiot.base.controller.BaseController";
     public static String superControllerClass = null;
 
     //要生成的表，多个英文逗号分割,如果想生成所有的表则将该值设置为""
-    public static String tables = "SYS_INTERFACE_TYPE_DEF";
-
+    public static String tables = "SYS_ENUM_TYPE_DEF";
 
     public static void main(String[] args) {
         // 代码生成器

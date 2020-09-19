@@ -48,4 +48,13 @@ public class DigitalRedisUtils {
             return null;
         }
     }
+
+    public String get(String key){
+        try{
+            return stringRedisTemplate.opsForValue().get(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

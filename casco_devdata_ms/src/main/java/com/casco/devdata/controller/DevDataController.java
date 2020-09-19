@@ -42,7 +42,6 @@ public class DevDataController extends BaseController{
     @Autowired
     private SysRelateCollectionDefMapper sysRelateCollectionDefMapper;
 
-
     @Autowired
     private SysDigitTypeDefMapper sysDigitTypeDefMapper;
     @Autowired
