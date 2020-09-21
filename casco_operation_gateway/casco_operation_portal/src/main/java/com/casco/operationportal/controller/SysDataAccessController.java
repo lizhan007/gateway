@@ -169,7 +169,7 @@ public class SysDataAccessController extends BaseController {
         String parameterLineFileStr = "";
         if(null != sysDataAccess.getLineFilePath() && !sysDataAccess.getLineFilePath().isEmpty()){
             runtimeLineFilePath = FileUtil.copeFile(sysDataAccess.getLineFilePath(), baseFilePath + "srvconfig/");
-            parameterLineFileStr = " srvconfig=" + sysDataAccess.getLineFilePath();
+            parameterLineFileStr = " srvconfig=" + runtimeLineFilePath;
         }
 
         //复制yml配置文件
