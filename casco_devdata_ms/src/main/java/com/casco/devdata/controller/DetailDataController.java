@@ -42,39 +42,44 @@ public class DetailDataController {
 
         Map<String, Object> result = new HashMap();
 
-        List<Map> datalist = sysRelateCollectionDefMapper.listCollections(detailVo.getDevId(), detailVo.getDevName(), detailVo.getTypes(),
+        List<Map> datalist = sysRelateCollectionDefMapper.listCollections(detailVo.getKeyId(), detailVo.getCodeName(), detailVo.getDataType(),
                 detailVo.getStart(), detailVo.getLimit());
 
-        int count = sysRelateCollectionDefMapper.countCollections(detailVo.getDevId(), detailVo.getDevName(), detailVo.getTypes(),
-                detailVo.getStart(), detailVo.getLimit());
+        int count = sysRelateCollectionDefMapper.countCollections(detailVo.getKeyId(), detailVo.getCodeName(), detailVo.getDataType());
 
 
-        List<String> params = new ArrayList<>();
+/*        List<String> params = new ArrayList<>();
         for(Map vo:datalist){
             params.add(vo.get("DEV_ID").toString());
-        }
+        }*/
 
-        params.stream().distinct().collect(Collectors.toList());
-        List<Map> list = sysRelateCollectionDefMapper.listEnumAttr(params);
-        List<SysAnalogQuantityDef> unitList = sysAnalogQuantityDefMapper.listAnalogUnit(params);
+        if(datalist.size() == 0){
+            result.put("total", 0);
+        }else{
+            //params.stream().distinct().collect(Collectors.toList());
+            //List<Map> list = sysRelateCollectionDefMapper.listEnumAttr(params);
+            //List<SysAnalogQuantityDef> unitList = sysAnalogQuantityDefMapper.listAnalogUnit(params);
 
-        for(int i = 0; i < datalist.size(); i++){
+            for(int i = 0; i < datalist.size(); i++){
 
-            String collectionId = datalist.get(i).get("COLLECT_TYPE_ID").toString();
+                //String collectionId = datalist.get(i).get("COLLECT_TYPE_ID").toString();
 
-            if((int)datalist.get(i).get("DATA_TYPE") == 0){
-                datalist.get(i).put("value", digitalRedisUtils.get(datalist.get(i).get("KEY_ID").toString()));
-            }else if((int)datalist.get(i).get("DATA_TYPE") == 4){
-                String value = enumRedisUtils.get(datalist.get(i).get("KEY_ID").toString());
-                datalist.get(i).put("value", changeEnumvalue(list, collectionId, value));
-            }else if((int)datalist.get(i).get("DATA_TYPE") == 1){
-                String value = analogRedisUtils.get(datalist.get(i).get("KEY_ID").toString());
-                datalist.get(i).put("value", changeAnalogValue(unitList, collectionId, value));
+                if((long)datalist.get(i).get("DATA_TYPE") == 0){
+                    datalist.get(i).put("value", digitalRedisUtils.get(datalist.get(i).get("KEY_ID").toString()));
+                }else if((long)datalist.get(i).get("DATA_TYPE") == 4){
+                    String value = enumRedisUtils.get(datalist.get(i).get("KEY_ID").toString());
+                    datalist.get(i).put("value", value);
+                }else if((long)datalist.get(i).get("DATA_TYPE") == 1){
+                    String value = analogRedisUtils.get(datalist.get(i).get("KEY_ID").toString());
+                    datalist.get(i).put("value", value);
+                }
             }
+
+            result.put("total", count);
+            result.put("data", datalist);
         }
 
-        result.put("total", count);
-        result.put("data", datalist);
+
 
         R<Object> res = new R<>();
 

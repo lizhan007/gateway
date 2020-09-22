@@ -145,58 +145,59 @@ public interface SysRelateCollectionDefMapper extends BaseMapper<SysRelateCollec
     List<Map> listGroupCollections(@Param("devs") List<String> device);
 
 
-    @Select("<script>SELECT DEV_ID, DATA_TYPE, COLLECT_TYPE_ID,SRC_NAME, I_TYPE_NAME, KEY_ID,INTERFACE_TYPE_ID,DEV_NAME, DEV_TYPE_ID,\n" +
-            "CASE U.DATA_TYPE \n" +
-            " WHEN '0' THEN U.DIGIT_TYPE_NAME\n" +
-            " WHEN '4' THEN U.ENUM_TYPE_NAME \n" +
-            " WHEN '1' THEN U.ANALOG_TYPE_NAME\n" +
-            " END AS RES_TYPE_NAME\n" +
-            " FROM (SELECT SR.DEV_ID, DATA_TYPE, COLLECT_TYPE_ID, SR.KEY_ID, SR.INTERFACE_TYPE_ID,\n" +
-            " SD.TYPE_NAME AS DIGIT_TYPE_NAME, SE.TYPE_NAME AS ENUM_TYPE_NAME, SA.TYPE_NAME AS ANALOG_TYPE_NAME,\n" +
-            " SI.INTERFACE_SOURCE_NAME AS SRC_NAME, \n" +
-            " SI.INTERFACE_TYPE_NAME AS I_TYPE_NAME,DL.DEV_NAME, DL.DEV_TYPE_ID\n" +
-            " FROM SYS_RELATE_COLLECTION_DEF SR \n" +
-            " LEFT JOIN SYS_DIGIT_TYPE_DEF AS SD ON SR.COLLECT_TYPE_ID = SD.TYPE_ID\n" +
-            " LEFT JOIN SYS_ENUM_TYPE_DEF AS SE ON SR.COLLECT_TYPE_ID = SE.TYPE_ID\n" +
-            " LEFT JOIN SYS_ANALOG_TYPE_DEF AS SA ON SR.COLLECT_TYPE_ID = SA.TYPE_ID\n" +
-            " LEFT JOIN SYS_INTERFACE_TYPE_DEF AS SI ON SR.INTERFACE_TYPE_ID = SI.INTERFACE_TYPE_ID\n" +
-            " LEFT JOIN SYS_DEV_LIST AS DL ON SR.DEV_ID = DL.DEV_ID\n" +
-            " WHERE \n" +
-            " SR.DEV_ID LIKE CONCAT('%',#{devId},'%')\n" +
-            " AND DL.DEV_TYPE_ID IN " +
-            "<foreach collection=\"types\" index = \"index\" item = \"type\" open= \"(\" separator=\",\" close=\")\">  \n" +
-            "#{type} \n" +
-            "</foreach> \n" +
-            " AND DL.DEV_NAME LIKE CONCAT('%',#{devName},'%')\n" +
-            " ORDER BY COLLECT_TYPE_ID ASC, INTERFACE_TYPE_ID ASC) AS U LIMIT #{start}, #{limit}</script>")
-    List<Map> listCollections(@Param("devId") String devId, @Param("devName") String devName, @Param("types") List<String> devTypes, int start, int limit);
+    @Select("<script>SELECT * FROM (\n" +
+            "SELECT E.DEV_ID AS DEV_ID, E.MAJOR AS MAJOR, E.`KEY_ID` AS KEY_ID, E.`CODE_NAME` AS CODE_NAME, E.`TYPE_NAME` AS TYPE_NAME, SI.`INTERFACE_TYPE_NAME` AS INTER_NAME, SI.`INTERFACE_SOURCE_NAME` AS SRC_NAME , 4 AS DATA_TYPE FROM \n" +
+            "(SELECT EQ.MAJOR, EQ.`KEY_ID`, EQ.`CODE_NAME`, ET.`TYPE_NAME`, SR.`INTERFACE_TYPE_ID`,SR.DATA_TYPE, SR.`DEV_ID` FROM SYS_ENUM_QUANTITY_DEF EQ \n" +
+            "LEFT JOIN SYS_ENUM_TYPE_DEF ET ON EQ.`CODE_TYPE` = ET.`TYPE_ID`\n" +
+            "LEFT JOIN SYS_RELATE_COLLECTION_DEF SR ON EQ.`KEY_ID` = SR.`KEY_ID`) E \n" +
+            "LEFT JOIN SYS_INTERFACE_TYPE_DEF SI ON E.INTERFACE_TYPE_ID = SI.`INTERFACE_TYPE_ID`\n" +
+            "\n" +
+            "UNION\n" +
+            "\n" +
+            "\n" +
+            "SELECT A.DEV_ID AS DEV_ID, A.MAJOR AS MAJOR, A.`KEY_ID` AS KEY_ID, A.`CODE_NAME` AS CODE_NAME, A.`TYPE_NAME` AS TYPE_NAME, SI.`INTERFACE_TYPE_NAME` AS INTER_NAME, SI.`INTERFACE_SOURCE_NAME` AS SRC_NAME, 1 AS DATA_TYPE FROM \n" +
+            "(SELECT AQ.MAJOR, AQ.`KEY_ID`, AQ.`CODE_NAME`, AT.`TYPE_NAME`, SR.`INTERFACE_TYPE_ID`,SR.DATA_TYPE, SR.`DEV_ID` FROM SYS_ANALOG_QUANTITY_DEF AQ \n" +
+            "LEFT JOIN SYS_ANALOG_TYPE_DEF AT ON AQ.`CODE_TYPE` = AT.`TYPE_ID`\n" +
+            "LEFT JOIN SYS_RELATE_COLLECTION_DEF SR ON AQ.`KEY_ID` = SR.`KEY_ID`) A \n" +
+            "LEFT JOIN SYS_INTERFACE_TYPE_DEF SI ON A.INTERFACE_TYPE_ID = SI.`INTERFACE_TYPE_ID`\n" +
+            "\n" +
+            "UNION \n" +
+            "\n" +
+            "SELECT D.DEV_ID AS DEV_ID, D.MAJOR AS MAJOR, D.`KEY_ID` AS KEY_ID, D.`CODE_NAME` AS CODE_NAME, D.`TYPE_NAME` AS TYPE_NAME, SI.`INTERFACE_TYPE_NAME` AS INTER_NAME, SI.`INTERFACE_SOURCE_NAME` AS SRC_NAME, 0 AS DATA_TYPE FROM \n" +
+            "(SELECT DQ.MAJOR, DQ.`KEY_ID`, DQ.`CODE_NAME`, DT.`TYPE_NAME`, SR.`INTERFACE_TYPE_ID`,SR.DATA_TYPE, SR.`DEV_ID` FROM SYS_DIGIT_QUANTITY_DEF DQ \n" +
+            "LEFT JOIN SYS_DIGIT_TYPE_DEF DT ON DQ.`CODE_TYPE` = DT.`TYPE_ID`\n" +
+            "LEFT JOIN SYS_RELATE_COLLECTION_DEF SR ON DQ.`KEY_ID` = SR.`KEY_ID`) D \n" +
+            "LEFT JOIN SYS_INTERFACE_TYPE_DEF SI ON D.INTERFACE_TYPE_ID = SI.`INTERFACE_TYPE_ID`) H\n" +
+            "WHERE KEY_ID LIKE CONCAT('%',#{keyId},'%') " +
+            "AND H.DATA_TYPE = #{datatype}\n " +
+            "AND" +
+            " CODE_NAME LIKE CONCAT('%',#{codeName},'%') " +
+            "LIMIT #{start}, #{limit}</script>")
+    List<Map> listCollections(@Param("keyId") String keyId, @Param("codeName") String codeName, @Param("datatype") int DataType, @Param("start")int start, @Param("limit")int limit);
 
 
-
-
-    @Select("<script>SELECT COUNT(1)\n" +
-            " FROM (SELECT SR.DEV_ID, DATA_TYPE, COLLECT_TYPE_ID, SR.KEY_ID, SR.INTERFACE_TYPE_ID,\n" +
-            " SD.TYPE_NAME AS DIGIT_TYPE_NAME, SE.TYPE_NAME AS ENUM_TYPE_NAME, SA.TYPE_NAME AS ANALOG_TYPE_NAME,\n" +
-            " SI.INTERFACE_SOURCE_NAME AS SRC_NAME, \n" +
-            " SI.INTERFACE_TYPE_NAME AS I_TYPE_NAME,DL.DEV_NAME, DL.DEV_TYPE_ID\n" +
-            " FROM SYS_RELATE_COLLECTION_DEF SR \n" +
-            " LEFT JOIN SYS_DIGIT_TYPE_DEF AS SD ON SR.COLLECT_TYPE_ID = SD.TYPE_ID\n" +
-            " LEFT JOIN SYS_ENUM_TYPE_DEF AS SE ON SR.COLLECT_TYPE_ID = SE.TYPE_ID\n" +
-            " LEFT JOIN SYS_ANALOG_TYPE_DEF AS SA ON SR.COLLECT_TYPE_ID = SA.TYPE_ID\n" +
-            " LEFT JOIN SYS_INTERFACE_TYPE_DEF AS SI ON SR.INTERFACE_TYPE_ID = SI.INTERFACE_TYPE_ID\n" +
-            " LEFT JOIN SYS_DEV_LIST AS DL ON SR.DEV_ID = DL.DEV_ID\n" +
-            " WHERE \n" +
-            " SR.DEV_ID LIKE CONCAT('%',#{devId},'%')\n" +
-            " AND DL.DEV_TYPE_ID IN " +
-            "<foreach collection=\"types\" index = \"index\" item = \"type\" open= \"(\" separator=\",\" close=\")\">  \n" +
-            "#{type} \n" +
-            "</foreach> \n" +
-            " AND DL.DEV_NAME LIKE CONCAT('%',#{devName},'%')\n" +
-            " ORDER BY COLLECT_TYPE_ID ASC, INTERFACE_TYPE_ID ASC) AS U</script>")
-    int countCollections(@Param("devId") String devId, @Param("devName") String devName, @Param("types") List<String> devTypes, int start, int limit);
-
-
-
+    @Select("<script>SELECT COUNT(1) FROM (\n" +
+            "SELECT E.MAJOR AS MAJOR, E.`KEY_ID` AS KEY_ID, E.`CODE_NAME` AS CODE_NAME, E.`TYPE_NAME` AS TYPE_NAME, SI.`INTERFACE_TYPE_NAME` AS INTER_NAME, SI.`INTERFACE_SOURCE_NAME` AS SRC_NAME , 4 AS DATA_TYPE FROM \n" +
+            "(SELECT EQ.MAJOR, EQ.`KEY_ID`, EQ.`CODE_NAME`, ET.`TYPE_NAME`, SR.`INTERFACE_TYPE_ID`,SR.DATA_TYPE FROM SYS_ENUM_QUANTITY_DEF EQ \n" +
+            "LEFT JOIN SYS_ENUM_TYPE_DEF ET ON EQ.`CODE_TYPE` = ET.`TYPE_ID`\n" +
+            "LEFT JOIN SYS_RELATE_COLLECTION_DEF SR ON EQ.`KEY_ID` = SR.`KEY_ID`) E \n" +
+            "LEFT JOIN SYS_INTERFACE_TYPE_DEF SI ON E.INTERFACE_TYPE_ID = SI.`INTERFACE_TYPE_ID`\n" +
+            "UNION\n" +
+            "SELECT A.MAJOR AS MAJOR, A.`KEY_ID` AS KEY_ID, A.`CODE_NAME` AS CODE_NAME, A.`TYPE_NAME` AS TYPE_NAME, SI.`INTERFACE_TYPE_NAME` AS INTER_NAME, SI.`INTERFACE_SOURCE_NAME` AS SRC_NAME, 1 AS DATA_TYPE FROM \n" +
+            "(SELECT AQ.MAJOR, AQ.`KEY_ID`, AQ.`CODE_NAME`, AT.`TYPE_NAME`, SR.`INTERFACE_TYPE_ID`,SR.DATA_TYPE FROM SYS_ANALOG_QUANTITY_DEF AQ \n" +
+            "LEFT JOIN SYS_ANALOG_TYPE_DEF AT ON AQ.`CODE_TYPE` = AT.`TYPE_ID`\n" +
+            "LEFT JOIN SYS_RELATE_COLLECTION_DEF SR ON AQ.`KEY_ID` = SR.`KEY_ID`) A \n" +
+            "LEFT JOIN SYS_INTERFACE_TYPE_DEF SI ON A.INTERFACE_TYPE_ID = SI.`INTERFACE_TYPE_ID`\n" +
+            "UNION \n" +
+            "SELECT D.MAJOR AS MAJOR, D.`KEY_ID` AS KEY_ID, D.`CODE_NAME` AS CODE_NAME, D.`TYPE_NAME` AS TYPE_NAME, SI.`INTERFACE_TYPE_NAME` AS INTER_NAME, SI.`INTERFACE_SOURCE_NAME` AS SRC_NAME, 0 AS DATA_TYPE FROM \n" +
+            "(SELECT DQ.MAJOR, DQ.`KEY_ID`, DQ.`CODE_NAME`, DT.`TYPE_NAME`, SR.`INTERFACE_TYPE_ID`,SR.DATA_TYPE FROM SYS_DIGIT_QUANTITY_DEF DQ \n" +
+            "LEFT JOIN SYS_DIGIT_TYPE_DEF DT ON DQ.`CODE_TYPE` = DT.`TYPE_ID`\n" +
+            "LEFT JOIN SYS_RELATE_COLLECTION_DEF SR ON DQ.`KEY_ID` = SR.`KEY_ID`) D \n" +
+            "LEFT JOIN SYS_INTERFACE_TYPE_DEF SI ON D.INTERFACE_TYPE_ID = SI.`INTERFACE_TYPE_ID`) H\n" +
+            "WHERE KEY_ID LIKE CONCAT('%',#{keyId},'%')\n " +
+            "AND DATA_TYPE = #{datatype}\n " +
+            "AND CODE_NAME LIKE CONCAT('%',#{codeName},'%')</script>")
+    int countCollections(@Param("keyId") String keyId, @Param("codeName") String codeName, @Param("datatype") int DataType);
 
 
 }

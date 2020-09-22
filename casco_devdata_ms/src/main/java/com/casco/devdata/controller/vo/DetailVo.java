@@ -7,9 +7,9 @@ import java.util.List;
 @Data
 public class DetailVo {
 
-    String devId;
-    String devName;
-    List<String> types;
+    String keyId;
+    String codeName;
+    int dataType;
     int start;
     int limit;
 }
