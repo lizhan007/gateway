@@ -2,6 +2,8 @@ server:
   port: 4001
 
 spring:
+  application:
+    name: casco_opgw_iscs
   modbus:
     master:
       ip: 10.153.102.4

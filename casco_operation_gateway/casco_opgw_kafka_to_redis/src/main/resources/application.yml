@@ -2,6 +2,9 @@ server:
   port: 6011
 
 spring:
+  application:
+    name: casco_opgw_kafka_to_redis
+
   redis:
     host: 192.168.1.104
     password: casco123

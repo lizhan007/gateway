@@ -1,6 +1,9 @@
 server:
   port: 2001
 spring:
+  application:
+    name: casco_opgw_signal
+
   kafka:
     bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
 
