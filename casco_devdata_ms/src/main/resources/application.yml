@@ -17,7 +17,7 @@ spring:
 #         max-wait: -1
 #         max-active: -1
   redis:
-    host: 192.168.1.104
+    host: 10.153.102.2
     password: casco123
     port: 6379
     timeout: 1000s
@@ -33,7 +33,7 @@ spring:
 #    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/casco_zhgs?useUnicode=true&characterEncoding=UTF8
 #    username: root
 #    password: 123456
-    url: jdbc:mysql://${MYSQL_HOST:192.168.1.103}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8
+    url: jdbc:mysql://${MYSQL_HOST:10.153.102.3}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8
     username: root
     password: Casco@123
     type: com.alibaba.druid.pool.DruidDataSource
