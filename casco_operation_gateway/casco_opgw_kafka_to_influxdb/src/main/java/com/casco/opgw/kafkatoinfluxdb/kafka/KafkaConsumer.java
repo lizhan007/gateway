@@ -6,15 +6,20 @@ import com.casco.opgw.com.message.AnalogMessage;
 import com.casco.opgw.com.message.DigitMessage;
 import com.casco.opgw.com.message.EnumMessage;
 import com.casco.opgw.com.message.KafkaConstant;
+import com.casco.opgw.kafkatoinfluxdb.influxdb.DataCache;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.influxdb.InfluxDB;
+import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -38,174 +43,231 @@ public class KafkaConsumer {
 
 
     @KafkaListener(topics = "casco_opgw_signal_digit", groupId = "casco_opgw_kafka_to_influxdb")
-    public void recvDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        System.out.println(consumerRecord);
+    public void recvDigitMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        log.debug(consumerRecord.value());
-        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
+        BatchPoints batchPoints
+                = BatchPoints.database("SIG").retentionPolicy("52w").build();
 
-        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+            DigitMessage digitMessage = JSON.parseObject(item.value(), DigitMessage.class);
+            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+
+            Point.Builder builder = Point.measurement("SIG_DIGIT");
+            // builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+            builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",digitMessage.getValue());
+            builder.tag("line", digitMessage.getLineTag());
+            builder.tag("region",digitMessage.getRegionTag());
+            builder.tag("srcId",digitMessage.getSrcIdTag());
+            builder.tag("type",digitMessage.getTypeTag());
+            builder.tag("pointcode",digitMessage.getPointcodeTag());
+            Point point = builder.build();
+
+            DataCache.addPoint(DataCache.SIG_TYPE, digitMessage);
+
+            batchPoints.point(point);
         }
 
-        Point.Builder builder = Point.measurement("SIG_DIGIT");
-        // builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
-        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",digitMessage.getValue());
-        builder.tag("line", digitMessage.getLineTag());
-        builder.tag("region",digitMessage.getRegionTag());
-        builder.tag("srcId",digitMessage.getSrcIdTag());
-        builder.tag("type",digitMessage.getTypeTag());
-        builder.tag("pointcode",digitMessage.getPointcodeTag());
-        Point point = builder.build();
-        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(batchPoints);
 
     }
 
 
     @KafkaListener(topics = "casco_opgw_signal_enum", groupId = "casco_opgw_kafka_to_influxdb")
-    public void recvEnumMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value()) ;
-        EnumMessage enumMessage = JSON.parseObject(consumerRecord.value(), EnumMessage.class);
+    public void recvEnumMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        BatchPoints batchPoints
+                = BatchPoints.database("SIG").retentionPolicy("52w").build();
+
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+            EnumMessage enumMessage = JSON.parseObject(item.value(), EnumMessage.class);
+
+            if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+            Point.Builder builder = Point.measurement("SIG_ENUM");
+            // builder.time(enumMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+            builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",enumMessage.getValue());
+            builder.tag("line", enumMessage.getLineTag());
+            builder.tag("region",enumMessage.getRegionTag());
+            builder.tag("srcId",enumMessage.getSrcIdTag());
+            builder.tag("type",enumMessage.getTypeTag());
+            builder.tag("pointcode",enumMessage.getPointcodeTag());
+            Point point = builder.build();
+
+            batchPoints.point(point);
         }
-        Point.Builder builder = Point.measurement("SIG_ENUM");
-        // builder.time(enumMessage.getTimestamp(),TimeUnit.MILLISECONDS);
-        builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",enumMessage.getValue());
-        builder.tag("line", enumMessage.getLineTag());
-        builder.tag("region",enumMessage.getRegionTag());
-        builder.tag("srcId",enumMessage.getSrcIdTag());
-        builder.tag("type",enumMessage.getTypeTag());
-        builder.tag("pointcode",enumMessage.getPointcodeTag());
-        Point point = builder.build();
-        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+
+        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(batchPoints);
     }
 
     @KafkaListener(topics = "casco_opgw_signal_analog", groupId = "casco_opgw_kafka_to_influxdb")
-    public void recvAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+    public void recvAnalogMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        BatchPoints batchPoints
+                = BatchPoints.database("SIG").retentionPolicy("52w").build();
+
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+
+            AnalogMessage analogMessage = JSON.parseObject(item.value(), AnalogMessage.class);
+
+            if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+
+            Point.Builder builder = Point.measurement("SIG_ANALOG");
+            // builder.time(analogMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+            builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",analogMessage.getValue());
+            builder.tag("line", analogMessage.getLineTag());
+            builder.tag("region",analogMessage.getRegionTag());
+            builder.tag("srcId",analogMessage.getSrcIdTag());
+            builder.tag("type",analogMessage.getTypeTag());
+            builder.tag("pointcode",analogMessage.getPointcodeTag());
+            Point point = builder.build() ;
+            batchPoints.point(point);
         }
 
-        Point.Builder builder = Point.measurement("SIG_ANALOG");
-        // builder.time(analogMessage.getTimestamp(),TimeUnit.MILLISECONDS);
-        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",analogMessage.getValue());
-        builder.tag("line", analogMessage.getLineTag());
-        builder.tag("region",analogMessage.getRegionTag());
-        builder.tag("srcId",analogMessage.getSrcIdTag());
-        builder.tag("type",analogMessage.getTypeTag());
-        builder.tag("pointcode",analogMessage.getPointcodeTag());
-        Point point = builder.build() ;
-        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(point);
+        SigInfluxDB.setDatabase("SIG").setRetentionPolicy("52w").write(batchPoints);
 
     }
 
     /**
      * 车辆开关量 -- > influxDB写入
-     * @param consumerRecord
+     * @param
      */
     @KafkaListener(topics = "casco_opgw_train_digit", groupId = "casco_opgw_train_kafka_to_influxdb")
-    public void recvTrainDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(),DigitMessage.class);
+    public void recvTrainDigitMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        BatchPoints batchPoints
+                = BatchPoints.database("TRAIN").retentionPolicy("52w").build();
+
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+
+            DigitMessage digitMessage = JSON.parseObject(item.value(),DigitMessage.class);
+
+            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+
+            Point.Builder builder = Point.measurement("TRAIN_DIGIT");
+            builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",digitMessage.getValue());
+            builder.tag("line", digitMessage.getLineTag());
+            builder.tag("srcId",digitMessage.getSrcIdTag());
+            builder.tag("type","");  //Type未知
+            builder.tag("pointcode",digitMessage.getPointcodeTag());
+            Point point = builder.build();
+
+            DataCache.addPoint(DataCache.TRAIN_TYPE, digitMessage);
+            batchPoints.point(point);
         }
 
-        Point.Builder builder = Point.measurement("TRAIN_DIGIT");
-        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",digitMessage.getValue());
-        builder.tag("line", digitMessage.getLineTag());
-        builder.tag("srcId",digitMessage.getSrcIdTag());
-        builder.tag("type","");  //Type未知
-        builder.tag("pointcode",digitMessage.getPointcodeTag());
-        Point point = builder.build();
-        TrainInfluxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(point);
+        TrainInfluxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(batchPoints);
     }
 
     /**
      * 车辆模拟量 -- > influxDB写入
-     * @param consumerRecord
+     * @param
      */
     @KafkaListener(topics = "casco_opgw_train_analog", groupId = "casco_opgw_train_kafka_to_influxdb")
-    public  void recvTrainAnalogMsg(ConsumerRecord<String, String> consumerRecord){
+    public  void recvTrainAnalogMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        log.debug(consumerRecord.value());
-        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+        BatchPoints batchPoints
+                = BatchPoints.database("TRAIN").retentionPolicy("52w").build();
 
-        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+
+            AnalogMessage analogMessage = JSON.parseObject(item.value(), AnalogMessage.class);
+
+            if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+
+            Point.Builder builder = Point.measurement("TRAIN_ANALOG");
+            builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",analogMessage.getValue());
+            builder.tag("line", analogMessage.getLineTag());
+            builder.tag("srcId",analogMessage.getSrcIdTag());
+            builder.tag("type","");  //Type未知
+            builder.tag("pointcode",analogMessage.getPointcodeTag());
+            Point point = builder.build() ;
+            batchPoints.point(point);
         }
 
-        Point.Builder builder = Point.measurement("TRAIN_ANALOG");
-        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",analogMessage.getValue());
-        builder.tag("line", analogMessage.getLineTag());
-        builder.tag("srcId",analogMessage.getSrcIdTag());
-        builder.tag("type","");  //Type未知
-        builder.tag("pointcode",analogMessage.getPointcodeTag());
-        Point point = builder.build() ;
-        TrainInfluxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(point);
+        TrainInfluxDB.setDatabase("TRAIN").setRetentionPolicy("52w").write(batchPoints);
     }
 
     /**
      * BAS数字量  -- > influxDB写入
-     * @param consumerRecord
+     * @param
      */
     @KafkaListener(topics = "casco_opgw_iscs_digit", groupId = "casco_opgw_iscs_kafka_to_influxdb")
-    public void recvIscsDigitMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-        DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(),DigitMessage.class);
+    public void recvIscsDigitMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        BatchPoints batchPoints
+                = BatchPoints.database("BAS").retentionPolicy("52w").build();
+
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+            DigitMessage digitMessage = JSON.parseObject(item.value(),DigitMessage.class);
+
+            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+
+            Point.Builder builder = Point.measurement("BAS_DIGIT");
+            builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",digitMessage.getValue());
+            builder.tag("line", digitMessage.getLineTag());
+            builder.tag("region",digitMessage.getRegionTag());
+            builder.tag("srcId","水泵系统");
+            builder.tag("type","");  //Type未知
+            builder.tag("pointcode",digitMessage.getPointcodeTag());
+            Point point = builder.build();
+
+            DataCache.addPoint(DataCache.SCSI_TYPE, digitMessage);
+            batchPoints.point(point);
         }
 
-        Point.Builder builder = Point.measurement("BAS_DIGIT");
-        builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",digitMessage.getValue());
-        builder.tag("line", digitMessage.getLineTag());
-        builder.tag("region",digitMessage.getRegionTag());
-        builder.tag("srcId","水泵系统");
-        builder.tag("type","");  //Type未知
-        builder.tag("pointcode",digitMessage.getPointcodeTag());
-        Point point = builder.build();
-        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
+        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(batchPoints);
     }
 
 
     /**
      * BAS模拟量 -- > influxDB写入
-     * @param consumerRecord
+     * @param
      */
     @KafkaListener(topics = "casco_opgw_iscs_analog", groupId = "casco_opgw_iscs_kafka_to_influxdb")
-    public void recvIscsAnalogMsg(ConsumerRecord<String, String> consumerRecord){
-        log.debug(consumerRecord.value());
-        AnalogMessage analogMessage = JSON.parseObject(consumerRecord.value(), AnalogMessage.class);
+    public void recvIscsAnalogMsg(List<ConsumerRecord<String, String>> consumerRecordList){
 
-        if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-            return;
+        BatchPoints batchPoints
+                = BatchPoints.database("BAS").retentionPolicy("52w").build();
+
+        for(ConsumerRecord<String, String> item: consumerRecordList){
+
+            AnalogMessage analogMessage = JSON.parseObject(item.value(), AnalogMessage.class);
+
+            if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
+                return;
+            }
+
+            Point.Builder builder = Point.measurement("BAS_ANALOG");
+            builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.addField("value",analogMessage.getValue());
+            builder.tag("line", analogMessage.getLineTag());
+            builder.tag("region",analogMessage.getRegionTag());
+            builder.tag("srcId","水泵系统");
+            builder.tag("type","");  //Type未知
+            builder.tag("pointcode",analogMessage.getPointcodeTag());
+            Point point = builder.build() ;
+            batchPoints.point(point);
+
         }
 
-        Point.Builder builder = Point.measurement("BAS_ANALOG");
-        builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
-        builder.addField("value",analogMessage.getValue());
-        builder.tag("line", analogMessage.getLineTag());
-        builder.tag("region",analogMessage.getRegionTag());
-        builder.tag("srcId","水泵系统");
-        builder.tag("type","");  //Type未知
-        builder.tag("pointcode",analogMessage.getPointcodeTag());
-        Point point = builder.build() ;
-        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(point);
+        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(batchPoints);
     }
-
 
 }
