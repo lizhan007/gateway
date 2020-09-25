@@ -61,6 +61,13 @@ public class ISCSAlarmHandlerTask implements Runnable{
         }
         //2. 判断报警信息
         if(digitMessage.getValue() == 1){
+
+            if(InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())
+                    && 1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())){
+                return;
+            }
+
+
             AlarmMessage message = new AlarmMessage();
             message.setLineName(target.getLine());
             message.setArmUuid(IdUtils.createUUID());
@@ -85,8 +92,8 @@ public class ISCSAlarmHandlerTask implements Runnable{
 
             sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
 
-            if(1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())
-            || !InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())){
+            if(!InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())
+            || 1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())){
                 //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
 
                 InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), 0);
