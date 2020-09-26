@@ -1,5 +1,6 @@
 package com.casco.opgw.kafkatoinfluxdb.influxdb;
 
+import com.alibaba.fastjson.JSON;
 import com.casco.opgw.com.message.BaseMessage;
 import com.casco.opgw.com.message.DigitMessage;
 import org.influxdb.dto.Point;
@@ -15,23 +16,28 @@ public class DataCache {
     public static final int SCSI_TYPE  = 2;
 
 
-    public static List<DigitMessage> sigPointCache   = new ArrayList<DigitMessage>();
-    public static List<DigitMessage> trainPointCache = new ArrayList<DigitMessage>();
-    public static List<DigitMessage> scsiPointCache  = new ArrayList<DigitMessage>();
+    public static List<String> sigPointCache   = new ArrayList<String>();
+    public static List<String> trainPointCache = new ArrayList<String>();
+    public static List<String> scsiPointCache  = new ArrayList<String>();
 
-    public static void addPoint(int type, DigitMessage data){
+    public static void addPoint(int type, String data){
 
         Boolean res = false;
+
+        DigitMessage message = JSON.parseObject(data, DigitMessage.class);
 
         if(SIG_TYPE == type){
 
             for(int i = 0; i < sigPointCache.size(); i++){
-                if(sigPointCache.get(i).getPointcodeTag().equals(data.getPointcodeTag())){
-                    sigPointCache.get(i).setValue(data.getValue());
+
+                DigitMessage tmp = JSON.parseObject(sigPointCache.get(i), DigitMessage.class);
+
+                if(tmp.getPointcodeTag().equals(message.getPointcodeTag())){
+                    sigPointCache.set(i, data);
                     res = true;
                 }
             }
-            if(false == true){
+            if(false == res){
                 sigPointCache.add(data);
             }
 
@@ -41,12 +47,15 @@ public class DataCache {
         }else if(TRAIN_TYPE == type){
 
             for(int i = 0; i < trainPointCache.size(); i++){
-                if(trainPointCache.get(i).getPointcodeTag().equals(data.getPointcodeTag())){
-                    trainPointCache.get(i).setValue(data.getValue());
+
+                DigitMessage tmp = JSON.parseObject(trainPointCache.get(i), DigitMessage.class);
+
+                if(tmp.getPointcodeTag().equals(message.getPointcodeTag())){
+                    trainPointCache.set(i, data);
                     res = true;
                 }
             }
-            if(false == true){
+            if(false == res){
                 trainPointCache.add(data);
             }
 
@@ -55,12 +64,15 @@ public class DataCache {
         }else if(SCSI_TYPE == type){
 
             for(int i = 0; i < scsiPointCache.size(); i++){
-                if(scsiPointCache.get(i).getPointcodeTag().equals(data.getPointcodeTag())){
-                    scsiPointCache.get(i).setValue(data.getValue());
+
+                DigitMessage tmp = JSON.parseObject(scsiPointCache.get(i), DigitMessage.class);
+
+                if(tmp.getPointcodeTag().equals(message.getPointcodeTag())){
+                    scsiPointCache.set(i, data);
                     res = true;
                 }
             }
-            if(false == true){
+            if(false == res){
                 scsiPointCache.add(data);
             }
 

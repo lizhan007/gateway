@@ -26,7 +26,7 @@ spring:
     maxOpenPreparedStatements: 20
 
   kafka:
-    bootstrap-servers: 10.153.102.1:9092,10.153.102.1:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.1:9092,10.153.102.1:9092
 
     producer:
       retries: 0

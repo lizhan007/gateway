@@ -55,6 +55,7 @@ public class InitTask implements CommandLineRunner {
         XSSFWorkbook wb = null;
         File cfgFile =
                 ResourceUtils.getFile(OpISCSApplication.global_params.get(ParamConstant.PARAM_KEY_SRVCONFIG));
+        //ResourceUtils.getFile("D:/07.yeeyun/04.project/10.CASCO/05.config/20200926配置/水泵系统配置表.xlsx");
 
         InputStream in = new FileInputStream(cfgFile);
         wb = new XSSFWorkbook(in);

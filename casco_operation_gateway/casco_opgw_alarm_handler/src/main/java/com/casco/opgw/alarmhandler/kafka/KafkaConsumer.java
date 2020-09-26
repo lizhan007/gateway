@@ -26,13 +26,13 @@ public class KafkaConsumer {
      * 当前的告警处理都是0/1的数字量
      */
 
-    @KafkaListener(topics = "${kafka.casco_opgw_train_digit_topic}", groupId = "casco_opgw_alarm_handler")
+    @KafkaListener(topics = "casco_opgw_train_digit", groupId = "casco_opgw_alarm_handler")
     public void recvTrainDigitMessage(ConsumerRecord<String, String> consumerRecord){
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
         poolTaskExecutor.submit(new TrainAlarmHandlerTask(digitMessage));
     }
 
-    @KafkaListener(topics = "${kafka.casco_opgw_iscs_digit_topic}", groupId = "casco_opgw_alarm_handler")
+    @KafkaListener(topics = "casco_opgw_iscs_digit", groupId = "casco_opgw_alarm_handler")
     public void recvISCSDigitMessage(ConsumerRecord<String, String> consumerRecord){
         DigitMessage digitMessage = JSON.parseObject(consumerRecord.value(), DigitMessage.class);
         poolTaskExecutor.submit(new ISCSAlarmHandlerTask(digitMessage));

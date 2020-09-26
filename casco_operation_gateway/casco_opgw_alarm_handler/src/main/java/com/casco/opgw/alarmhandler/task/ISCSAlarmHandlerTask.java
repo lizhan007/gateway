@@ -38,6 +38,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
+
         DigitMessage digitMessage = (DigitMessage)this.message;
         kafkaService = BeanPorvider.getApplicationContext().getBean(KafkaServiceImpl.class);
 
@@ -56,17 +57,16 @@ public class ISCSAlarmHandlerTask implements Runnable{
         }
 
         if(null == target){
-            //log.info("【ISCSAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
+            log.info("【ISCSAlarmHandlerTask】 msg without alarm cfg : " + digitMessage.getPointcodeTag());
             return;
         }
         //2. 判断报警信息
         if(digitMessage.getValue() == 1){
 
-            if(InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())
+            if(InitISCSAlarmRule.iscsCache.containsKey(digitMessage.getPointcodeTag())
                     && 1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())){
                 return;
             }
-
 
             AlarmMessage message = new AlarmMessage();
             message.setLineName(target.getLine());
@@ -85,14 +85,15 @@ public class ISCSAlarmHandlerTask implements Runnable{
             message.setArmHappenTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(digitMessage.getTimestamp()),
                     ZoneId.systemDefault()));
             message.setMajor("机电专业");
+
             kafkaService.sendSCSIAlarmMessage(JSON.toJSONString(message));
-            InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), digitMessage.getValue());
+            InitISCSAlarmRule.iscsCache.put(digitMessage.getPointcodeTag(), 1);
 
         }else{
 
             sysAlarmTableMapper = BeanPorvider.getApplicationContext().getBean(SysAlarmTableMapper.class);
 
-            if(!InitISCSAlarmRule.iscsCache.contains(digitMessage.getPointcodeTag())
+            if(!InitISCSAlarmRule.iscsCache.containsKey(digitMessage.getPointcodeTag())
             || 1 == (int)InitISCSAlarmRule.iscsCache.get(digitMessage.getPointcodeTag())){
                 //处理缓存为【告警】，或者缓存不存在，后者主要针对重启后第一条消息的情况
 
@@ -110,6 +111,7 @@ public class ISCSAlarmHandlerTask implements Runnable{
                 LocalDateTime current = LocalDateTime.now();
 
                 for(SysAlarmTable table:alarmTableList){
+
                     AlarmMessage message = new AlarmMessage();
                     message.setArmUuid(table.getArmUuid());
                     message.setLineName(table.getLineName());
@@ -120,7 +122,6 @@ public class ISCSAlarmHandlerTask implements Runnable{
                     message.setArmSource(table.getArmSource());
                     message.setArmDbm(table.getArmDbm());
                     message.setArmLevel(table.getArmLevel());
-                    message.setArmHappenTime(table.getArmHappenTime());
                     message.setArmRestoreTime(current);
                     message.setArmAddEqu(table.getArmAddEqu());
                     message.setArmFaultBegin(table.getArmFaultBegin());

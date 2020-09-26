@@ -46,23 +46,25 @@ public class RefreshTask {
         BatchPoints batchPoints
                 = BatchPoints.database("SIG").retentionPolicy("52w").build();
 
-        for(DigitMessage digitMessage: DataCache.sigPointCache){
+        for(String item: DataCache.sigPointCache){
 
-            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
-            }
+            DigitMessage digitMessage = JSON.parseObject(item, DigitMessage.class);
+
             Point.Builder builder = Point.measurement("SIG_DIGIT");
-            String dstr = String.valueOf(new Date().getTime());
-            Long time = Long.valueOf(dstr.substring(0,dstr.length() - 3));
-            builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+/*            String dstr = String.valueOf(new Date().getTime());
+            Long time = Long.valueOf(dstr.substring(0,dstr.length() - 3));*/
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",digitMessage.getValue());
             builder.tag("line", digitMessage.getLineTag());
             builder.tag("region",digitMessage.getRegionTag());
-            builder.tag("srcId",digitMessage.getSrcIdTag());
-            builder.tag("type",digitMessage.getTypeTag());
+            if(null != digitMessage.getSrcIdTag()){
+                builder.tag("srcId",digitMessage.getSrcIdTag());
+            }
+
+            builder.tag("type","");
             builder.tag("pointcode",digitMessage.getPointcodeTag());
             Point point = builder.build();
-            DataCache.addPoint(DataCache.SIG_TYPE, digitMessage);
+            DataCache.addPoint(DataCache.SIG_TYPE, item);
             batchPoints.point(point);
         }
 
@@ -76,23 +78,23 @@ public class RefreshTask {
         BatchPoints batchPoints
                 = BatchPoints.database("BAS").retentionPolicy("52w").build();
 
-        for(DigitMessage digitMessage: DataCache.scsiPointCache){
+        for(String item: DataCache.scsiPointCache){
 
-            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
-            }
-            Point.Builder builder = Point.measurement("SIG_DIGIT");
-            String dstr = String.valueOf(new Date().getTime());
-            Long time = Long.valueOf(dstr.substring(0,dstr.length() - 3));
-            builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+            DigitMessage digitMessage = JSON.parseObject(item, DigitMessage.class);
+
+
+            Point.Builder builder = Point.measurement("BAS_DIGIT");
+/*            String dstr = String.valueOf(new Date().getTime());
+            Long time = Long.valueOf(dstr.substring(0,dstr.length() - 3));*/
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",digitMessage.getValue());
             builder.tag("line", digitMessage.getLineTag());
             builder.tag("region",digitMessage.getRegionTag());
-            builder.tag("srcId",digitMessage.getSrcIdTag());
-            builder.tag("type",digitMessage.getTypeTag());
+            builder.tag("srcId","水泵系统");
+            builder.tag("type","");
             builder.tag("pointcode",digitMessage.getPointcodeTag());
             Point point = builder.build();
-            DataCache.addPoint(DataCache.SIG_TYPE, digitMessage);
+            DataCache.addPoint(DataCache.SIG_TYPE, item);
             batchPoints.point(point);
         }
 
@@ -106,23 +108,23 @@ public class RefreshTask {
         BatchPoints batchPoints
                 = BatchPoints.database("TRAIN").retentionPolicy("52w").build();
 
-        for(DigitMessage digitMessage: DataCache.trainPointCache){
+        for(String item: DataCache.trainPointCache){
 
-            if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
-            }
-            Point.Builder builder = Point.measurement("SIG_DIGIT");
-            String dstr = String.valueOf(new Date().getTime());
-            Long time = Long.valueOf(dstr.substring(0,dstr.length() - 3));
-            builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
+            DigitMessage digitMessage = JSON.parseObject(item, DigitMessage.class);
+            
+
+            Point.Builder builder = Point.measurement("TRAIN_DIGIT");
+/*            String dstr = String.valueOf(new Date().getTime());
+            Long time = Long.valueOf(dstr.substring(0,dstr.length() - 3));*/
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",digitMessage.getValue());
             builder.tag("line", digitMessage.getLineTag());
             builder.tag("region",digitMessage.getRegionTag());
             builder.tag("srcId",digitMessage.getSrcIdTag());
-            builder.tag("type",digitMessage.getTypeTag());
+            builder.tag("type","");
             builder.tag("pointcode",digitMessage.getPointcodeTag());
             Point point = builder.build();
-            DataCache.addPoint(DataCache.SIG_TYPE, digitMessage);
+            DataCache.addPoint(DataCache.SIG_TYPE, item);
             batchPoints.point(point);
         }
 

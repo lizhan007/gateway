@@ -38,7 +38,7 @@ spring:
     expire: 5
 
   kafka:
-    bootstrap-servers: 10.153.102.1:9092,10.153.102.1:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.1:9092,10.153.102.1:9092
 
     producer:
       retries: 0

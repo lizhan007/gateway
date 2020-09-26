@@ -78,7 +78,6 @@ public class KafkaConsumer {
         Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
         for(ConsumerRecord<String, String> record:consumerRecord){
-            log.debug(record.value());
 
             EnumMessage enumMessage = JSON.parseObject(record.value(), EnumMessage.class);
 
@@ -105,7 +104,6 @@ public class KafkaConsumer {
         Map<byte[],byte[]> maps = new HashMap<byte[], byte[]>();
 
         for(ConsumerRecord<String, String> record:consumerRecord){
-            log.debug(record.value());
 
             AnalogMessage analogMessage = JSON.parseObject(record.value(), AnalogMessage.class);
 
@@ -134,7 +132,7 @@ public class KafkaConsumer {
         for(ConsumerRecord<String, String> record:consumerRecord){
             // System.out.println(record.value());
 
-            log.debug(record.value());
+            //log.debug(record.value());
             DigitMessage digitMessage = JSON.parseObject(record.value(), DigitMessage.class);
 
             //缓存更新,修改redis写入为channel0

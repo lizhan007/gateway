@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -51,12 +52,12 @@ public class KafkaConsumer {
         for(ConsumerRecord<String, String> item: consumerRecordList){
             DigitMessage digitMessage = JSON.parseObject(item.value(), DigitMessage.class);
             if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
 
             Point.Builder builder = Point.measurement("SIG_DIGIT");
             // builder.time(digitMessage.getTimestamp(),TimeUnit.MILLISECONDS);
-            builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",digitMessage.getValue());
             builder.tag("line", digitMessage.getLineTag());
             builder.tag("region",digitMessage.getRegionTag());
@@ -65,7 +66,7 @@ public class KafkaConsumer {
             builder.tag("pointcode",digitMessage.getPointcodeTag());
             Point point = builder.build();
 
-            DataCache.addPoint(DataCache.SIG_TYPE, digitMessage);
+            DataCache.addPoint(DataCache.SIG_TYPE, JSON.toJSONString(digitMessage));
 
             batchPoints.point(point);
         }
@@ -85,11 +86,11 @@ public class KafkaConsumer {
             EnumMessage enumMessage = JSON.parseObject(item.value(), EnumMessage.class);
 
             if(enumMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
             Point.Builder builder = Point.measurement("SIG_ENUM");
             // builder.time(enumMessage.getTimestamp(),TimeUnit.MILLISECONDS);
-            builder.time(enumMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",enumMessage.getValue());
             builder.tag("line", enumMessage.getLineTag());
             builder.tag("region",enumMessage.getRegionTag());
@@ -115,12 +116,12 @@ public class KafkaConsumer {
             AnalogMessage analogMessage = JSON.parseObject(item.value(), AnalogMessage.class);
 
             if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
 
             Point.Builder builder = Point.measurement("SIG_ANALOG");
             // builder.time(analogMessage.getTimestamp(),TimeUnit.MILLISECONDS);
-            builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",analogMessage.getValue());
             builder.tag("line", analogMessage.getLineTag());
             builder.tag("region",analogMessage.getRegionTag());
@@ -150,11 +151,11 @@ public class KafkaConsumer {
             DigitMessage digitMessage = JSON.parseObject(item.value(),DigitMessage.class);
 
             if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
 
             Point.Builder builder = Point.measurement("TRAIN_DIGIT");
-            builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",digitMessage.getValue());
             builder.tag("line", digitMessage.getLineTag());
             builder.tag("srcId",digitMessage.getSrcIdTag());
@@ -162,7 +163,7 @@ public class KafkaConsumer {
             builder.tag("pointcode",digitMessage.getPointcodeTag());
             Point point = builder.build();
 
-            DataCache.addPoint(DataCache.TRAIN_TYPE, digitMessage);
+            DataCache.addPoint(DataCache.TRAIN_TYPE, JSON.toJSONString(digitMessage));
             batchPoints.point(point);
         }
 
@@ -184,11 +185,11 @@ public class KafkaConsumer {
             AnalogMessage analogMessage = JSON.parseObject(item.value(), AnalogMessage.class);
 
             if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
 
             Point.Builder builder = Point.measurement("TRAIN_ANALOG");
-            builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",analogMessage.getValue());
             builder.tag("line", analogMessage.getLineTag());
             builder.tag("srcId",analogMessage.getSrcIdTag());
@@ -215,11 +216,11 @@ public class KafkaConsumer {
             DigitMessage digitMessage = JSON.parseObject(item.value(),DigitMessage.class);
 
             if(digitMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
 
             Point.Builder builder = Point.measurement("BAS_DIGIT");
-            builder.time(digitMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",digitMessage.getValue());
             builder.tag("line", digitMessage.getLineTag());
             builder.tag("region",digitMessage.getRegionTag());
@@ -228,8 +229,9 @@ public class KafkaConsumer {
             builder.tag("pointcode",digitMessage.getPointcodeTag());
             Point point = builder.build();
 
-            DataCache.addPoint(DataCache.SCSI_TYPE, digitMessage);
+            DataCache.addPoint(DataCache.SCSI_TYPE, JSON.toJSONString(digitMessage));
             batchPoints.point(point);
+
         }
 
         BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(batchPoints);
@@ -251,11 +253,11 @@ public class KafkaConsumer {
             AnalogMessage analogMessage = JSON.parseObject(item.value(), AnalogMessage.class);
 
             if(analogMessage.getMsgType().equals(KafkaConstant.MSG_TYPE_NOTE)){
-                return;
+                continue;
             }
 
             Point.Builder builder = Point.measurement("BAS_ANALOG");
-            builder.time(analogMessage.getTimestamp(),TimeUnit.SECONDS);
+            builder.time(new Date().getTime()/1000,TimeUnit.SECONDS);
             builder.addField("value",analogMessage.getValue());
             builder.tag("line", analogMessage.getLineTag());
             builder.tag("region",analogMessage.getRegionTag());
@@ -267,7 +269,7 @@ public class KafkaConsumer {
 
         }
 
-        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w").write(batchPoints);
+        BasInfluxDB.setDatabase("BAS").setRetentionPolicy("52w"). write(batchPoints);
     }
 
 }

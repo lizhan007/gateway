@@ -292,7 +292,7 @@ public class SignalController {
             }
         }
 
-        kafkaService.sendEnumMessage(JSON.toJSONString(notification));
+        kafkaService.sendAnalogMessage(JSON.toJSONString(notification));
 
         response.setCode(Response.SUCCESS_CODE);
         response.setSuccess(true);

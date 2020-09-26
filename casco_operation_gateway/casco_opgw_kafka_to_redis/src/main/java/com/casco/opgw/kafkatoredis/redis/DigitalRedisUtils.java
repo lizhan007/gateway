@@ -64,9 +64,14 @@ public class DigitalRedisUtils {
             @Override
             public Object doInRedis(RedisConnection connection) throws DataAccessException {
                 connection.openPipeline();
+
+                if(maps.size() == 0 || null == maps){
+                    return null;
+                }
+
                 connection.mSet(maps);
                 for(byte[] key:maps.keySet()){
-                    connection.expire(key,EXPIRE_TIME_MINITES*60);
+                    connection.expire(key,EXPIRE_TIME_MINITES*3600);
                 }
                 connection.closePipeline();
                 return null;

@@ -51,7 +51,7 @@ public class ModbusConfig {
         return master;
     }
 
-    @Bean(name="SlaveNode")
+    //@Bean(name="SlaveNode")
     public ModbusMaster initSlaveNode() throws UnknownHostException, ModbusIOException{
         TcpParameters tcpParameters = new TcpParameters();
 

@@ -27,7 +27,7 @@ public class InitTimerTask implements CommandLineRunner {
         scheduler.start();
 
 
-        log.info("start master timer");
+        log.error("start master timer");
         JobKey masterJobKey         = new JobKey("master" , "master");
         JobDetail masterJobDetail   = JobBuilder.newJob(MasterJob.class).withIdentity(masterJobKey).build();
         Trigger masterTrigger = TriggerBuilder.newTrigger()

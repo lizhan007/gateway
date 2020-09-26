@@ -33,7 +33,7 @@ public class AlarmStoreTask implements Runnable{
 
         analogRedisUtils = BeanPorvider.getApplicationContext().getBean(AnalogRedisUtils.class);
 
-        KafkaConsumer.initAdsAlarmCount();
+        //KafkaConsumer.initAdsAlarmCount();
 
         SysAlarmTable sysAlarmTable = new SysAlarmTable();
 
@@ -41,23 +41,24 @@ public class AlarmStoreTask implements Runnable{
 
         SysAlarmTable message = sysAlarmTableMapper.selectById(sysAlarmTable.getArmUuid());
 
-        if(message!=null){
-            if(sysAlarmTable.getArmLevel()==1||sysAlarmTable.getArmLevel()==2){
+
+        if(message != null){
+/*            if(sysAlarmTable.getArmLevel()==1||sysAlarmTable.getArmLevel()==2){
                 KafkaConsumer.adsAlarmCountTable.setAlarmCount(KafkaConsumer.adsAlarmCountTable.getAlarmCount()-1);
                 analogRedisUtils.set("alarm_count",String.valueOf(KafkaConsumer.adsAlarmCountTable.getAlarmCount()));
             }else{
                 KafkaConsumer.adsAlarmCountTable.setEarlyAlarmCount(KafkaConsumer.adsAlarmCountTable.getEarlyAlarmCount()-1);
                 analogRedisUtils.set("early_alarm_count",String.valueOf(KafkaConsumer.adsAlarmCountTable.getEarlyAlarmCount()));
-            }
+            }*/
             sysAlarmTableMapper.updateById(sysAlarmTable);
         }else{
-            if(sysAlarmTable.getArmLevel()==1||sysAlarmTable.getArmLevel()==2){
+/*            if(sysAlarmTable.getArmLevel()==1||sysAlarmTable.getArmLevel()==2){
                 KafkaConsumer.adsAlarmCountTable.setAlarmCount(KafkaConsumer.adsAlarmCountTable.getAlarmCount()+1);
                 analogRedisUtils.set("alarm_count",String.valueOf(KafkaConsumer.adsAlarmCountTable.getAlarmCount()));
             }else{
                 KafkaConsumer.adsAlarmCountTable.setEarlyAlarmCount(KafkaConsumer.adsAlarmCountTable.getEarlyAlarmCount()+1);
                 analogRedisUtils.set("early_alarm_count",String.valueOf(KafkaConsumer.adsAlarmCountTable.getEarlyAlarmCount()));
-            }
+            }*/
             sysAlarmTableMapper.insert(sysAlarmTable);
         }
         message = null;

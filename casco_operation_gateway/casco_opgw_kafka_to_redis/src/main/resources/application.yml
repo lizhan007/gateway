@@ -1,12 +1,12 @@
 server:
-  port: 6011
+  port: 16011
 
 spring:
   application:
     name: casco_opgw_kafka_to_redis
 
   redis:
-    host: 192.168.1.104
+    host: 10.153.102.2
     password: casco123
     port: 6379
     timeout: 1000s
@@ -16,11 +16,11 @@ spring:
         min-idle: 50
         max-wait: -1
         max-active: -1
-    expire: 5
+    expire: 500
 
 
   kafka:
-    bootstrap-servers: 192.168.1.101:9092,192.168.1.102:9092
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.1:9092,10.153.102.1:9092
     listener:
       type: batch
     producer:
@@ -33,7 +33,7 @@ spring:
         linger.ms: 1
 
     consumer:
-      max-poll-records: 100
+      max-poll-records: 2000
       enable-auto-commit: false
       auto-commit-interval: 100ms
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

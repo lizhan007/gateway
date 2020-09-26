@@ -72,6 +72,9 @@ public class DetailDataController {
                 }else if((long)datalist.get(i).get("DATA_TYPE") == 1){
                     String value = analogRedisUtils.get(datalist.get(i).get("KEY_ID").toString());
                     datalist.get(i).put("value", value);
+                }else if((long)datalist.get(i).get("DATA_TYPE") == 8){
+                    String value = enumRedisUtils.get(datalist.get(i).get("KEY_ID").toString());
+                    datalist.get(i).put("value", value);
                 }
             }
 
