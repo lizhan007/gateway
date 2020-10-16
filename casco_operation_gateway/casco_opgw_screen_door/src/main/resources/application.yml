@@ -26,6 +26,6 @@ spring:
         session.timeout.ms: 15000
 
 kafka:
-  casco_opgw_signal_analog_topic: casco_opgw_signal_analog
-  casco_opgw_signal_alarm_topic: casco_opgw_signal_alarm
+  casco_opgw_signal_analog_topic: casco_opgw_screendoor_analog
+  casco_opgw_signal_alarm_topic: casco_opgw_screndoor_alarm
 
