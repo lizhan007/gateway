@@ -1,0 +1,29 @@
+server:
+  port: 5001
+spring:
+  application:
+    name: casco_opgw_cctv
+
+  kafka:
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
+
+    producer:
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 1
+
+    consumer:
+      max-poll-records: 100
+      enable-auto-commit: false
+      auto-commit-interval: 100ms
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        session.timeout.ms: 15000
+
+kafka:
+  casco_opgw_signal_alarm_topic: casco_opgw_cctv_alarm
