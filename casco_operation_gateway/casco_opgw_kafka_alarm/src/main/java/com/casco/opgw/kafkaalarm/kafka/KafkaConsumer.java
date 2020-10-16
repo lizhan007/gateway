@@ -106,4 +106,15 @@ public class KafkaConsumer {
 
         poolTaskExecutor.submit(new AlarmStoreTask(alarmMessage));
     }
+
+    @KafkaListener(topics = "casco_opgw_cctv_alarm", groupId = "casco_opgw_kafka_alarm")
+    public void recvCCTVAlarmMsg(ConsumerRecord<String, String> consumerRecord){
+
+        AlarmMessage alarmMessage = JSON.parseObject(consumerRecord.value(), AlarmMessage.class);
+
+        //1. 时间戳
+        //2. uuid 主键 restoretime
+
+        poolTaskExecutor.submit(new AlarmStoreTask(alarmMessage));
+    }
 }
