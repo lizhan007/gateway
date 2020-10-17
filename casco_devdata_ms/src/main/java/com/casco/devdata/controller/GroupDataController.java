@@ -92,13 +92,13 @@ public class GroupDataController {
         }
 
         if(eres == null || eres.size() == 0){
-            for(int i=0;i<dKeys.size();i++){
+            for(int i=0;i<eKeys.size();i++){
                 eres.add("");
             }
         }
 
         if(ares == null || ares.size() == 0){
-            for(int i=0;i<dKeys.size();i++){
+            for(int i=0;i<aKeys.size();i++){
                 ares.add("");
             }
         }
@@ -120,12 +120,14 @@ public class GroupDataController {
                 for(int i = 0; i < dKeys.size(); i++){
                     if(KeyId.equals(dKeys.get(i))){
                         map.get(DevId).add(dres.get(i));
+                        //map.get(DevId).add(KeyId);
                         break;
                     }
                 }
             }else if(DataType == 4){
                 for(int i = 0; i < eKeys.size(); i++){
                     if(KeyId.equals(eKeys.get(i))){
+                        //map.get(DevId).add(KeyId);
                         map.get(DevId).add(changeEnumvalue(list, String.valueOf(CollectionId), eres.get(i)));
                         break;
                     }
@@ -133,6 +135,7 @@ public class GroupDataController {
             }else if(DataType == 1){
                 for(int i = 0; i < aKeys.size(); i++){
                     if(KeyId.equals(aKeys.get(i))){
+                        //map.get(DevId).add(KeyId);
                         //map.get(vo.getDevId()).add(ares.get(i));
                         map.get(DevId).add(changeAnalogValue(unitList, aKeys.get(i), ares.get(i)));
                         break;
