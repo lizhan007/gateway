@@ -6,8 +6,8 @@ spring:
     name: casco_devdata_ms
 
 #  redis:
-#     host: 172.30.81.85
-#     password: casco123
+#     host: 127.0.0.1
+#     password: test
 #     port: 6379
 #     timeout: 1000s
 #     jedis:
@@ -30,9 +30,9 @@ spring:
 
   datasource:
     name: casco
-#    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/casco_zhgs?useUnicode=true&characterEncoding=UTF8
+#    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8
 #    username: root
-#    password: 123456
+#    password: root
     url: jdbc:mysql://${MYSQL_HOST:10.153.102.3}:${MYSQL_PORT:3306}/casco_zhgs?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF8
     username: root
     password: Casco@123
