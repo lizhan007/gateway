@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.casco.opgw.cctv.dto.Response;
 import com.casco.opgw.cctv.dto.alarm.AlarmDataDto;
 import com.casco.opgw.cctv.dto.alarm.AlarmDataItemDto;
+import com.casco.opgw.cctv.dto.alarm.CCTVDataDto;
+import com.casco.opgw.cctv.dto.alarm.CCTVDataItemDto;
 import com.casco.opgw.cctv.kafka.KafkaService;
 import com.casco.opgw.com.message.AlarmMessage;
+import com.casco.opgw.com.message.DigitMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -25,11 +29,11 @@ public class CCTVController {
     @Autowired
     private KafkaService kafkaService;
 
-    @RequestMapping(value = "/alarmdata", method = RequestMethod.POST)
+    @RequestMapping(value = "/alarm", method = RequestMethod.POST)
     @ResponseBody
     public Response recvEnumData(@RequestBody AlarmDataDto alarmDataDto){
         Response response = new Response();
-
+        log.info(alarmDataDto.toString());
         for(AlarmDataItemDto item: alarmDataDto.getAlarmdata()){
 
             //取消使用signal包下AlarmMessage类,使用message包下的AlarmMessage
@@ -41,9 +45,9 @@ public class CCTVController {
             alarmMessage.setArmSource(item.getSource());
             alarmMessage.setArmHappenTime(LocalDateTime.ofEpochSecond(Long.parseLong(item.getHappentime()),0, ZoneOffset.ofHours(8)));
             alarmMessage.setArmRestoreTime(LocalDateTime.ofEpochSecond(Long.parseLong(item.getRestoretime()),0, ZoneOffset.ofHours(8)));
-            alarmMessage.setArmEquTypecode(Float.parseFloat(item.getEqutypecode()));
+//            alarmMessage.setArmEquTypecode(Float.parseFloat(item.getEqutypecode()));
             alarmMessage.setArmContent(item.getContent());
-            alarmMessage.setArmCode(Float.parseFloat(item.getCode()));
+            //alarmMessage.setArmCode(Float.parseFloat(item.getCode()));
             alarmMessage.setArmLevel(Float.parseFloat(item.getLevel()));
             alarmMessage.setArmIsMaintain(Float.parseFloat(item.getIsmaintain()));
             alarmMessage.setArmEquCode(item.getEqucode());
@@ -60,5 +64,26 @@ public class CCTVController {
 
         return  response;
 
+    }
+
+    @RequestMapping(value = "/data", method = RequestMethod.POST)
+    @ResponseBody
+    public Response recvCCTVData(@RequestBody CCTVDataDto cctvDataDto){
+        log.info(cctvDataDto.toString());
+        Response response = new Response();
+
+        for(CCTVDataItemDto item: cctvDataDto.getData()){
+            DigitMessage  message = new DigitMessage();
+            message.setValue(Integer.valueOf(item.getDatavalue()));
+            message.setMajor(item.getCodename());
+            message.setMsgType(cctvDataDto.getType());
+            message.setTypeTag(item.getNumber());
+            //message.setTimestamp( System.currentTimeMillis());
+            kafkaService.sendAlarmMessage(JSON.toJSONString(message));
+
+        }
+        response.setCode(Response.SUCCESS_CODE);
+        response.setSuccess(true);
+        return response;
     }
 }
