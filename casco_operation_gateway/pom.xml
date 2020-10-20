@@ -21,6 +21,7 @@
         <module>casco_operation_portal</module>
         <module>casco_opgw_kafka_alarm_combine</module>
         <module>casco_opgw_cctv</module>
+        <module>casco_opgw_screen_door</module>
     </modules>
 
     <parent>
