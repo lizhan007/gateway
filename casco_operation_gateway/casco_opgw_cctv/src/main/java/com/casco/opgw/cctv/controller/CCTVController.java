@@ -4,11 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.casco.opgw.cctv.dto.Response;
 import com.casco.opgw.cctv.dto.alarm.AlarmDataDto;
 import com.casco.opgw.cctv.dto.alarm.AlarmDataItemDto;
-import com.casco.opgw.cctv.dto.alarm.CCTVDataDto;
-import com.casco.opgw.cctv.dto.alarm.CCTVDataItemDto;
+import com.casco.opgw.cctv.dto.alarm.CCTVStateDto;
 import com.casco.opgw.cctv.kafka.KafkaService;
 import com.casco.opgw.com.message.AlarmMessage;
-import com.casco.opgw.com.message.DigitMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -62,26 +59,16 @@ public class CCTVController {
         response.setCode(Response.SUCCESS_CODE);
         response.setSuccess(true);
 
-        return  response;
+        return response;
 
     }
 
-    @RequestMapping(value = "/data", method = RequestMethod.POST)
+    @RequestMapping(value = "/state", method = RequestMethod.POST)
     @ResponseBody
-    public Response recvCCTVData(@RequestBody CCTVDataDto cctvDataDto){
-        log.info(cctvDataDto.toString());
+    public Response recvStateData(@RequestBody CCTVStateDto cctvStateDto) {
         Response response = new Response();
-
-        for(CCTVDataItemDto item: cctvDataDto.getData()){
-            DigitMessage  message = new DigitMessage();
-            message.setValue(Integer.valueOf(item.getDatavalue()));
-            message.setMajor(item.getCodename());
-            message.setMsgType(cctvDataDto.getType());
-            message.setTypeTag(item.getNumber());
-            //message.setTimestamp( System.currentTimeMillis());
-            kafkaService.sendAlarmMessage(JSON.toJSONString(message));
-
-        }
+        //待kafka接收端完成后 修改为接收端格式数据
+        kafkaService.sendStateMessage(JSON.toJSONString(cctvStateDto));
         response.setCode(Response.SUCCESS_CODE);
         response.setSuccess(true);
         return response;

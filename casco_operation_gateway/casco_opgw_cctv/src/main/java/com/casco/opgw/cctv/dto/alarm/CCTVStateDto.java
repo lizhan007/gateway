@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CCTVDataDto {
+public class CCTVStateDto {
     private String type;
-    private List<CCTVDataItemDto> data;
+    private List<CCTVStateItemDto> data;
 }

@@ -26,4 +26,5 @@ spring:
         session.timeout.ms: 15000
 
 kafka:
-  casco_opgw_signal_alarm_topic: casco_opgw_cctv_alarm
+  casco_opgw_cctv_alarm_topic: casco_opgw_cctv_alarm
+  casco_opgw_cctv_state_topic: casco_opgw_cctv_state

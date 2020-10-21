@@ -3,7 +3,7 @@ package com.casco.opgw.cctv.dto.alarm;
 import lombok.Data;
 
 @Data
-public class CCTVDataItemDto {
+public class CCTVStateItemDto {
     private String codename;
     private String datavalue;
     private String isTable;

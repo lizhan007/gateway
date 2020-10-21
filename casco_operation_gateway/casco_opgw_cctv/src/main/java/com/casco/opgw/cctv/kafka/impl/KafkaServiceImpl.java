@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaServiceImpl implements KafkaService {
 
-    @Value("${kafka.casco_opgw_signal_alarm_topic}")
-    private String casco_opgw_signal_alarm_topic;
+    @Value("${kafka.casco_opgw_cctv_alarm_topic}")
+    private String casco_opgw_cctv_alarm_topic;
+    @Value("${kafka.casco_opgw_cctv_state_topic}")
+    private String casco_opgw_cctv_state_topic;
 
 
     @Autowired
@@ -21,6 +23,11 @@ public class KafkaServiceImpl implements KafkaService {
 
     @Override
     public void sendAlarmMessage(String data) {
-        kafkaTemplate.send(casco_opgw_signal_alarm_topic, data);
+        kafkaTemplate.send(casco_opgw_cctv_alarm_topic, data);
+    }
+
+    @Override
+    public void sendStateMessage(String data) {
+        kafkaTemplate.send(casco_opgw_cctv_state_topic, data);
     }
 }
