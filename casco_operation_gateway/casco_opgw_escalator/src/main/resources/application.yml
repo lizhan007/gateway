@@ -1,0 +1,37 @@
+server:
+  port: 8001
+spring:
+  application:
+    name: casco_opgw_escalator
+
+  kafka:
+    bootstrap-servers: 10.153.102.1:9092,10.153.102.2:9092
+
+    producer:
+      retries: 0
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 1
+
+    consumer:
+      max-poll-records: 100
+      enable-auto-commit: false
+      auto-commit-interval: 100ms
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        session.timeout.ms: 15000
+
+kafka:
+  casco_opgw_escalator_digit_topic: casco_opgw_escalator_digit
+  casco_opgw_escalator_analog_topic: casco_opgw_escalator_analog
+
+ice:
+  service_name: ssip_publisher
+  service_endpoint: tcp -h 172.25.114.51 -p 12000
+  adapter_name: observer
+  adapter_endpoint: tcp -h 10.153.102.3 -p 10000
+

@@ -22,6 +22,7 @@
         <module>casco_opgw_kafka_alarm_combine</module>
         <module>casco_opgw_cctv</module>
         <module>casco_opgw_screen_door</module>
+        <module>casco_opgw_escalator</module>
     </modules>
 
     <parent>
