@@ -93,7 +93,7 @@
                     <artifactId>gson</artifactId>
                 </exclusion>
             </exclusions>
-            <version>2.7.3</version>
+            <version>3.2.3</version>
         </dependency>
     </dependencies>
 
